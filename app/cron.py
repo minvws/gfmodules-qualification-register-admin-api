@@ -2,9 +2,9 @@ import argparse
 import logging
 from typing import Protocol, Any
 
-import inject
+from app import fastapi_application
 
-import application
+import inject
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ CRON_COMMANDS: dict[str, CronCommand] = {}
 
 
 def main() -> None:
-    application.application_init()
+    fastapi_application.application_init()
 
     parser = argparse.ArgumentParser(description="Cron command line interface")
     subparser = parser.add_subparsers(

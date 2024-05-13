@@ -4,7 +4,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
 from app.db.db_session import DbSession
-from app.db.models import Base
+from app.db.entities.base import Base
+from app.db.repository.repository_base import TRepositoryBase
 
 logger = logging.getLogger(__name__)
 
@@ -35,5 +36,5 @@ class Database:
             logger.info("Database is not healthy: %s", e)
             return False
 
-    def get_db_session(self) -> DbSession:
-        return DbSession(self.engine)
+    def get_db_session(self) -> DbSession[TRepositoryBase]:
+        return DbSession[TRepositoryBase](self.engine)

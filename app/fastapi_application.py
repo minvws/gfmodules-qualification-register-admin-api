@@ -7,7 +7,10 @@ import uvicorn
 
 from app.routers.default import router as default_router
 from app.routers.health import router as health_router
-from app.routers.example import router as example_router
+from app.routers.administration.vendors_router import router as vendors_router
+from app.routers.administration.applications_router import router as applications_router
+
+from app.routers.administration.roles_router import router as roles_router
 from app.config import get_config
 
 
@@ -20,17 +23,23 @@ def get_uvicorn_params() -> dict[str, Any]:
         "reload": config.uvicorn.reload,
     }
     if config.uvicorn.use_ssl:
-        kwargs["ssl_keyfile"] = (
-            config.uvicorn.ssl_base_dir + "/" + config.uvicorn.ssl_key_file
-        )
-        kwargs["ssl_certfile"] = (
-            config.uvicorn.ssl_base_dir + "/" + config.uvicorn.ssl_cert_file
-        )
-    return kwargs
+        if (
+            config.uvicorn.ssl_base_dir
+            and config.uvicorn.ssl_cert_file
+            and config.uvicorn.ssl_key_file
+        ):
+            kwargs["ssl_keyfile"] = (
+                config.uvicorn.ssl_base_dir + "/" + config.uvicorn.ssl_key_file
+            )
+            kwargs["ssl_certfile"] = (
+                config.uvicorn.ssl_base_dir + "/" + config.uvicorn.ssl_cert_file
+            )
+        return kwargs
+    raise RuntimeError
 
 
 def run() -> None:
-    uvicorn.run("application:create_fastapi_app", **get_uvicorn_params())
+    uvicorn.run("fastapi_application:create_fastapi_app", **get_uvicorn_params())
 
 
 def create_fastapi_app() -> FastAPI:
@@ -64,7 +73,13 @@ def setup_fastapi() -> FastAPI:
         else FastAPI(docs_url=None, redoc_url=None)
     )
 
-    routers = [default_router, health_router, example_router]
+    routers = [
+        default_router,
+        health_router,
+        vendors_router,
+        applications_router,
+        roles_router,
+    ]
     for router in routers:
         fastapi.include_router(router)
 
