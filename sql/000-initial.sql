@@ -1,5 +1,5 @@
 --- Create web user qualificaiton
-CREATE ROLE qualificaton;
+CREATE ROLE qualification;
 ALTER ROLE qualificaton WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS ;
 
 --- Create DBA role
