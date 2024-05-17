@@ -14,5 +14,5 @@ CREATE TABLE deploy_releases
 
 ALTER TABLE deploy_releases OWNER TO qualification_dba;
 
-GRANT SELECT ON deploy_releases TO qualificaton;;
+GRANT SELECT ON deploy_releases TO qualification;
 
