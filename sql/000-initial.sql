@@ -12,7 +12,7 @@ CREATE TABLE deploy_releases
         deployed_at timestamp default now()
 );
 
-ALTER TABLE deploy_releases OWNER TO qualificaton_dba;
+ALTER TABLE deploy_releases OWNER TO qualification_dba;
 
 GRANT SELECT ON deploy_releases TO qualificaton;;
 
