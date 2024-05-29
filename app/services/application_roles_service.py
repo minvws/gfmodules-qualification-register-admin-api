@@ -1,89 +1,105 @@
+from typing import List
 from uuid import UUID
 
-from app.db.entities.models import Application, Role, ApplicationRole
+from app.db.entities.application import Application
+from app.db.entities.application_role import ApplicationRole
+from app.db.entities.role import Role
+from app.db.repository.applications_repository import ApplicationsRepository
+from app.db.repository.roles_repository import RolesRepository
+from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
     RoleNotFoundException,
     RoleExistInApplicationException,
-    RoleNotInApplicationException,
+    ApplicationRoleDeleteException,
 )
 from app.factory.application_roles_factory import ApplicationRolesFactory
+from app.helpers.validators import validate_list_for_removal
 from app.services.application_service import ApplicationService
 from app.services.roles_service import RolesService
 
 
 class ApplicationRolesService:
     def __init__(
-        self, roles_service: RolesService, application_service: ApplicationService
+        self,
+        roles_service: RolesService,
+        application_service: ApplicationService,
+        db_session_factory: DbSessionFactory,
     ) -> None:
         self.roles_service = roles_service
         self.application_service = application_service
+        self.db_session_factory = db_session_factory
 
     def assign_role_to_application(
         self, application_id: UUID, role_id: UUID
     ) -> Application:
-        application_repository = self.application_service.get_applications_repository()
-        role_repository = self.roles_service.get_roles_repository()
-
-        application = application_repository.find_one(id=application_id)
-        if application is None:
-            raise ApplicationNotFoundException()
-
-        role = role_repository.find_one(id=role_id)
-        if role is None:
-            raise RoleNotFoundException()
-
-        role_in_application = self._validate_if_role_exists_in_application(
-            application, role
+        db_session = self.db_session_factory.create()
+        application_repository: ApplicationsRepository = db_session.get_repository(
+            Application
         )
-        if role_in_application:
-            raise RoleExistInApplicationException()
+        role_repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+        with session:
+            application = application_repository.find_one(id=application_id)
+            if application is None:
+                raise ApplicationNotFoundException()
 
-        new_role = application_repository.session.merge(role)
-        application_role = ApplicationRolesFactory.create_instance()
-        application_role.role = new_role
-        application.roles.append(application_role)
-        application_repository.update(application)
+            role = role_repository.find_one(id=role_id)
+            if role is None:
+                raise RoleNotFoundException()
 
-        return application
+            for app_role in application.roles:
+                if app_role.role_id == role_id:
+                    raise RoleExistInApplicationException()
 
-    def remove_role_from_application(
+            new_application_role = ApplicationRolesFactory.create_instance()
+            new_application_role.role = role
+            new_application_role.application = application
+
+            application.roles.append(new_application_role)
+            role.applications.append(new_application_role)
+
+            session.add(application)
+            session.commit()
+            session.refresh(application)
+
+            return application
+
+    def unassign_role_from_application(
         self, application_id: UUID, role_id: UUID
     ) -> Application:
-        application_repository = self.application_service.get_applications_repository()
-        role_repository = self.roles_service.get_roles_repository()
-
-        application = application_repository.find_one(id=application_id)
-        if application is None:
-            raise ApplicationNotFoundException()
-
-        role = role_repository.find_one(id=role_id)
-        if role is None:
-            raise RoleNotFoundException()
-
-        role_exist_in_application = self._validate_if_role_exists_in_application(
-            application, role
+        db_session = self.db_session_factory.create()
+        application_repository: ApplicationsRepository = db_session.get_repository(
+            Application
         )
-        if not role_exist_in_application:
-            raise RoleNotInApplicationException()
+        role_repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+        with session:
+            application = application_repository.find_one(id=application_id)
+            if application is None:
+                raise ApplicationNotFoundException()
 
-        target_role = self._get_role_from_app(application, role)
-        application.roles.remove(target_role)
-        application_repository.update(application)
+            app_role_valid_for_delete = validate_list_for_removal(application.roles)
+            if not app_role_valid_for_delete:
+                raise ApplicationRoleDeleteException()
 
-        return application
+            role = role_repository.find_one(id=role_id)
+            if role is None:
+                raise RoleNotFoundException()
 
-    @staticmethod
-    def _validate_if_role_exists_in_application(
-        application: Application, role: Role
-    ) -> bool:
-        return str(role.id) in [str(role.role_id) for role in application.roles]
+            for app_role in application.roles:
+                if (
+                    app_role.role_id == role.id
+                    and app_role.application_id == application_id
+                ):
+                    application.roles.remove(app_role)
+                    role.applications.remove(app_role)
+                    session.commit()
+                    session.refresh(application)
+                    break
 
-    @staticmethod
-    def _get_role_from_app(application: Application, role: Role) -> ApplicationRole:
-        for app_role in application.roles:
-            print(role.id)
-            if str(role.id) == str(app_role.role_id):
-                return app_role
+            return application
 
-        raise RoleNotFoundException()
+    def get_application_roles(self, application_id: UUID) -> List[ApplicationRole]:
+        application = self.application_service.get_one_application_by_id(application_id)
+        return application.roles

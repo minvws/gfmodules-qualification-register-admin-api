@@ -1,4 +1,4 @@
-from app.db.entities.models import Vendor
+from app.db.entities.vendor import Vendor
 
 
 class VendorFactory:

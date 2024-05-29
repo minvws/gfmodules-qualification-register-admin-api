@@ -1,38 +1,42 @@
-from app.db.entities.models import (
-    Application,
-    ApplicationVersion,
-    ApplicationRole,
-    ApplicationType,
-)
+from app.db.entities.application import Application
+from app.db.entities.application_version import ApplicationVersion
+from app.db.entities.application_role import ApplicationRole
+from app.db.entities.application_type import ApplicationType
 from app.schemas.application.schema import (
     ApplicationDTO,
-    VersionInApplicationDTO,
-    RoleInApplicationDTO,
+    ApplicationVersionDTO,
+    ApplicationRoleDTO,
     SystemTypeInApplicationDTO,
 )
 
 
+def map_application_version_entity_to_dto(
+    version: ApplicationVersion,
+) -> ApplicationVersionDTO:
+    return ApplicationVersionDTO(version_id=version.id, version=version.version)
+
+
+def map_application_roles_entity_to_dto(
+    app_role: ApplicationRole,
+) -> ApplicationRoleDTO:
+    return ApplicationRoleDTO(
+        id=app_role.role_id,
+        name=app_role.role.name,
+        description=app_role.role.description,
+    )
+
+
+def map_application_system_type_entity_to_dto(
+    app_type: ApplicationType,
+) -> SystemTypeInApplicationDTO:
+    return SystemTypeInApplicationDTO(
+        id=app_type.system_type.id,
+        name=app_type.system_type.name,
+        description=app_type.system_type.description,
+    )
+
+
 def map_application_entity_to_dto(application: Application) -> ApplicationDTO:
-    def map_application_version_entity_to_dto(
-        version: ApplicationVersion,
-    ) -> VersionInApplicationDTO:
-        return VersionInApplicationDTO(version_id=version.id, version=version.version)
-
-    def map_application_roles_entity_to_dto(
-        app_role: ApplicationRole,
-    ) -> RoleInApplicationDTO:
-        return RoleInApplicationDTO(
-            role_id=app_role.role_id,
-            name=app_role.role.name,
-            description=app_role.role.description,
-        )
-
-    def map_application_system_type_entity_to_dto(
-        app_type: ApplicationType,
-    ) -> SystemTypeInApplicationDTO:
-        return SystemTypeInApplicationDTO(
-            name=app_type.system_type.name, description=app_type.system_type.description
-        )
 
     versions = [
         map_application_version_entity_to_dto(version)

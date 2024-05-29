@@ -12,7 +12,7 @@ services:
         ports:
             - 8506:8506
         networks:
-            - zmodules
+            - gfmodules-qualification
 
     qualification_db:
         image: postgres:14
@@ -23,8 +23,8 @@ services:
         ports:
             -   5406:5432
         networks:
-            - zmodules
+            - gfmodules-qualification
 
 networks:
-  zmodules:
+  gfmodules-qualification:
     driver: bridge

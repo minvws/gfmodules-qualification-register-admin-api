@@ -1,12 +1,12 @@
 import logging
-from typing import Sequence, Dict, Any
+from typing import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy.exc import NoResultFound, DatabaseError
+from sqlalchemy.exc import DatabaseError
 from app.db.decorator import repository
-from app.db.entities.models import Vendor, Application
-from app.db.repository.repository_base import RepositoryBase
+from app.db.entities.vendor import Vendor
+from app.db.repository.repository_base import RepositoryBase, TArgs
 
 logger = logging.getLogger(__name__)
 
@@ -16,20 +16,17 @@ class VendorsRepository(RepositoryBase):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
 
-    def find_one(self, **kwargs: str | Dict[str, Any]) -> Vendor | None:
+    def find_one(self, **kwargs: TArgs) -> Vendor | None:
         try:
             db_vendor = self.session.scalars(
                 select(Vendor)
                 .options(
-                    selectinload(Vendor.applications).selectinload(
-                        Application.versions
-                    ),
-                    selectinload(Vendor.applications).selectinload(Application.roles),
+                    selectinload(Vendor.applications),
                 )
                 .filter_by(**kwargs)
             ).first()
             return db_vendor
-        except NoResultFound as e:
+        except DatabaseError as e:
             logger.error(e)
             return None
 
@@ -37,12 +34,15 @@ class VendorsRepository(RepositoryBase):
         db_vendors = self.session.scalars(select(Vendor)).all()
         return db_vendors
 
-    def create(self, new_vendor: Vendor) -> Vendor:
-        self.session.add(new_vendor)
-        self.session.commit()
-        self.session.refresh(new_vendor)
+    def create(self, new_vendor: Vendor) -> None:
+        try:
+            self.session.add(new_vendor)
+            self.session.commit()
+            self.session.refresh(new_vendor)
 
-        return new_vendor
+        except DatabaseError as e:
+            logger.error(e)
+            self.session.rollback()
 
     def update(self, vendor: Vendor) -> None:
         try:
@@ -52,5 +52,8 @@ class VendorsRepository(RepositoryBase):
             logger.error(e)
 
     def delete(self, vendor: Vendor) -> None:
-        self.session.delete(vendor)
-        self.session.commit()
+        try:
+            self.session.delete(vendor)
+            self.session.commit()
+        except DatabaseError as e:
+            logger.error(e)

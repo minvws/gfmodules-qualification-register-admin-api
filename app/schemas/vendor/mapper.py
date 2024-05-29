@@ -1,10 +1,8 @@
-from app.db.entities.models import (
-    Vendor,
-    Application,
-    ApplicationVersion,
-    ApplicationRole,
-    ApplicationType,
-)
+from app.db.entities.application import Application
+from app.db.entities.application_version import ApplicationVersion
+from app.db.entities.vendor import Vendor
+from app.db.entities.application_role import ApplicationRole
+from app.db.entities.application_type import ApplicationType
 from app.schemas.vendor.schema import (
     VendorDTO,
     VendorApplication,

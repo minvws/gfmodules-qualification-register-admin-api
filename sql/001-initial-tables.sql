@@ -116,7 +116,7 @@ CREATE TRIGGER update_application_versions_modified_at BEFORE UPDATE ON public.a
 CREATE TABLE healthcare_providers (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     ura_code VARCHAR(50) NOT NULL UNIQUE,
-    abg_code VARCHAR(50) NOT NULL UNIQUE,
+    agb_code VARCHAR(50) NOT NULL UNIQUE,
     trade_name VARCHAR(150) NOT NULL,
     statutory_name VARCHAR(150) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),

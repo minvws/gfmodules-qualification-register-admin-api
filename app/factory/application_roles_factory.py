@@ -1,5 +1,4 @@
-
-from app.db.entities.models import ApplicationRole
+from app.db.entities.application_role import ApplicationRole
 
 
 class ApplicationRolesFactory:

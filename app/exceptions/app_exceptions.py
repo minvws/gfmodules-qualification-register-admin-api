@@ -2,12 +2,23 @@ from app.exceptions.http_base_exceptions import (
     NotFoundException,
     ConflictException,
     ServiceUnavailableException,
+    MethodNotAllowedException,
 )
 
 
 class VendorNotFoundException(NotFoundException):
     def __init__(self) -> None:
         super().__init__("Vendor not found")
+
+
+class VendorAlreadyExistsException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Vendor already exists")
+
+
+class VendorCannotBeDeletedException(MethodNotAllowedException):
+    def __init__(self) -> None:
+        super().__init__("Vendor cannot be deleted")
 
 
 class RoleNotFoundException(NotFoundException):
@@ -30,6 +41,25 @@ class ApplicationUpdateException(ServiceUnavailableException):
         super().__init__("Updating application failed, please try again later")
 
 
+class ApplicationRoleNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Cannot assign a non existent role to an application")
+
+
+class ApplicationVersionDeleteException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__(
+            "Cannot delete version, application should at least contain one version"
+        )
+
+
+class ApplicationRoleDeleteException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__(
+            "Cannot delete role, application should at least contain one role"
+        )
+
+
 class RoleAlreadyExistsException(ConflictException):
     def __init__(self) -> None:
         super().__init__("Role already exists")
@@ -40,16 +70,6 @@ class RoleExistInApplicationException(ConflictException):
         super().__init__("Role is already assigned to application")
 
 
-class RoleNotInApplicationException(ConflictException):
+class SystemTypeNotFoundException(NotFoundException):
     def __init__(self) -> None:
-        super().__init__("Role is not assigned to application")
-
-
-class RoleDeleteException(ConflictException):
-    def __init__(self) -> None:
-        super().__init__("Deleting role failed")
-
-
-class RoleDBServiceUnavailableException(ServiceUnavailableException):
-    def __init__(self) -> None:
-        super().__init__("Service is unavailable")
+        super().__init__("System type not found")

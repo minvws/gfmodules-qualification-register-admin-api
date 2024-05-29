@@ -17,6 +17,12 @@ def get_all_roles(service: RolesService = Depends(get_roles_service)) -> List[Ro
     return [map_role_model_to_dto(role) for role in roles]
 
 
+@router.get("/{role_id}")
+def get_one_role(role_id: UUID, service: RolesService = Depends(get_roles_service)) -> RoleDTO:
+    role = service.get_one_role(role_id)
+    return map_role_model_to_dto(role)
+
+
 @router.post("/")
 def create_role(
     data: RoleCreate, service: RolesService = Depends(get_roles_service)

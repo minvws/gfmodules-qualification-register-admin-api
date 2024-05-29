@@ -1,4 +1,4 @@
-from app.db.entities.models import Role
+from app.db.entities.role import Role
 from app.schemas.roles.schema import RoleDTO
 
 

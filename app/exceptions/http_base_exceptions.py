@@ -8,6 +8,11 @@ class NotFoundException(HTTPException):
         super().__init__(status_code=404, detail=detail)
 
 
+class MethodNotAllowedException(HTTPException):
+    def __init__(self, detail: str = "Method Not Allowed"):
+        super().__init__(status_code=405, detail=detail)
+
+
 class ConflictException(HTTPException):
     def __init__(self, detail: str = "Conflict Occurred"):
         super().__init__(status_code=409, detail=detail)

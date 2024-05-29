@@ -1,0 +1,9 @@
+
+security:
+    ignore-cvss-severity-below: 0
+    ignore-cvss-unknown-severity: False
+    ignore-vulnerabilities:
+        67599: # Example vulnerability ID
+            reason: The vulnerability is disputed and only affects use of the --extra-index-url option or a private package is required.
+            expires: '2024-12-31' # datetime string - date this ignore will expire, best practice to use this variable
+    continue-on-vulnerability-error: False

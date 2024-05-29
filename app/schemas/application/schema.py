@@ -4,18 +4,26 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel
 
 
-class VersionInApplicationDTO(BaseModel):
-    version_id: UUID
+class ApplicationVersionBase(BaseModel):
     version: str
 
 
-class RoleInApplicationDTO(BaseModel):
-    role_id: UUID
+class ApplicationVersionCreateDTO(ApplicationVersionBase):
+    pass
+
+
+class ApplicationVersionDTO(ApplicationVersionBase):
+    version_id: UUID
+
+
+class ApplicationRoleDTO(BaseModel):
+    id: UUID
     name: str
     description: str | None = None
 
 
 class SystemTypeInApplicationDTO(BaseModel):
+    id: UUID
     name: str
     description: str | None = None
 
@@ -29,6 +37,6 @@ class ApplicationDTO(ApplicationBase):
     vendor_id: UUID
     vendor_kvk_number: str
     vendor_trade_name: str
-    versions: List[VersionInApplicationDTO] = []
-    roles: List[RoleInApplicationDTO] = []
+    versions: List[ApplicationVersionDTO] = []
+    roles: List[ApplicationRoleDTO] = []
     system_types: List[SystemTypeInApplicationDTO] = []

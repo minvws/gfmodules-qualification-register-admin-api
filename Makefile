@@ -32,7 +32,7 @@ type-check: ## Check for typing errors
 	$(RUN_PREFIX) mypy
 
 safety-check: ## Check for security vulnerabilities
-	$(RUN_PREFIX) safety check --ignore 67599
+	$(RUN_PREFIX) safety check
 
 spelling-check: ## Check spelling mistakes
 	$(RUN_PREFIX) codespell -L selectin .

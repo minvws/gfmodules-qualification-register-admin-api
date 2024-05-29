@@ -1,71 +1,102 @@
-from typing import Sequence
+from typing import Sequence, List
 from uuid import UUID
 
-from app.db.db import Database
-from app.db.db_session import DbSession
-from app.db.entities.models import Role
+from app.db.entities.role import Role
 from app.db.repository.roles_repository import RolesRepository
+from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     RoleAlreadyExistsException,
     RoleNotFoundException,
-    RoleDBServiceUnavailableException,
-    RoleDeleteException,
 )
+from app.helpers.validators import validated_sets_equal
 
 
 class RolesService:
-    def __init__(self, database: Database) -> None:
-        self.database = database
+    def __init__(self, db_session_factory: DbSessionFactory) -> None:
+        self.db_session_factory = db_session_factory
 
     def get_one_role(self, role_id: UUID) -> Role:
-        repository = self.get_roles_repository()
-        role = repository.find_one(id=role_id)
-        if role is None:
-            raise RoleNotFoundException()
+        db_session = self.db_session_factory.create()
+        roles_repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+        with session:
+            role = roles_repository.find_one(id=role_id)
+            if role is None:
+                raise RoleNotFoundException()
 
         return role
 
     def gel_all_roles(self) -> Sequence[Role]:
-        repository = self.get_roles_repository()
-        roles = repository.find_all()
-        if roles is None:
-            raise RoleDBServiceUnavailableException()
+        db_session = self.db_session_factory.create()
+        roles_repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+        with session:
+            roles = roles_repository.find_all()
+            if roles is None:
+                raise RoleNotFoundException()
 
         return roles
 
     def create_role(self, name: str, description: str) -> Role:
-        repository = self.get_roles_repository()
+        db_session = self.db_session_factory.create()
+        roles_repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+        with session:
+            role = roles_repository.find_one(name=name)
+            if role is not None:
+                raise RoleAlreadyExistsException()
 
-        role = Role(name=name, description=description)
-        updated_role = repository.create(role)
-        if updated_role is None:
-            raise RoleAlreadyExistsException()
+            new_role = role = Role(name=name, description=description)
+            session.add(new_role)
+            session.commit()
+            session.refresh(role)
 
-        return updated_role
+        return role
 
     def update_role_description(self, role_id: UUID, description: str) -> Role:
-        repository = self.get_roles_repository()
-        role = repository.find_one(id=role_id)
-        if role is None:
-            raise RoleNotFoundException()
+        db_session = self.db_session_factory.create()
+        roles_repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+        with session:
+            role = roles_repository.find_one(id=role_id)
+            if role is None:
+                raise RoleNotFoundException()
 
-        role.description = description
-        repository.update(role)
+            role.description = description
+            session.add(role)
+            session.commit()
+            session.refresh(role)
 
         return role
 
     def delete_role(self, role_id: UUID) -> Role:
-        repository = self.get_roles_repository()
-        role = repository.find_one(id=role_id)
-        if role is None:
-            raise RoleNotFoundException()
+        db_session = self.db_session_factory.create()
+        roles_repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+        with session:
+            role = roles_repository.find_one(id=role_id)
+            if role is None:
+                raise RoleNotFoundException()
 
-        deleted_role = repository.delete(role)
-        if deleted_role is None:
-            raise RoleDeleteException()
+            session.delete(role)
+            session.commit()
 
-        return deleted_role
+        return role
 
-    def get_roles_repository(self) -> RolesRepository:
-        repository_session = DbSession[RolesRepository](engine=self.database.engine)
-        return repository_session.get_repository(Role)
+    def get_many_roles(self, role_names: List[str]) -> Sequence[Role]:
+        db_session = self.db_session_factory.create()
+        repository: RolesRepository = db_session.get_repository(Role)
+        session = db_session.session
+
+        with session:
+            roles = repository.find_many(role_names)
+            if roles is None:
+                raise RoleNotFoundException()
+
+            valid_roles = validated_sets_equal(
+                role_names, [role.name for role in roles]
+            )
+            if not valid_roles:
+                raise RoleNotFoundException()
+
+        return roles

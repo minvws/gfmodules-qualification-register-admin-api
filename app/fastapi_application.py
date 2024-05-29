@@ -4,12 +4,13 @@ from typing import Any
 
 from fastapi import FastAPI
 import uvicorn
+from starlette.middleware.cors import CORSMiddleware
 
 from app.routers.default import router as default_router
 from app.routers.health import router as health_router
 from app.routers.administration.vendors_router import router as vendors_router
 from app.routers.administration.applications_router import router as applications_router
-
+from app.routers.administration.system_types_router import router as system_types_router
 from app.routers.administration.roles_router import router as roles_router
 from app.config import get_config
 
@@ -34,8 +35,8 @@ def get_uvicorn_params() -> dict[str, Any]:
             kwargs["ssl_certfile"] = (
                 config.uvicorn.ssl_base_dir + "/" + config.uvicorn.ssl_cert_file
             )
-        return kwargs
-    raise RuntimeError
+
+    return kwargs
 
 
 def run() -> None:
@@ -72,13 +73,20 @@ def setup_fastapi() -> FastAPI:
         if config.uvicorn.swagger_enabled
         else FastAPI(docs_url=None, redoc_url=None)
     )
-
+    fastapi.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     routers = [
         default_router,
         health_router,
         vendors_router,
-        applications_router,
         roles_router,
+        system_types_router,
+        applications_router,
     ]
     for router in routers:
         fastapi.include_router(router)

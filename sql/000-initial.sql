@@ -1,4 +1,4 @@
---- Create web user qualificaiton
+--- Create web user qualification
 CREATE ROLE qualification;
 ALTER ROLE qualification WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS ;
 

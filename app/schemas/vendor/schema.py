@@ -3,7 +3,6 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel
 
 
-
 class VendorApplicationVersion(BaseModel):
     version: str
 
@@ -55,3 +54,5 @@ class VendorCreate(VendorBase):
 
 class VendorApplicationCreate(VendorApplicationBase):
     version: str
+    roles: List[str]
+    system_types: List[str]

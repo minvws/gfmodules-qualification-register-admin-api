@@ -1,146 +1,93 @@
 import unittest
 
 from app.db.db import Database
+from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import ApplicationNotFoundException
-from app.factory.application_factory import ApplicationFactory
+from app.factory.vendor_factory import VendorFactory
 from app.services.application_service import ApplicationService
+from app.services.roles_service import RolesService
+from app.services.system_type_service import SystemTypeService
 from app.services.vendor_application_service import VendorApplicationService
 from app.services.vendors_service import VendorService
 
 
-class TestRegisterVendorApplication(unittest.TestCase):
+class TestVendorApplicationService(unittest.TestCase):
     def setUp(self) -> None:
         # setup tables
         self.database = Database("sqlite:///:memory:")
         self.database.generate_tables()
-
-        # setup service
-        self.vendor_service = VendorService(self.database)
-        self.application_service = ApplicationService(self.database)
-        self.vendor_application_service = VendorApplicationService(
-            vendor_service=self.vendor_service,
-            application_service=self.application_service,
-        )
-
         # setup factory
-        self.application_factory = ApplicationFactory()
-
-    def test_register_vendor_application(self) -> None:
-        new_vendor = self.vendor_service.add_one_vendor(
-            kvk_number="123456",
-            trade_name="example vendor",
-            statutory_name="example-vendor",
-        )
-        expected_application = self.application_factory.create_instance(
-            "example-application", "1.0.0"
-        )
-
-        self.vendor_application_service.register_one_application(
-            kvk_number=new_vendor.kvk_number,
-            application_name=expected_application.name,
-            application_version="1.0.0",
-        )
-        actual_application = self.vendor_application_service.get_one_vendor_application(
-            kvk_number=new_vendor.kvk_number,
-            application_name=expected_application.name,
-        )
-
-        self.assertEqual(actual_application.vendor_id, new_vendor.id)
-        self.assertEqual(actual_application.name, actual_application.name)
-
-
-class TestDeregisterVendorApplication(unittest.TestCase):
-    def setUp(self) -> None:
-        # setup tables
-        self.database = Database("sqlite:///:memory:")
-        self.database.generate_tables()
-
+        db_session_factory = DbSessionFactory(engine=self.database.engine)
         # setup service
-        self.vendor_service = VendorService(self.database)
-        self.application_service = ApplicationService(self.database)
+        self.vendor_service = VendorService(db_session_factory=db_session_factory)
+        self.role_service = RolesService(db_session_factory=db_session_factory)
+        self.system_type_service = SystemTypeService(
+            db_session_factory=db_session_factory
+        )
+        self.application_servcice = ApplicationService(
+            role_service=self.role_service,
+            system_type_service=self.system_type_service,
+            db_session_factory=db_session_factory,
+        )
         self.vendor_application_service = VendorApplicationService(
+            application_service=self.application_servcice,
             vendor_service=self.vendor_service,
-            application_service=self.application_service,
+            system_type_service=self.system_type_service,
+            roles_service=self.role_service,
+        )
+        # arrange
+        self.mock_vendor = VendorFactory.create_instance(
+            kvk_number="123456", trade_name="example", statutory_name="example bv"
         )
 
-        # setup factory
-        self.application_factory = ApplicationFactory()
+    def test_get_register_one_vendor_application(self) -> None:
+        vendor = self.vendor_service.add_one_vendor(
+            kvk_number=self.mock_vendor.kvk_number,
+            trade_name=self.mock_vendor.trade_name,
+            statutory_name=self.mock_vendor.statutory_name,
+        )
+        self.role_service.create_role("example_role", "example_role")
+        self.system_type_service.add_one_system_type("example_type", "example_type")
 
-    def test_deregister_one_vendor_application(self) -> None:
-        new_vendor = self.vendor_service.add_one_vendor(
-            kvk_number="123456",
-            trade_name="example vendor",
-            statutory_name="example-vendor",
-        )
-        expected_application = self.application_factory.create_instance(
-            "example-application", "1.0.0"
-        )
-        self.vendor_application_service.register_one_application(
-            kvk_number=new_vendor.kvk_number,
-            application_name=expected_application.name,
+        expected_application = self.vendor_application_service.register_one_app(
+            vendor_id=vendor.id,
+            application_name="example app",
             application_version="1.0.0",
+            system_type_names=["example_type"],
+            role_names=["example_role"],
+        )
+        actual_application = self.application_servcice.get_one_application_by_id(
+            application_id=expected_application.id
         )
 
-        self.vendor_application_service.deregister_one_vendor_application(
-            kvk_number=new_vendor.kvk_number,
-            application_name=expected_application.name,
+        self.assertEqual(expected_application.id, actual_application.id)
+        self.assertEqual(expected_application.vendor_id, actual_application.vendor_id)
+
+    def test_deregister_vendor_applications(self) -> None:
+        vendor = self.vendor_service.add_one_vendor(
+            kvk_number=self.mock_vendor.kvk_number,
+            trade_name=self.mock_vendor.trade_name,
+            statutory_name=self.mock_vendor.statutory_name,
         )
+        self.role_service.create_role("example_role", "example_role")
+        self.system_type_service.add_one_system_type("example_type", "example_type")
+
+        expected_app = self.vendor_application_service.register_one_app(
+            vendor_id=vendor.id,
+            application_name="example app",
+            application_version="1.0.0",
+            system_type_names=["example_type"],
+            role_names=["example_role"],
+        )
+        actual_app = self.vendor_application_service.deregister_one_vendor_application(
+            vendor.kvk_number, expected_app.name
+        )
+        self.assertEqual(expected_app.id, actual_app.id)
+        self.assertEqual(expected_app.vendor_id, actual_app.vendor_id)
 
         with self.assertRaises(ApplicationNotFoundException) as context:
-            self.vendor_application_service.get_one_vendor_application(
-                kvk_number=new_vendor.kvk_number,
-                application_name=expected_application.name,
+            self.application_servcice.get_one_application_by_id(
+                application_id=expected_app.id
             )
 
-            self.assertTrue("No such application" in str(context.exception))
-
-
-class TestRetrievingAllVendorApplication(unittest.TestCase):
-    def setUp(self) -> None:
-        # setup tables
-        self.database = Database("sqlite:///:memory:")
-        self.database.generate_tables()
-
-        # setup service
-        self.vendor_service = VendorService(self.database)
-        self.application_service = ApplicationService(self.database)
-        self.vendor_application_service = VendorApplicationService(
-            vendor_service=self.vendor_service,
-            application_service=self.application_service,
-        )
-
-        # setup factory
-        self.application_factory = ApplicationFactory()
-
-    def test_retrieving_all_vendor_applications(self) -> None:
-        new_vendor = self.vendor_service.add_one_vendor(
-            kvk_number="123456",
-            trade_name="example vendor",
-            statutory_name="example-vendor",
-        )
-        new_app_1 = self.application_factory.create_instance(
-            "example-application-1", "1.0.0"
-        )
-        new_app_2 = self.application_factory.create_instance(
-            "example-application-2", "1.0.0"
-        )
-
-        expected_vendor_apps = [new_app_1, new_app_2]
-        self.vendor_application_service.register_one_application(
-            kvk_number=new_vendor.kvk_number,
-            application_name=new_app_1.name,
-            application_version="1.0.0",
-        )
-        self.vendor_application_service.register_one_application(
-            kvk_number=new_vendor.kvk_number,
-            application_name=new_app_2.name,
-            application_version="1.0.0",
-        )
-
-        actual_vendor_apps = (
-            self.vendor_application_service.get_all_vendor_applications(
-                new_vendor.kvk_number
-            )
-        )
-
-        self.assertEqual(len(expected_vendor_apps), len(actual_vendor_apps))
+            self.assertTrue("does not exist" not in str(context.exception))
