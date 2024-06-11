@@ -40,10 +40,10 @@ jobs:
         run: 'echo "{ \"version\": \"${{ env.RELEASE_VERSION }}\", \"git_ref\": \"$GITHUB_SHA\"}" > .venv/version.json'
 
       - name: Create archive
-        run: tar -czf nl-irealisatie-zmodules-qualification-register_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}.tar.gz .venv
+        run: tar -czf nl-irealisatie-zmodules-qualification-register-admin-api_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}.tar.gz .venv
 
       - name: Upload venv tar
         uses: actions/upload-artifact@v4
         with:
-          name: nl-irealisatie-zmodules-qualification-register_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}
-          path: nl-irealisatie-zmodules-qualification-register_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}.tar.gz
+          name: nl-irealisatie-zmodules-qualification-register-admin-api_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}
+          path: nl-irealisatie-zmodules-qualification-register-admin-api_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}.tar.gz

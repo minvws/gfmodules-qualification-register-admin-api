@@ -21,7 +21,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Run build action
-              uses: ./.github/actions/build
+              uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
 
     lint:
         name: Run code linter
@@ -33,7 +33,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Build
-              uses: ./.github/actions/build
+              uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
 
             - name: Lint
               run: poetry run $(make lint --just-print --silent)
@@ -48,7 +48,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Build
-              uses: ./.github/actions/build
+              uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
 
             - name: Check static types
               run: poetry run $(make type-check --just-print --silent)
@@ -63,7 +63,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Build
-              uses: ./.github/actions/build
+              uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
 
             - name: Scan packages for vulnerabilities
               run: poetry run $(make safety-check --just-print --silent)
@@ -78,7 +78,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Build
-              uses: ./.github/actions/build
+              uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
 
             - name: Run spelling check
               run: poetry run $(make spelling-check --just-print --silent)
@@ -93,7 +93,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Build
-              uses: ./.github/actions/build
+              uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
 
             - name: Run the tests
               run: poetry run $(make test --just-print --silent)

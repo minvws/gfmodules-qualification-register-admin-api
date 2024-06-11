@@ -52,4 +52,4 @@ docker compose up app -d
 # Create the .autopilot file
 touch .autopilot
 
-echo "🏁 Autopilot completed. You should be able to go to your web browser and access the application at http://localhost:8009/docs."
+echo "🏁 Autopilot completed. You should be able to go to your web browser and access the application at http://localhost:8506/docs."

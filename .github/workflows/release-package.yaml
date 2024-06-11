@@ -23,5 +23,5 @@ jobs:
       - name: Upload release tar
         uses: actions/upload-artifact@v4
         with:
-          name: nl-irealisatie-zmodules-qualification-register_${{ env.RELEASE_VERSION }}
-          path: nl-irealisatie-zmodules-qualification-register_${{ env.RELEASE_VERSION }}.tar.gz
+          name: nl-irealisatie-zmodules-qualification-register-admin-api_${{ env.RELEASE_VERSION }}
+          path: nl-irealisatie-zmodules-qualification-register-admin-api_${{ env.RELEASE_VERSION }}.tar.gz
