@@ -22,6 +22,8 @@ jobs:
 
             - name: Run build action
               uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+              with:
+                python_version: "3.11"
 
     lint:
         name: Run code linter
@@ -34,6 +36,8 @@ jobs:
 
             - name: Build
               uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+              with:
+                python_version: "3.11"
 
             - name: Lint
               run: poetry run $(make lint --just-print --silent)
@@ -49,6 +53,8 @@ jobs:
 
             - name: Build
               uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+              with:
+                python_version: "3.11"
 
             - name: Check static types
               run: poetry run $(make type-check --just-print --silent)
@@ -64,6 +70,8 @@ jobs:
 
             - name: Build
               uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+              with:
+                python_version: "3.11"
 
             - name: Scan packages for vulnerabilities
               run: poetry run $(make safety-check --just-print --silent)
@@ -79,6 +87,8 @@ jobs:
 
             - name: Build
               uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+              with:
+                python_version: "3.11"
 
             - name: Run spelling check
               run: poetry run $(make spelling-check --just-print --silent)
@@ -94,6 +104,8 @@ jobs:
 
             - name: Build
               uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+              with:
+                python_version: "3.11"
 
             - name: Run the tests
               run: poetry run $(make test --just-print --silent)
