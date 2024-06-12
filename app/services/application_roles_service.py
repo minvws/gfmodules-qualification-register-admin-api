@@ -57,7 +57,6 @@ class ApplicationRolesService:
             new_application_role.application = application
 
             application.roles.append(new_application_role)
-            role.applications.append(new_application_role)
 
             application_repository.update(application)
 
