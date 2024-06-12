@@ -16,7 +16,7 @@ from app.exceptions.app_exceptions import (
 )
 from app.factory.application_version_factory import ApplicationVersionFactory
 from app.helpers.validators import validate_list_for_removal
-from app.services.application_service import ApplicationService
+from app.db.services.application_service import ApplicationService
 
 
 class ApplicationVersionService:

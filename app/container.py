@@ -4,14 +4,14 @@ import inject
 from app.db.db import Database
 from app.config import get_config
 from app.db.session_factory import DbSessionFactory
-from app.services.application_roles_service import ApplicationRolesService
-from app.services.application_version_service import ApplicationVersionService
-from app.services.roles_service import RolesService
-from app.services.system_type_service import SystemTypeService
-from app.services.vendors_service import VendorService
+from app.db.services.application_roles_service import ApplicationRolesService
+from app.db.services.application_version_service import ApplicationVersionService
+from app.db.services.roles_service import RolesService
+from app.db.services.system_type_service import SystemTypeService
+from app.db.services.vendors_service import VendorService
 
-from app.services.application_service import ApplicationService
-from app.services.vendor_application_service import VendorApplicationService
+from app.db.services.application_service import ApplicationService
+from app.db.services.vendor_application_service import VendorApplicationService
 
 
 def container_config(binder: inject.Binder) -> None:

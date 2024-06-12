@@ -3,7 +3,7 @@ import unittest
 from app.db.db import Database
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import RoleNotFoundException
-from app.services.roles_service import RolesService
+from app.db.services.roles_service import RolesService
 
 
 class TestRoleService(unittest.TestCase):

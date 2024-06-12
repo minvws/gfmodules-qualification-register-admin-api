@@ -2,10 +2,10 @@ from typing import Sequence, List
 from uuid import UUID
 
 from app.db.entities.application import Application
-from app.services.application_service import ApplicationService
-from app.services.roles_service import RolesService
-from app.services.system_type_service import SystemTypeService
-from app.services.vendors_service import VendorService
+from app.db.services.application_service import ApplicationService
+from app.db.services.roles_service import RolesService
+from app.db.services.system_type_service import SystemTypeService
+from app.db.services.vendors_service import VendorService
 
 
 class VendorApplicationService:

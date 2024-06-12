@@ -3,7 +3,7 @@ import unittest
 from app.db.db import Database
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import SystemTypeNotFoundException
-from app.services.system_type_service import SystemTypeService
+from app.db.services.system_type_service import SystemTypeService
 
 
 class TestSystemTypeService(unittest.TestCase):

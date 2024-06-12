@@ -3,10 +3,10 @@ import unittest
 from app.db.db import Database
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import ApplicationNotFoundException
-from app.services.application_service import ApplicationService
-from app.services.roles_service import RolesService
-from app.services.system_type_service import SystemTypeService
-from app.services.vendors_service import VendorService
+from app.db.services.application_service import ApplicationService
+from app.db.services.roles_service import RolesService
+from app.db.services.system_type_service import SystemTypeService
+from app.db.services.vendors_service import VendorService
 
 
 class TestApplicationCRUDOperations(unittest.TestCase):

@@ -21,10 +21,10 @@ from app.schemas.application.schema import (
     ApplicationRoleDTO,
 )
 from app.schemas.vendor.schema import VendorApplicationCreateDTO
-from app.services.application_roles_service import ApplicationRolesService
-from app.services.application_service import ApplicationService
-from app.services.application_version_service import ApplicationVersionService
-from app.services.vendor_application_service import VendorApplicationService
+from app.db.services.application_roles_service import ApplicationRolesService
+from app.db.services.application_service import ApplicationService
+from app.db.services.application_version_service import ApplicationVersionService
+from app.db.services.vendor_application_service import VendorApplicationService
 
 router = APIRouter(prefix="/administration/applications", tags=["Applications"])
 

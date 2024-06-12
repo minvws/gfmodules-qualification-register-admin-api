@@ -15,8 +15,8 @@ from app.exceptions.app_exceptions import (
 )
 from app.factory.application_roles_factory import ApplicationRolesFactory
 from app.helpers.validators import validate_list_for_removal
-from app.services.application_service import ApplicationService
-from app.services.roles_service import RolesService
+from app.db.services.application_service import ApplicationService
+from app.db.services.roles_service import RolesService
 
 
 class ApplicationRolesService:

@@ -3,11 +3,11 @@ import unittest
 from app.db.db import Database
 from app.db.session_factory import DbSessionFactory
 from app.factory.vendor_factory import VendorFactory
-from app.services.application_service import ApplicationService
-from app.services.roles_service import RolesService
-from app.services.system_type_service import SystemTypeService
-from app.services.vendor_application_service import VendorApplicationService
-from app.services.vendors_service import VendorService
+from app.db.services.application_service import ApplicationService
+from app.db.services.roles_service import RolesService
+from app.db.services.system_type_service import SystemTypeService
+from app.db.services.vendor_application_service import VendorApplicationService
+from app.db.services.vendors_service import VendorService
 
 
 class TestVendorApplicationService(unittest.TestCase):
@@ -61,4 +61,3 @@ class TestVendorApplicationService(unittest.TestCase):
 
         self.assertEqual(expected_application.id, actual_application.id)
         self.assertEqual(expected_application.vendor_id, actual_application.vendor_id)
-

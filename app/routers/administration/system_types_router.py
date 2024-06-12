@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from app.container import get_system_type_service
 from app.schemas.system_type.mapper import map_system_type_entity_to_dto
 from app.schemas.system_type.schema import SystemTypeCreateDTO, SystemTypeDTO
-from app.services.system_type_service import SystemTypeService
+from app.db.services.system_type_service import SystemTypeService
 
 router = APIRouter(prefix="/administration/system_types", tags=["System Types"])
 

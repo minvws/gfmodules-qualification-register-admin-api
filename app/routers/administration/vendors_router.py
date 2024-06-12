@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 
 from app.schemas.vendor.mapper import map_vendor_entity_to_dto
 from app.schemas.vendor.schema import VendorDTO, VendorCreateDTO
-from app.services.vendors_service import VendorService
+from app.db.services.vendors_service import VendorService
 from app.container import (
     get_vendors_service,
 )

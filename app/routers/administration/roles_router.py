@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from app.container import get_roles_service
 from app.schemas.roles.mapper import map_role_model_to_dto
 from app.schemas.roles.schema import RoleCreateDTO, RoleUpdateDTO, RoleDTO
-from app.services.roles_service import RolesService
+from app.db.services.roles_service import RolesService
 
 router = APIRouter(prefix="/administration/roles", tags=["Roles"])
 
@@ -18,7 +18,9 @@ def get_all_roles(service: RolesService = Depends(get_roles_service)) -> List[Ro
 
 
 @router.get("/{role_id}")
-def get_one_role(role_id: UUID, service: RolesService = Depends(get_roles_service)) -> RoleDTO:
+def get_one_role(
+    role_id: UUID, service: RolesService = Depends(get_roles_service)
+) -> RoleDTO:
     role = service.get_one_role(role_id)
     return map_role_model_to_dto(role)
 
@@ -33,7 +35,9 @@ def create_role(
 
 @router.put("/{role_id}")
 def update_role_description(
-    role_id: UUID, data: RoleUpdateDTO, service: RolesService = Depends(get_roles_service)
+    role_id: UUID,
+    data: RoleUpdateDTO,
+    service: RolesService = Depends(get_roles_service),
 ) -> RoleDTO:
     role = service.update_role_description(
         role_id=role_id, description=data.description

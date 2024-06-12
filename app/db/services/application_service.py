@@ -12,8 +12,8 @@ from app.exceptions.app_exceptions import (
     ApplicationAlreadyExistsException,
 )
 from app.factory.application_factory import ApplicationFactory
-from app.services.roles_service import RolesService
-from app.services.system_type_service import SystemTypeService
+from app.db.services.roles_service import RolesService
+from app.db.services.system_type_service import SystemTypeService
 
 
 class ApplicationService:
