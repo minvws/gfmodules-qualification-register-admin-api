@@ -46,12 +46,10 @@ class RolesService:
             if role is not None:
                 raise RoleAlreadyExistsException()
 
-            new_role = role = Role(name=name, description=description)
-            session.add(new_role)
-            session.commit()
-            session.refresh(role)
+            new_role = Role(name=name, description=description)
+            roles_repository.create(new_role)
 
-        return role
+        return new_role
 
     def update_role_description(self, role_id: UUID, description: str) -> Role:
         db_session = self.db_session_factory.create()
@@ -63,9 +61,7 @@ class RolesService:
                 raise RoleNotFoundException()
 
             role.description = description
-            session.add(role)
-            session.commit()
-            session.refresh(role)
+            roles_repository.update(role)
 
         return role
 
@@ -78,8 +74,7 @@ class RolesService:
             if role is None:
                 raise RoleNotFoundException()
 
-            session.delete(role)
-            session.commit()
+            roles_repository.delete(role)
 
         return role
 

@@ -10,11 +10,11 @@ class RoleBase(BaseModel):
     description: str
 
 
-class RoleCreate(RoleBase):
+class RoleCreateDTO(RoleBase):
     name: str
 
 
-class RoleUpdate(RoleBase):
+class RoleUpdateDTO(RoleBase):
     pass
 
 

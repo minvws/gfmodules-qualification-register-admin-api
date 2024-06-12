@@ -60,27 +60,6 @@ class TestVendorCRUD(unittest.TestCase):
         self.assertEqual(expected_vendor.kvk_number, actual_vendor.kvk_number)
         self.assertEqual(expected_vendor.trade_name, actual_vendor.trade_name)
 
-    def test_delete_one_vendor_by_kvk_number(self) -> None:
-        # act
-        expected_vendor = self.vendor_service.add_one_vendor(
-            kvk_number=self.mock_vendor.kvk_number,
-            trade_name=self.mock_vendor.trade_name,
-            statutory_name=self.mock_vendor.statutory_name,
-        )
-        actual_vendor = self.vendor_service.delete_one_vendor_by_kvk_number(
-            expected_vendor.kvk_number
-        )
-
-        # assert
-        self.assertEqual(expected_vendor.id, actual_vendor.id)
-        self.assertEqual(expected_vendor.kvk_number, actual_vendor.kvk_number)
-        self.assertEqual(expected_vendor.trade_name, actual_vendor.trade_name)
-
-        with self.assertRaises(VendorNotFoundException) as context:
-            self.vendor_service.get_one_vendor_by_kvk_number(expected_vendor.kvk_number)
-
-            self.assertTrue("does not exist" in str(context.exception))
-
     def test_delete_one_vendor_by_id(self) -> None:
         # act
         expected_vendor = self.vendor_service.add_one_vendor(

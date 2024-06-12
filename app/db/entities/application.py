@@ -38,7 +38,9 @@ class Application(Base):
         back_populates="applications", lazy="joined"
     )
     versions: Mapped[List["application_version.ApplicationVersion"]] = relationship(
-        back_populates="application", lazy="selectin", cascade="all, delete"
+        back_populates="application",
+        lazy="selectin",
+        cascade="all, delete, delete-orphan",
     )
     system_types: Mapped[List["application_type.ApplicationType"]] = relationship(
         back_populates="application",

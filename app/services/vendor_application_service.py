@@ -22,16 +22,6 @@ class VendorApplicationService:
         self.system_type_service = system_type_service
         self.roles_service = roles_service
 
-    def deregister_one_vendor_application(
-        self, kvk_number: str, application_name: str
-    ) -> Application:
-        vendor = self.vendor_service.get_one_vendor_by_kvk_number(kvk_number=kvk_number)
-        deleted_applications = self.application_service.delete_one_application_by_name(
-            application_name=application_name, vendor_id=vendor.id
-        )
-
-        return deleted_applications
-
     def register_one_app(
         self,
         vendor_id: UUID,

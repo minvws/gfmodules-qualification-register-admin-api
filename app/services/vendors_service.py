@@ -63,28 +63,9 @@ class VendorService:
                 statutory_name=statutory_name,
                 kvk_number=kvk_number,
             )
-            session.add(new_vendor)
-            session.commit()
-            session.refresh(new_vendor)
+            vendor_repository.create(new_vendor)
 
         return new_vendor
-
-    def delete_one_vendor_by_kvk_number(self, kvk_number: str) -> Vendor:
-        db_session = self.db_session_factory.create()
-        vendor_repository: VendorsRepository = db_session.get_repository(Vendor)
-        session = db_session.session
-        with session:
-            vendor = vendor_repository.find_one(kvk_number=kvk_number)
-            if vendor is None:
-                raise VendorNotFoundException()
-
-            vendor_cannot_be_deleted = self._validate_vendor_deletion(vendor)
-            if vendor_cannot_be_deleted:
-                raise VendorCannotBeDeletedException()
-
-            vendor_repository.delete(vendor)
-
-        return vendor
 
     def delete_one_vendor_by_id(self, vendor_id: UUID) -> Vendor:
         db_session = self.db_session_factory.create()
@@ -95,8 +76,8 @@ class VendorService:
             if vendor is None:
                 raise VendorNotFoundException()
 
-            vendor_cannot_be_deleted = self._validate_vendor_deletion(vendor)
-            if vendor_cannot_be_deleted:
+            vendor_has_applications = self._vendor_has_applications(vendor)
+            if vendor_has_applications:
                 raise VendorCannotBeDeletedException()
 
             vendor_repository.delete(vendor)
@@ -104,5 +85,5 @@ class VendorService:
         return vendor
 
     @staticmethod
-    def _validate_vendor_deletion(vendor: Vendor) -> bool:
+    def _vendor_has_applications(vendor: Vendor) -> bool:
         return len(vendor.applications) > 0

@@ -59,8 +59,8 @@ class ApplicationsRepository(RepositoryBase):
             self.session.commit()
             self.session.refresh(application)
         except DatabaseError as error:
-            logger.error(error)
             self.session.rollback()
+            logger.error(error)
 
     def delete(self, application: Application) -> None:
         try:

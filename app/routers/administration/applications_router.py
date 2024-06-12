@@ -20,7 +20,7 @@ from app.schemas.application.schema import (
     ApplicationVersionDTO,
     ApplicationRoleDTO,
 )
-from app.schemas.vendor.schema import VendorApplicationCreate
+from app.schemas.vendor.schema import VendorApplicationCreateDTO
 from app.services.application_roles_service import ApplicationRolesService
 from app.services.application_service import ApplicationService
 from app.services.application_version_service import ApplicationVersionService
@@ -102,7 +102,7 @@ def get_all_vendor_applications(
 @router.post("/vendor/{vendor_id}")
 def register_one_vendor_application(
     vendor_id: UUID,
-    data: VendorApplicationCreate,
+    data: VendorApplicationCreateDTO,
     service: VendorApplicationService = Depends(get_vendor_application_service),
 ) -> ApplicationDTO:
     result = service.register_one_app(
@@ -113,18 +113,6 @@ def register_one_vendor_application(
         role_names=data.roles,
     )
     return map_application_entity_to_dto(result)
-
-
-@router.delete("/{application_name}/vendor/{kvk_number}")
-def deregister_one_vendor_application(
-    kvk_number: str,
-    application_name: str,
-    service: VendorApplicationService = Depends(get_vendor_application_service),
-) -> ApplicationDTO:
-    results = service.deregister_one_vendor_application(
-        kvk_number=kvk_number, application_name=application_name
-    )
-    return map_application_entity_to_dto(results)
 
 
 @router.get("/{application_id}/roles")

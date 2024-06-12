@@ -46,6 +46,11 @@ class ApplicationRoleNotFoundException(NotFoundException):
         super().__init__("Cannot assign a non existent role to an application")
 
 
+class ApplicationVersionNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Application version not found")
+
+
 class ApplicationVersionDeleteException(ConflictException):
     def __init__(self) -> None:
         super().__init__(
@@ -73,3 +78,8 @@ class RoleExistInApplicationException(ConflictException):
 class SystemTypeNotFoundException(NotFoundException):
     def __init__(self) -> None:
         super().__init__("System type not found")
+
+
+class SystemTypeAlreadyExistsException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("System type already exists in app")

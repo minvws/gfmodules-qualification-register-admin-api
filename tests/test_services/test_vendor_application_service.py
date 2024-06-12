@@ -2,7 +2,6 @@ import unittest
 
 from app.db.db import Database
 from app.db.session_factory import DbSessionFactory
-from app.exceptions.app_exceptions import ApplicationNotFoundException
 from app.factory.vendor_factory import VendorFactory
 from app.services.application_service import ApplicationService
 from app.services.roles_service import RolesService
@@ -63,31 +62,3 @@ class TestVendorApplicationService(unittest.TestCase):
         self.assertEqual(expected_application.id, actual_application.id)
         self.assertEqual(expected_application.vendor_id, actual_application.vendor_id)
 
-    def test_deregister_vendor_applications(self) -> None:
-        vendor = self.vendor_service.add_one_vendor(
-            kvk_number=self.mock_vendor.kvk_number,
-            trade_name=self.mock_vendor.trade_name,
-            statutory_name=self.mock_vendor.statutory_name,
-        )
-        self.role_service.create_role("example_role", "example_role")
-        self.system_type_service.add_one_system_type("example_type", "example_type")
-
-        expected_app = self.vendor_application_service.register_one_app(
-            vendor_id=vendor.id,
-            application_name="example app",
-            application_version="1.0.0",
-            system_type_names=["example_type"],
-            role_names=["example_role"],
-        )
-        actual_app = self.vendor_application_service.deregister_one_vendor_application(
-            vendor.kvk_number, expected_app.name
-        )
-        self.assertEqual(expected_app.id, actual_app.id)
-        self.assertEqual(expected_app.vendor_id, actual_app.vendor_id)
-
-        with self.assertRaises(ApplicationNotFoundException) as context:
-            self.application_servcice.get_one_application_by_id(
-                application_id=expected_app.id
-            )
-
-            self.assertTrue("does not exist" not in str(context.exception))

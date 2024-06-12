@@ -5,10 +5,14 @@ from uuid import UUID
 from app.db.entities.application import Application
 from app.db.entities.application_version import ApplicationVersion
 from app.db.repository.applications_repository import ApplicationsRepository
+from app.db.repository.application_version_repository import (
+    ApplicationVersionRepository,
+)
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     ApplicationVersionDeleteException,
     ApplicationNotFoundException,
+    ApplicationVersionNotFoundException,
 )
 from app.factory.application_version_factory import ApplicationVersionFactory
 from app.helpers.validators import validate_list_for_removal
@@ -56,26 +60,24 @@ class ApplicationVersionService:
         application_repository: ApplicationsRepository = db_session.get_repository(
             Application
         )
+        application_version_repository: ApplicationVersionRepository = (
+            db_session.get_repository(ApplicationVersion)
+        )
         session = db_session.session
         with session:
             application = application_repository.find_one(id=application_id)
             if application is None:
                 raise ApplicationNotFoundException()
 
-            app_version_valid_for_delete = validate_list_for_removal(
-                application.versions
-            )
-            if not app_version_valid_for_delete:
+            app_has_versions = validate_list_for_removal(application.versions)
+            if not app_has_versions:
                 raise ApplicationVersionDeleteException()
 
-            for version in application.versions:
-                if (
-                    version.id == version_id
-                    and version.application_id == application_id
-                ):
-                    session.delete(version)
-                    session.commit()
-                    session.refresh(application)
-                    break
+            application_version = application_version_repository.find_one(id=version_id)
+            if application_version is None:
+                raise ApplicationVersionNotFoundException()
 
-            return application.versions
+            application.versions.remove(application_version)
+            application_repository.update(application)
+
+        return application.versions

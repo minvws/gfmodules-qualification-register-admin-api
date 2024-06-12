@@ -4,7 +4,10 @@ from uuid import UUID
 from app.db.entities.system_type import SystemType
 from app.db.repository.system_types_repository import SystemTypesRepository
 from app.db.session_factory import DbSessionFactory
-from app.exceptions.app_exceptions import SystemTypeNotFoundException
+from app.exceptions.app_exceptions import (
+    SystemTypeNotFoundException,
+    SystemTypeAlreadyExistsException,
+)
 from app.factory.system_type_factory import SystemTypeFactory
 from app.helpers.validators import validated_sets_equal
 
@@ -40,13 +43,18 @@ class SystemTypeService:
     def add_one_system_type(self, name: str, description: str) -> SystemType:
         db_session = self.db_session_factory.create()
         session = db_session.session
+        system_type_repository: SystemTypesRepository = db_session.get_repository(
+            SystemType
+        )
         with session:
+            system_type = system_type_repository.fine_one(name=name)
+            if system_type is not None:
+                raise SystemTypeAlreadyExistsException()
+
             new_system_type = SystemTypeFactory.create_instance(
                 name=name, description=description
             )
-            session.add(new_system_type)
-            session.commit()
-            session.refresh(new_system_type)
+            system_type_repository.create(new_system_type)
 
         return new_system_type
 
@@ -61,8 +69,7 @@ class SystemTypeService:
             if system_type is None:
                 raise SystemTypeNotFoundException()
 
-            session.delete(system_type)
-            session.commit()
+            system_types_repository.delete(system_type)
 
         return system_type
 

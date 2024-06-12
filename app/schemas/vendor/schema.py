@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel
 
 
-class VendorApplicationVersion(BaseModel):
+class VendorApplicationVersionDTO(BaseModel):
     version: str
 
 
@@ -14,24 +14,24 @@ class VendorApplicationBase(BaseModel):
     name: str
 
 
-class VendorApplicationRole(BaseModel):
+class VendorApplicationRoleDTO(BaseModel):
     name: str
     description: str | None = None
 
 
-class VendorApplicationType(BaseModel):
+class VendorApplicationTypeDTO(BaseModel):
     name: str
     description: str | None = None
 
 
-class VendorApplication(VendorApplicationBase):
+class VendorApplicationDTO(VendorApplicationBase):
     class Config:
         from_attributes = True
 
     id: UUID = uuid4()
-    versions: List[VendorApplicationVersion] = []
-    roles: List[VendorApplicationRole] = []
-    system_types: List[VendorApplicationType] = []
+    versions: List[VendorApplicationVersionDTO] = []
+    roles: List[VendorApplicationRoleDTO] = []
+    system_types: List[VendorApplicationTypeDTO] = []
 
 
 class VendorBase(BaseModel):
@@ -45,14 +45,14 @@ class VendorBase(BaseModel):
 
 class VendorDTO(VendorBase):
     id: UUID
-    applications: List[VendorApplication] = []
+    applications: List[VendorApplicationDTO] = []
 
 
-class VendorCreate(VendorBase):
+class VendorCreateDTO(VendorBase):
     pass
 
 
-class VendorApplicationCreate(VendorApplicationBase):
+class VendorApplicationCreateDTO(VendorApplicationBase):
     version: str
     roles: List[str]
     system_types: List[str]
