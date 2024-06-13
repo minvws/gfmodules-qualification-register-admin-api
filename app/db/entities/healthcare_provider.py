@@ -24,7 +24,7 @@ class HealthcareProvider(Base):
         "ura_code", String(50), nullable=False, unique=True
     )
     agb_code: Mapped[str] = mapped_column(
-        "abg_code", String(50), nullable=False, unique=True
+        "agb_code", String(50), nullable=False, unique=True
     )
     trade_name: Mapped[str] = mapped_column("trade_name", String(150), nullable=False)
     statutory_name: Mapped[str] = mapped_column(
