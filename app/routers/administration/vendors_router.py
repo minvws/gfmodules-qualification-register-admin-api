@@ -1,0 +1,57 @@
+from typing import List
+from uuid import UUID
+
+from fastapi import APIRouter, Depends
+
+from app.schemas.vendor.mapper import map_vendor_entity_to_dto
+from app.schemas.vendor.schema import VendorDTO, VendorCreateDTO
+from app.db.services.vendors_service import VendorService
+from app.container import (
+    get_vendors_service,
+)
+
+router = APIRouter(prefix="/administration/vendors", tags=["Vendors"])
+
+
+@router.get("", response_model=List[VendorDTO])
+def get_all_vendors(
+    vendor_service: VendorService = Depends(get_vendors_service),
+) -> list[VendorDTO]:
+    result = vendor_service.get_all_vendors()
+    return [map_vendor_entity_to_dto(vendor) for vendor in result]
+
+
+@router.post("/", response_model=None)
+def add_one_vendor(
+    data: VendorCreateDTO, vendor_service: VendorService = Depends(get_vendors_service)
+) -> VendorDTO:
+    results = vendor_service.add_one_vendor(
+        kvk_number=data.kvk_number,
+        trade_name=data.trade_name,
+        statutory_name=data.statutory_name,
+    )
+    return map_vendor_entity_to_dto(results)
+
+
+@router.get("/{vendor_id}", response_model=VendorDTO)
+def get_vendor_by_id(
+    vendor_id: UUID, vendor_service: VendorService = Depends(get_vendors_service)
+) -> VendorDTO:
+    vendor = vendor_service.get_one_vendor_by_id(vendor_id=vendor_id)
+    return map_vendor_entity_to_dto(vendor)
+
+
+@router.delete("/{vendor_id}")
+def delete_vendor_by_id(
+    vendor_id: UUID, vendor_service: VendorService = Depends(get_vendors_service)
+) -> VendorDTO:
+    deleted_vendor = vendor_service.delete_one_vendor_by_id(vendor_id=vendor_id)
+    return map_vendor_entity_to_dto(deleted_vendor)
+
+
+@router.get("/kvk_number/{kvk_number}", response_model=VendorDTO)
+def get_one_vendor_by_kvk_number(
+    kvk_number: str, vendor_service: VendorService = Depends(get_vendors_service)
+) -> VendorDTO:
+    result = vendor_service.get_one_vendor_by_kvk_number(kvk_number)
+    return map_vendor_entity_to_dto(result)

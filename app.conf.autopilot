@@ -2,11 +2,7 @@
 loglevel=debug
 
 [database]
-dsn=postgresql+psycopg://postgres:postgres@postgres:5432/postgres
-
-[example]
-argument1 = "foobar"
-argument2 = true
+dsn=postgresql+psycopg://postgres:postgres@qualification_db:5432/postgres
 
 [uvicorn]
 swagger_enabled = True

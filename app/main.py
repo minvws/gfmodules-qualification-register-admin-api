@@ -1,8 +1,8 @@
-import application
+import fastapi_application
 
 
 def main() -> None:
-    application.run()
+    fastapi_application.run()
 
 
 if __name__ == "__main__":
