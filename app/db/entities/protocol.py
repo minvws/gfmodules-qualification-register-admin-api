@@ -40,7 +40,7 @@ class Protocol(Base):
     )
 
     versions: Mapped[List["protocol_version.ProtocolVersion"]] = relationship(
-        back_populates="protocol"
+        back_populates="protocol", lazy="selectin", cascade="all, delete, delete-orphan"
     )
 
     def __repr__(self) -> str:

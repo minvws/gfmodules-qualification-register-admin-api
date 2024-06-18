@@ -5,6 +5,7 @@ from app.db.db import Database
 from app.config import get_config
 from app.db.services.healthcare_provider_service import HealthcareProviderService
 from app.db.services.protocol_service import ProtocolService
+from app.db.services.protocol_version_service import ProtocolVersionService
 from app.db.session_factory import DbSessionFactory
 from app.db.services.application_roles_service import ApplicationRolesService
 from app.db.services.application_version_service import ApplicationVersionService
@@ -63,6 +64,11 @@ def container_config(binder: inject.Binder) -> None:
     protocol_service = ProtocolService(db_session_factory=session_factory)
     binder.bind(ProtocolService, protocol_service)
 
+    protocol_version_service = ProtocolVersionService(
+        db_session_factory=session_factory, protocol_service=protocol_service
+    )
+    binder.bind(ProtocolVersionService, protocol_version_service)
+
 
 def get_vendors_service() -> VendorService:
     return inject.instance(VendorService)
@@ -98,6 +104,10 @@ def get_healthcare_provider_service() -> HealthcareProviderService:
 
 def get_protocol_service() -> ProtocolService:
     return inject.instance(ProtocolService)
+
+
+def get_protocol_version_service() -> ProtocolVersionService:
+    return inject.instance(ProtocolVersionService)
 
 
 def get_database() -> Database:

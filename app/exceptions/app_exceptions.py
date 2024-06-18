@@ -103,3 +103,8 @@ class AGBCodeAlreadyExists(ConflictException):
 class ProtocolNotFoundException(NotFoundException):
     def __init__(self) -> None:
         super().__init__("Protocol not found")
+
+
+class ProtocolVersionNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Protocol version not found")

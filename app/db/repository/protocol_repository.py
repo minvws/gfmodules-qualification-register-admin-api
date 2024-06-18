@@ -40,6 +40,14 @@ class ProtocolRepository(RepositoryBase):
             logger.error(e)
             self.session.rollback()
 
+    def update(self, protocol: Protocol) -> None:
+        try:
+            self.session.commit()
+            self.session.refresh(protocol)
+        except DatabaseError as e:
+            logger.error(e)
+            self.session.rollback()
+
     def delete(self, protocol: Protocol) -> None:
         try:
             self.session.delete(protocol)
