@@ -98,3 +98,8 @@ class URACodeAlreadyExists(ConflictException):
 class AGBCodeAlreadyExists(ConflictException):
     def __init__(self) -> None:
         super().__init__("AGB code already exists")
+
+
+class ProtocolNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Protocol not found")

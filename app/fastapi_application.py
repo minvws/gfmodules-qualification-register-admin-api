@@ -15,6 +15,7 @@ from app.routers.administration.healthcare_provider_router import (
     router as healthcare_provider_router,
 )
 from app.routers.administration.roles_router import router as roles_router
+from app.routers.administration.protocol_router import router as protocol_router
 from app.config import get_config
 
 
@@ -91,6 +92,7 @@ def setup_fastapi() -> FastAPI:
         system_types_router,
         applications_router,
         healthcare_provider_router,
+        protocol_router,
     ]
     for router in routers:
         fastapi.include_router(router)

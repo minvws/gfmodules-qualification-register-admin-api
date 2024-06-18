@@ -31,7 +31,7 @@ CREATE TYPE protocol_type as ENUM('InformationStandard', 'Directive');
 CREATE TABLE protocols (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     protocol_type protocol_type NOT NULL,
-    protocol_name VARCHAR(150) NOT NULL,
+    name VARCHAR(150) NOT NULL,
     description VARCHAR,
     created_at TIMESTAMP DEFAULT NOW(),
     modified_at TIMESTAMP default NOW(),
