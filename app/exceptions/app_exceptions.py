@@ -83,3 +83,18 @@ class SystemTypeNotFoundException(NotFoundException):
 class SystemTypeAlreadyExistsException(ConflictException):
     def __init__(self) -> None:
         super().__init__("System type already exists in app")
+
+
+class HealthcareProviderNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Healthcare provider not found")
+
+
+class URACodeAlreadyExists(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("URA code already exists")
+
+
+class AGBCodeAlreadyExists(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("AGB code already exists")
