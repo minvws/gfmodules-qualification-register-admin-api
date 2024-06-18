@@ -3,10 +3,19 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from app.container import get_protocol_service
+from app.container import get_protocol_service, get_protocol_version_service
 from app.db.services.protocol_service import ProtocolService
-from app.schemas.protocol.mapper import map_protocol_entity_to_dto
-from app.schemas.protocol.schema import ProtocolDTO, ProtocolCreateDTO
+from app.db.services.protocol_version_service import ProtocolVersionService
+from app.schemas.protocol.mapper import (
+    map_protocol_entity_to_dto,
+    map_protocol_version_entity_to_dto,
+)
+from app.schemas.protocol.schema import (
+    ProtocolDTO,
+    ProtocolCreateDTO,
+    ProtocolVersionCreateDTO,
+    ProtocolVersionDTO,
+)
 
 router = APIRouter(prefix="/administration/protocols", tags=["Protocols"])
 
@@ -42,3 +51,45 @@ def delete_protocol(
 ) -> ProtocolDTO:
     protocol = service.delete_one_by_id(protocol_id)
     return map_protocol_entity_to_dto(protocol)
+
+
+@router.get("/{protocol_id}/versions")
+def get_protocol_versions(
+    protocol_id: UUID,
+    service: ProtocolVersionService = Depends(get_protocol_version_service),
+) -> List[ProtocolVersionDTO]:
+    versions = service.get_one_protocol_versions(protocol_id)
+    return [map_protocol_version_entity_to_dto(version) for version in versions]
+
+
+@router.post("/{protocol_id}/versions/")
+def add_protocol_version(
+    protocol_id: UUID,
+    data: ProtocolVersionCreateDTO,
+    service: ProtocolVersionService = Depends(get_protocol_version_service),
+) -> ProtocolVersionDTO:
+    version = service.add_one_protocol_version(
+        protocol_id=protocol_id, version=data.version, description=data.description
+    )
+    return map_protocol_version_entity_to_dto(version)
+
+
+@router.delete("/{protocol_id}/versions/{version_id}")
+def delete_protocol_version(
+    protocol_id: UUID,
+    version_id: UUID,
+    service: ProtocolVersionService = Depends(get_protocol_version_service),
+) -> List[ProtocolVersionDTO]:
+    versions = service.delete_one_protocol_version(
+        protocol_id=protocol_id, version_id=version_id
+    )
+    return [map_protocol_version_entity_to_dto(version) for version in versions]
+
+
+@router.get("/versions/{version_id}")
+def get_protocol_version(
+    version_id: UUID,
+    service: ProtocolVersionService = Depends(get_protocol_version_service),
+) -> ProtocolVersionDTO:
+    protocol_version = service.get_one_protocol_version(version_id)
+    return map_protocol_version_entity_to_dto(protocol_version)
