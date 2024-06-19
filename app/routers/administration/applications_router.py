@@ -8,17 +8,21 @@ from app.container import (
     get_vendor_application_service,
     get_application_service,
     get_application_version_service,
+    get_application_type_service,
 )
+from app.db.services.application_type_service import ApplicationTypeService
 from app.schemas.application.mapper import (
     map_application_entity_to_dto,
     map_application_version_entity_to_dto,
     map_application_roles_entity_to_dto,
+    map_application_system_type_entity_to_dto,
 )
 from app.schemas.application.schema import (
     ApplicationDTO,
     ApplicationVersionCreateDTO,
     ApplicationVersionDTO,
     ApplicationRoleDTO,
+    ApplicationTypeDTO,
 )
 from app.schemas.vendor.schema import VendorApplicationCreateDTO
 from app.db.services.application_roles_service import ApplicationRolesService
@@ -142,3 +146,39 @@ def unassign_one_application_role(
 ) -> ApplicationDTO:
     results = service.unassign_role_from_application(application_id, role_id)
     return map_application_entity_to_dto(results)
+
+
+@router.get("/{application_id}/system_types/")
+def get_application_types(
+    application_id: UUID,
+    service: ApplicationTypeService = Depends(get_application_type_service),
+) -> List[ApplicationTypeDTO]:
+    application_types = service.get_all_application_types(application_id)
+    return [
+        map_application_system_type_entity_to_dto(app_type)
+        for app_type in application_types
+    ]
+
+
+@router.post("/{application_id}/system_types/{system_type_id}/")
+def assign_system_type_to_application(
+    application_id: UUID,
+    system_type_id: UUID,
+    service: ApplicationTypeService = Depends(get_application_type_service),
+) -> ApplicationDTO:
+    application = service.assign_system_type_to_application(
+        application_id, system_type_id
+    )
+    return map_application_entity_to_dto(application)
+
+
+@router.delete("/{application_id}/system_types/{system_type_id}/")
+def unassing_system_type_from_application(
+    application_id: UUID,
+    system_type_id: UUID,
+    service: ApplicationTypeService = Depends(get_application_type_service),
+) -> ApplicationDTO:
+    application = service.unassign_system_type_to_application(
+        application_id, system_type_id
+    )
+    return map_application_entity_to_dto(application)

@@ -14,12 +14,6 @@ class ApplicationFactory:
     @staticmethod
     def create_instance(
         application_name: str,
-    ) -> Application:
-        return Application(name=application_name)
-
-    @staticmethod
-    def create_rich_instance(
-        application_name: str,
         application_version: str,
         vendor: Vendor,
         application_types: Sequence[SystemType],
@@ -34,15 +28,16 @@ class ApplicationFactory:
         new_application.vendor = vendor
 
         for role in application_roles:
-            new_application_role = ApplicationRolesFactory.create_instance()
-            new_application_role.role = role
-            new_application_role.application = new_application
+            new_application_role = ApplicationRolesFactory.create_instance(
+                application=new_application, role=role
+            )
             new_application.roles.append(new_application_role)
 
         for system_type in application_types:
-            new_application_type = ApplicationTypeFactory.create_instance()
-            new_application_type.system_type = system_type
-            new_application_type.application = new_application
+            new_application_type = ApplicationTypeFactory.create_instance(
+                application=new_application,
+                system_type=system_type,
+            )
             new_application.system_types.append(new_application_type)
 
         return new_application

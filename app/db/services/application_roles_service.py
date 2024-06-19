@@ -52,10 +52,9 @@ class ApplicationRolesService:
                 if app_role.role_id == role_id:
                     raise RoleExistInApplicationException()
 
-            new_application_role = ApplicationRolesFactory.create_instance()
-            new_application_role.role = role
-            new_application_role.application = application
-
+            new_application_role = ApplicationRolesFactory.create_instance(
+                application=application, role=role
+            )
             application.roles.append(new_application_role)
 
             application_repository.update(application)

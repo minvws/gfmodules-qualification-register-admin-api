@@ -17,7 +17,7 @@ class SystemTypesRepository(RepositoryBase):
     def __init__(self, session: Session) -> None:
         super().__init__(session)
 
-    def fine_one(self, **kwargs: TArgs) -> SystemType | None:
+    def find_one(self, **kwargs: TArgs) -> SystemType | None:
         try:
             db_system_type = self.session.scalars(
                 select(SystemType).filter_by(**kwargs)

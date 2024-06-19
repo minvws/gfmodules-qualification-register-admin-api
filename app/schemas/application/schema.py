@@ -22,7 +22,7 @@ class ApplicationRoleDTO(BaseModel):
     description: str | None = None
 
 
-class SystemTypeInApplicationDTO(BaseModel):
+class ApplicationTypeDTO(BaseModel):
     id: UUID
     name: str
     description: str | None = None
@@ -39,4 +39,4 @@ class ApplicationDTO(ApplicationBase):
     vendor_trade_name: str
     versions: List[ApplicationVersionDTO] = []
     roles: List[ApplicationRoleDTO] = []
-    system_types: List[SystemTypeInApplicationDTO] = []
+    system_types: List[ApplicationTypeDTO] = []

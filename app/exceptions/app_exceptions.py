@@ -82,7 +82,17 @@ class SystemTypeNotFoundException(NotFoundException):
 
 class SystemTypeAlreadyExistsException(ConflictException):
     def __init__(self) -> None:
-        super().__init__("System type already exists in app")
+        super().__init__("System type already exists")
+
+
+class SystemTypeExistInApplicationException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("System type already exist in application")
+
+
+class SystemTypeNotUsedByApplicationException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("System type does not exist in application")
 
 
 class HealthcareProviderNotFoundException(NotFoundException):

@@ -3,6 +3,7 @@ import inject
 
 from app.db.db import Database
 from app.config import get_config
+from app.db.services.application_type_service import ApplicationTypeService
 from app.db.services.healthcare_provider_application_version_service import (
     HealthcareProviderApplicationVersionService,
 )
@@ -59,6 +60,11 @@ def container_config(binder: inject.Binder) -> None:
     )
     binder.bind(ApplicationRolesService, application_roles_service)
 
+    application_type_service = ApplicationTypeService(
+        db_session_factory=session_factory, application_service=application_service
+    )
+    binder.bind(ApplicationTypeService, application_type_service)
+
     healthcare_provider_service = HealthcareProviderService(
         db_session_factory=session_factory
     )
@@ -106,6 +112,10 @@ def get_roles_service() -> RolesService:
 
 def get_application_roles_service() -> ApplicationRolesService:
     return inject.instance(ApplicationRolesService)
+
+
+def get_application_type_service() -> ApplicationTypeService:
+    return inject.instance(ApplicationTypeService)
 
 
 def get_application_version_service() -> ApplicationVersionService:
