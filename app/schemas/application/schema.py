@@ -13,7 +13,7 @@ class ApplicationVersionCreateDTO(ApplicationVersionBase):
 
 
 class ApplicationVersionDTO(ApplicationVersionBase):
-    version_id: UUID
+    id: UUID
 
 
 class ApplicationRoleDTO(BaseModel):
