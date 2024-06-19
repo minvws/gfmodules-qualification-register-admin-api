@@ -11,8 +11,8 @@ class HealthcareProviderApplicationVersionFactory:
         healthcare_provider: HealthcareProvider, application_version: ApplicationVersion
     ) -> HealthcareProviderApplicationVersion:
         """
-        Create a new rich instance of a HealthcareProviderApplicationVersion with parent child objects
-        assigned
+        Create a new rich instance of a HealthcareProviderApplicationVersion with parent HealthcareProvider and
+         ApplicationVersion child assigned
         """
         new_instance = HealthcareProviderApplicationVersion()
         new_instance.healthcare_provider = healthcare_provider

@@ -101,12 +101,14 @@ class ApplicationService:
             if application is not None:
                 raise ApplicationAlreadyExistsException()
 
-            new_application = ApplicationFactory.create_rich_instance(
+            new_application = ApplicationFactory.create_instance(
                 application_name=application_name,
                 application_version=version,
-                vendor=vendor,
-                application_roles=roles,
-                application_types=system_types,
+                vendor=session.merge(vendor),
+                application_roles=[session.merge(role) for role in roles],
+                application_types=[
+                    session.merge(system_type) for system_type in system_types
+                ],
             )
             application_repository.create(new_application)
 

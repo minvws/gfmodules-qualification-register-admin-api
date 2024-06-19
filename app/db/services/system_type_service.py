@@ -34,7 +34,7 @@ class SystemTypeService:
         )
         session = db_session.session
         with session:
-            system_type = system_types_repository.fine_one(id=system_type_id)
+            system_type = system_types_repository.find_one(id=system_type_id)
             if system_type is None:
                 raise SystemTypeNotFoundException()
 
@@ -47,7 +47,7 @@ class SystemTypeService:
             SystemType
         )
         with session:
-            system_type = system_type_repository.fine_one(name=name)
+            system_type = system_type_repository.find_one(name=name)
             if system_type is not None:
                 raise SystemTypeAlreadyExistsException()
 
@@ -65,7 +65,7 @@ class SystemTypeService:
         )
         session = db_session.session
         with session:
-            system_type = system_types_repository.fine_one(id=system_type_id)
+            system_type = system_types_repository.find_one(id=system_type_id)
             if system_type is None:
                 raise SystemTypeNotFoundException()
 
