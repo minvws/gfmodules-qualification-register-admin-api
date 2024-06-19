@@ -108,3 +108,15 @@ class ProtocolNotFoundException(NotFoundException):
 class ProtocolVersionNotFoundException(NotFoundException):
     def __init__(self) -> None:
         super().__init__("Protocol version not found")
+
+
+class AppVersionExistsInHealthcareProviderException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__(
+            "Application Version already being used by Healthcare provider"
+        )
+
+
+class AppVersionNotUsedByHealthcareProviderException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Application version is not being used by Healthcare provider")

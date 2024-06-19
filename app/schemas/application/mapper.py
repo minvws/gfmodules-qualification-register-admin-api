@@ -13,7 +13,7 @@ from app.schemas.application.schema import (
 def map_application_version_entity_to_dto(
     version: ApplicationVersion,
 ) -> ApplicationVersionDTO:
-    return ApplicationVersionDTO(version_id=version.id, version=version.version)
+    return ApplicationVersionDTO(id=version.id, version=version.version)
 
 
 def map_application_roles_entity_to_dto(

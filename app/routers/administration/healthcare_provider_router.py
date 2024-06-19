@@ -3,12 +3,22 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from app.container import get_healthcare_provider_service
+from app.container import (
+    get_healthcare_provider_service,
+    get_healthcare_provider_application_version_service,
+)
+from app.db.services.healthcare_provider_application_version_service import (
+    HealthcareProviderApplicationVersionService,
+)
 from app.db.services.healthcare_provider_service import HealthcareProviderService
-from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
+from app.schemas.healthcare_provider.mapper import (
+    map_healthcare_provider_entity_to_dto,
+    map_healthcare_provider_app_version_entity_to_dto,
+)
 from app.schemas.healthcare_provider.schema import (
     HealthcareProviderCreateDTO,
     HealthcareProviderDTO,
+    HealthcareProviderApplicationVersionDTO,
 )
 
 router = APIRouter(
@@ -51,4 +61,48 @@ def deregister_one_healthcare_provider(
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
 ) -> HealthcareProviderDTO:
     healthcare_provider = service.delete_one_healthcare_provider(healthcare_provider_id)
+    return map_healthcare_provider_entity_to_dto(healthcare_provider)
+
+
+@router.get("/{healthcare_provider_id}/application_versions/")
+def get_healthcare_provider_application_versions(
+    healthcare_provider_id: UUID,
+    service: HealthcareProviderApplicationVersionService = Depends(
+        get_healthcare_provider_application_version_service
+    ),
+) -> List[HealthcareProviderApplicationVersionDTO]:
+    application_versions = service.get_healthcare_provider_application_versions(
+        healthcare_provider_id
+    )
+    return [
+        map_healthcare_provider_app_version_entity_to_dto(version)
+        for version in application_versions
+    ]
+
+
+@router.post("/{healthcare_provider_id}/application_versions/{version_id}")
+def register_application_version_to_healthcare_provider(
+    healthcare_provider_id: UUID,
+    version_id: UUID,
+    service: HealthcareProviderApplicationVersionService = Depends(
+        get_healthcare_provider_application_version_service
+    ),
+) -> HealthcareProviderDTO:
+    healthcare_provider = service.assign_application_version_to_healthcare_provider(
+        healthcare_provider_id, version_id
+    )
+    return map_healthcare_provider_entity_to_dto(healthcare_provider)
+
+
+@router.delete("/{healthcare_provider_id}/application_versions/{version_id}")
+def deregister_application_version_to_healthcare_provider(
+    healthcare_provider_id: UUID,
+    version_id: UUID,
+    service: HealthcareProviderApplicationVersionService = Depends(
+        get_healthcare_provider_application_version_service
+    ),
+) -> HealthcareProviderDTO:
+    healthcare_provider = service.unassing_application_version_to_healthcare_provider(
+        healthcare_provider_id, version_id
+    )
     return map_healthcare_provider_entity_to_dto(healthcare_provider)

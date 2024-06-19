@@ -1,6 +1,13 @@
+from typing import List
 from uuid import UUID
 
 from pydantic import BaseModel
+
+from app.schemas.application.schema import ApplicationVersionDTO
+
+
+class HealthcareProviderApplicationVersionDTO(ApplicationVersionDTO):
+    pass
 
 
 class HealthcareProviderBase(BaseModel):
@@ -16,3 +23,4 @@ class HealthcareProviderCreateDTO(HealthcareProviderBase):
 
 class HealthcareProviderDTO(HealthcareProviderBase):
     id: UUID
+    application_versions: List[HealthcareProviderApplicationVersionDTO] = []
