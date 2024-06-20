@@ -130,3 +130,18 @@ class AppVersionExistsInHealthcareProviderException(ConflictException):
 class AppVersionNotUsedByHealthcareProviderException(ConflictException):
     def __init__(self) -> None:
         super().__init__("Application version is not being used by Healthcare provider")
+
+
+class AppVersionAlreadyQualifiedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Application version is already qualified for the protocol")
+
+
+class AppVersionAlreadyArchivedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Application Version is already archived for protocol")
+
+
+class AppVersionNotQualifiedForProtocolException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Application version is not qualified for the protocol")

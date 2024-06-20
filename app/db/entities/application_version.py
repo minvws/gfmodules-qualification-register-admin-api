@@ -45,7 +45,7 @@ class ApplicationVersion(Base):
         cascade="delete, delete-orphan",
     )
     qualified_protocol_versions: Mapped[
-        List["application_version_qualification.ApplicationVersionQualification"]
+        List["application_version_qualification.ProtocolApplicationQualification"]
     ] = relationship(back_populates="application_version")
 
     def __repr__(self) -> str:
