@@ -1,4 +1,4 @@
-version: "3"
+version: "3.5"
 
 services:
     app:
@@ -28,3 +28,4 @@ services:
 networks:
   gfmodules-qualification:
     driver: bridge
+    name: gfmodules-qualification
