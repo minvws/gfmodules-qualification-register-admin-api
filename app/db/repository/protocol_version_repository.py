@@ -25,3 +25,11 @@ class ProtocolVersionRepository(RepositoryBase):
         except DatabaseError as e:
             logger.error(e)
             return None
+
+    def update(self, protocol_version: ProtocolVersion) -> None:
+        try:
+            self.session.commit()
+            self.session.refresh(protocol_version)
+        except DatabaseError as e:
+            logger.error(e)
+            self.session.rollback()

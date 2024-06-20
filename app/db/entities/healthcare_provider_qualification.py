@@ -52,7 +52,7 @@ class HealthcareProviderQualification(Base):
         relationship(back_populates="qualified_protocols")
     )
     protocol_version: Mapped["protocol_version.ProtocolVersion"] = relationship(
-        back_populates="qualified_healthcare_providers"
+        back_populates="qualified_healthcare_providers", lazy="selectin"
     )
 
     def __repr__(self) -> str:

@@ -181,16 +181,17 @@ CREATE TABLE healthcare_providers_qualifications(
 CREATE TRIGGER update_healthcare_providers_qualifications_modified_at BEFORE UPDATE ON public.healthcare_providers_qualifications FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- create Qualifications junction table between ApplicationVersion and ProtocolVersions
-CREATE TABLE application_versions_qualifications(
+CREATE TABLE protocol_application_qualifications(
     id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE, -- Probably not needed
     application_version_id uuid REFERENCES application_versions (id) ON UPDATE CASCADE ON DELETE CASCADE,
     protocol_version_id uuid REFERENCES protocol_versions (id) ON UPDATE CASCADE ON DELETE CASCADE,
     qualification_date DATE NOT NULL,
+    archived_date TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
     modified_at TIMESTAMP default NOW(),
 
-    CONSTRAINT application_versions_qualifications_pk PRIMARY KEY (application_version_id, protocol_version_id)
+    CONSTRAINT protocol_application_qualifications_pk PRIMARY KEY (application_version_id, protocol_version_id)
 );
 
-CREATE TRIGGER update_application_versions_qualifications_modified_at BEFORE UPDATE ON public.application_versions_qualifications FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
+CREATE TRIGGER update_protocol_application_qualifications_modified_at BEFORE UPDATE ON public.protocol_application_qualifications FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
