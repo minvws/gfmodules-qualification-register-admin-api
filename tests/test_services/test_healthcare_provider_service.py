@@ -2,6 +2,8 @@ import unittest
 
 from app.db.db import Database
 from app.db.services.healthcare_provider_service import HealthcareProviderService
+from app.db.services.protocol_service import ProtocolService
+from app.db.services.protocol_version_service import ProtocolVersionService
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     URACodeAlreadyExists,
@@ -18,8 +20,27 @@ class TestHealthcareProviderService(unittest.TestCase):
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
         # setup service
+        self.protocol_service = ProtocolService(db_session_factory=db_session_factory)
+        self.protocol_version_service = ProtocolVersionService(
+            db_session_factory=db_session_factory,
+            protocol_service=self.protocol_service,
+        )
         self.healthcare_provider_service = HealthcareProviderService(
             db_session_factory=db_session_factory
+        )
+
+        # setup data
+        self.mock_protocol = self.protocol_service.create_one(
+            protocol_type="Directive",
+            name="example",
+            description="example",
+        )
+        self.mock_protocol_version = (
+            self.protocol_version_service.add_one_protocol_version(
+                protocol_id=self.mock_protocol.id,
+                version="example",
+                description="example",
+            )
         )
 
     def test_add_one_healthcare_provider(self) -> None:
@@ -29,6 +50,7 @@ class TestHealthcareProviderService(unittest.TestCase):
                 agb_code="example agb code",
                 trade_name="example trade name",
                 statutory_name="example statutory name",
+                protocol_version_id=self.mock_protocol_version.id,
             )
         )
 
@@ -54,6 +76,7 @@ class TestHealthcareProviderService(unittest.TestCase):
             agb_code="example agb code",
             trade_name="example trade name",
             statutory_name="example statutory name",
+            protocol_version_id=self.mock_protocol_version.id,
         )
 
         with self.assertRaises(URACodeAlreadyExists) as context:
@@ -62,6 +85,7 @@ class TestHealthcareProviderService(unittest.TestCase):
                 agb_code="some other agb code",
                 trade_name="some other trade name",
                 statutory_name="some other statutory name",
+                protocol_version_id=self.mock_protocol_version.id,
             )
             self.assertTrue("ura code does not exits" in str(context.exception))
 
@@ -72,6 +96,7 @@ class TestHealthcareProviderService(unittest.TestCase):
             agb_code=agb_code,
             trade_name="example trade name",
             statutory_name="example statutory name",
+            protocol_version_id=self.mock_protocol_version.id,
         )
 
         with self.assertRaises(AGBCodeAlreadyExists) as context:
@@ -80,6 +105,7 @@ class TestHealthcareProviderService(unittest.TestCase):
                 agb_code=agb_code,
                 trade_name="some other trade name",
                 statutory_name="some other statutory name",
+                protocol_version_id=self.mock_protocol_version.id,
             )
 
             self.assertTrue("agb code does not exits" in str(context.exception))
@@ -91,6 +117,7 @@ class TestHealthcareProviderService(unittest.TestCase):
                 agb_code="example agb code",
                 trade_name="example trade name",
                 statutory_name="example statutory name",
+                protocol_version_id=self.mock_protocol_version.id,
             )
         )
         self.healthcare_provider_service.delete_one_healthcare_provider(
@@ -110,6 +137,7 @@ class TestHealthcareProviderService(unittest.TestCase):
             agb_code="example agb code",
             trade_name="example trade name",
             statutory_name="example statutory name",
+            protocol_version_id=self.mock_protocol_version.id,
         )
         expected_healthcare_providers = [new_healthcare_provider.to_dict()]
         actual_db_healthcare_providers = (

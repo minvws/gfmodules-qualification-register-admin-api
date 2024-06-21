@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import types, TIMESTAMP, PrimaryKeyConstraint, Date, ForeignKey
@@ -40,6 +41,9 @@ class HealthcareProviderQualification(Base):
     )
     qualification_date: Mapped[datetime] = mapped_column(
         "qualification_date", Date, nullable=False
+    )
+    archived_date: Mapped[Optional[datetime]] = mapped_column(
+        "archived_date", TIMESTAMP, nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(
         "created_at", TIMESTAMP, nullable=False, default=datetime.now()

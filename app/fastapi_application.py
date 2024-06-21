@@ -94,8 +94,8 @@ def setup_fastapi() -> FastAPI:
         roles_router,
         system_types_router,
         applications_router,
-        healthcare_provider_router,
         protocol_router,
+        healthcare_provider_router,
         qualification_router,
     ]
     for router in routers:

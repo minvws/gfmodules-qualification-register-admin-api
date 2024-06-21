@@ -7,6 +7,9 @@ from app.db.services.application_type_service import ApplicationTypeService
 from app.db.services.healthcare_provider_application_version_service import (
     HealthcareProviderApplicationVersionService,
 )
+from app.db.services.healthcare_provider_qualification_service import (
+    HealthcareProviderQualificationService,
+)
 from app.db.services.healthcare_provider_service import HealthcareProviderService
 from app.db.services.protocol_application_qualification_service import (
     ProtocolApplicationQualificationService,
@@ -100,6 +103,14 @@ def container_config(binder: inject.Binder) -> None:
         protocol_application_qualification_service,
     )
 
+    healthcare_provider_qualification_service = HealthcareProviderQualificationService(
+        db_session_factory=session_factory
+    )
+    binder.bind(
+        HealthcareProviderQualificationService,
+        healthcare_provider_qualification_service,
+    )
+
 
 def get_vendors_service() -> VendorService:
     return inject.instance(VendorService)
@@ -155,6 +166,12 @@ def get_protocol_service() -> ProtocolService:
 
 def get_protocol_version_service() -> ProtocolVersionService:
     return inject.instance(ProtocolVersionService)
+
+
+def get_healthcare_provider_qualification_service() -> (
+    HealthcareProviderQualificationService
+):
+    return inject.instance(HealthcareProviderQualificationService)
 
 
 def get_database() -> Database:

@@ -172,6 +172,7 @@ CREATE TABLE healthcare_providers_qualifications(
     healthcare_provider_id uuid REFERENCES healthcare_providers (id) ON UPDATE CASCADE ON DELETE CASCADE,
     protocol_version_id uuid REFERENCES protocol_versions (id) ON UPDATE CASCADE ON DELETE CASCADE,
     qualification_date DATE NOT NULL,
+    archived_date TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
     modified_at TIMESTAMP default NOW(),
 
