@@ -7,6 +7,8 @@ from app.db.services.healthcare_provider_application_version_service import (
     HealthcareProviderApplicationVersionService,
 )
 from app.db.services.healthcare_provider_service import HealthcareProviderService
+from app.db.services.protocol_service import ProtocolService
+from app.db.services.protocol_version_service import ProtocolVersionService
 from app.db.services.roles_service import RolesService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
@@ -34,6 +36,11 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
         self.application_version_service = ApplicationVersionService(
             application_service=self.application_service,
             db_session_factory=db_session_factory,
+        )
+        self.protocol_service = ProtocolService(db_session_factory=db_session_factory)
+        self.protocol_version_service = ProtocolVersionService(
+            db_session_factory=db_session_factory,
+            protocol_service=self.protocol_service,
         )
 
         self.healthcare_provider_service = HealthcareProviderService(
@@ -63,12 +70,25 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
             roles=[self.mock_role],
             system_types=[self.mock_system_type],
         )
+        self.mock_protocol = self.protocol_service.create_one(
+            protocol_type="Directive",
+            name="example",
+            description="example",
+        )
+        self.mock_protocol_version = (
+            self.protocol_version_service.add_one_protocol_version(
+                protocol_id=self.mock_protocol.id,
+                version="example",
+                description="example",
+            )
+        )
         self.mock_healthcare_provider = (
             self.healthcare_provider_service.add_one_provider(
                 ura_code="example",
                 agb_code="example",
                 trade_name="example",
                 statutory_name="example",
+                protocol_version_id=self.mock_protocol_version.id,
             )
         )
 

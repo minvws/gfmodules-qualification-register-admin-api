@@ -48,7 +48,11 @@ class HealthcareProvider(Base):
     )
     qualified_protocols: Mapped[
         List["healthcare_provider_qualification.HealthcareProviderQualification"]
-    ] = relationship(back_populates="healthcare_provider")
+    ] = relationship(
+        back_populates="healthcare_provider",
+        lazy="selectin",
+        cascade="save-update, delete, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return self._repr(

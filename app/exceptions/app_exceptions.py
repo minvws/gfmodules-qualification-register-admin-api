@@ -145,3 +145,20 @@ class AppVersionAlreadyArchivedException(ConflictException):
 class AppVersionNotQualifiedForProtocolException(NotFoundException):
     def __init__(self) -> None:
         super().__init__("Application version is not qualified for the protocol")
+
+
+class HealthcareProviderAlreadyQualifiedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__(
+            "Healthcare provider already qualified for the protocol version"
+        )
+
+
+class HealthcareProviderQualificationAlreadyArchivedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Qualification is already archived for healthcare provider")
+
+
+class HealthcareProviderNotQualifiedForProtocolException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Healthcare provider is not qualified for the protocol")

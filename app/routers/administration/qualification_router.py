@@ -2,9 +2,20 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from app.container import get_protocol_application_qualification_service
+from app.container import (
+    get_protocol_application_qualification_service,
+    get_healthcare_provider_qualification_service,
+)
+from app.db.services.healthcare_provider_qualification_service import (
+    HealthcareProviderQualificationService,
+)
 from app.db.services.protocol_application_qualification_service import (
     ProtocolApplicationQualificationService,
+)
+from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
+from app.schemas.healthcare_provider.schema import (
+    HealthcareProviderDTO,
+    HealthcareProviderQualificationCreateDTO,
 )
 from app.schemas.protocol_application_qualification.mapper import (
     map_protocol_qualification_entity_to_dto,
@@ -48,3 +59,35 @@ def archive_application_version_qualification(
         application_version_id=application_version_id,
     )
     return map_protocol_qualification_entity_to_dto(protocol_version)
+
+
+@router.post("/{healthcare_provider_id}/protocol_versions/{protocol_version_id}")
+def qualify_healthcare_provider(
+    healthcare_provider_id: UUID,
+    protocol_version_id: UUID,
+    data: HealthcareProviderQualificationCreateDTO,
+    service: HealthcareProviderQualificationService = Depends(
+        get_healthcare_provider_qualification_service
+    ),
+) -> HealthcareProviderDTO:
+    healthcare_provider = service.qualify_healthcare_provider(
+        healthcare_provider_id=healthcare_provider_id,
+        protocol_version_id=protocol_version_id,
+        qualification_date=data.qualification_date,
+    )
+    return map_healthcare_provider_entity_to_dto(healthcare_provider)
+
+
+@router.delete("/{healthcare_provider_id}/protocol_versions/{protocol_version_id}")
+def archive_healthcare_provider_qualification(
+    healthcare_provider_id: UUID,
+    protocol_version_id: UUID,
+    service: HealthcareProviderQualificationService = Depends(
+        get_healthcare_provider_qualification_service
+    ),
+) -> HealthcareProviderDTO:
+    healthcare_provider = service.archive_healthcare_provider_qualification(
+        healthcare_provider_id=healthcare_provider_id,
+        protocol_version_id=protocol_version_id,
+    )
+    return map_healthcare_provider_entity_to_dto(healthcare_provider)
