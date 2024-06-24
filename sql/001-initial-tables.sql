@@ -1,11 +1,3 @@
--- Create function to update timestamp triggers
-CREATE FUNCTION update_modified_at() RETURNS TRIGGER AS $$
-BEGIN
-    NEW.modified_at = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
 -- create vendors table and triggers
 CREATE TABLE vendors (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -17,8 +9,6 @@ CREATE TABLE vendors (
 
     PRIMARY KEY (id)
 );
-
-CREATE TRIGGER update_vendors_modified_at BEFORE UPDATE ON public.vendors FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- create Protocols table with types and triggers
 
@@ -39,8 +29,6 @@ CREATE TABLE protocols (
     PRIMARY KEY (id)
 );
 
-CREATE TRIGGER update_protocols_modified_at BEFORE UPDATE ON public.protocols FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
 -- create ProtocolVersions table with types and triggers
 CREATE TABLE protocol_versions (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -54,8 +42,6 @@ CREATE TABLE protocol_versions (
     CONSTRAINT protocols_versions_protocols_fk FOREIGN KEY (protocol_id) REFERENCES protocols (id) ON DELETE CASCADE
 );
 
-CREATE TRIGGER update_protocl_versions_modified_at BEFORE UPDATE ON public.protocol_versions FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
 -- create Roles table with triggers
 CREATE TABLE roles (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -67,8 +53,6 @@ CREATE TABLE roles (
     PRIMARY KEY (id)
 );
 
-CREATE TRIGGER update_roles_modified_at BEFORE UPDATE ON public.roles FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
 -- create SystemTypes table with triggers
 CREATE TABLE system_types (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -79,8 +63,6 @@ CREATE TABLE system_types (
 
     PRIMARY KEY (id)
 );
-
-CREATE TRIGGER update_system_types_modified_at BEFORE UPDATE ON public.system_types FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- create Applications table with triggers
 CREATE TABLE applications (
@@ -95,9 +77,6 @@ CREATE TABLE applications (
     CONSTRAINT applications_vendors_fk FOREIGN KEY (vendor_id) REFERENCES vendors (id) ON DELETE CASCADE
 );
 
-CREATE TRIGGER update_applications_modified_at BEFORE UPDATE ON public.applications FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
-
 -- create ApplicationVersions table with triggers
 CREATE TABLE application_versions (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -109,8 +88,6 @@ CREATE TABLE application_versions (
     PRIMARY KEY (id),
     CONSTRAINT applications_versions_application_fk FOREIGN KEY (application_id) REFERENCES applications (id) ON DELETE CASCADE
 );
-
-CREATE TRIGGER update_application_versions_modified_at BEFORE UPDATE ON public.application_versions FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- create HealthcareProvider table with triggers
 CREATE TABLE healthcare_providers (
@@ -125,8 +102,6 @@ CREATE TABLE healthcare_providers (
     PRIMARY KEY (id)
 );
 
-CREATE TRIGGER update_healthcare_providers_modified_at BEFORE UPDATE ON public.healthcare_providers FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
 -- create Applications junction table with Roles
 CREATE TABLE applications_roles (
     id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE, -- Probably not needed
@@ -137,8 +112,6 @@ CREATE TABLE applications_roles (
 
     CONSTRAINT applications_roles_pk PRIMARY KEY (application_id, role_id)
 );
-
-CREATE TRIGGER update_applications_roles_modified_at BEFORE UPDATE ON public.applications_roles FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- create Applications junction table with SystemTypes
 CREATE TABLE applications_types (
@@ -151,8 +124,6 @@ CREATE TABLE applications_types (
     CONSTRAINT applications_types_pk PRIMARY KEY(application_id, system_type_id)
 );
 
-CREATE TRIGGER update_applications_types_modified_at BEFORE UPDATE ON public.applications_types FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
 -- create HealthcareProvider junction table with ApplicationVersions
 CREATE TABLE healthcare_providers_application_versions (
     id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE, -- Probably not needed
@@ -163,8 +134,6 @@ CREATE TABLE healthcare_providers_application_versions (
 
     CONSTRAINT healthcare_providers_application_versions_pk PRIMARY KEY (healthcare_provider_id, application_version_id)
 );
-
-CREATE TRIGGER update_healthcare_providers_application_versions_modified_at BEFORE UPDATE ON public.healthcare_providers_application_versions FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
 
 -- create Qualifications junction table between HealthcareProviders and ProtocolVersions
 CREATE TABLE healthcare_providers_qualifications(
@@ -179,8 +148,6 @@ CREATE TABLE healthcare_providers_qualifications(
     CONSTRAINT healthcare_providers_qualifications_pk PRIMARY KEY (healthcare_provider_id, protocol_version_id)
 );
 
-CREATE TRIGGER update_healthcare_providers_qualifications_modified_at BEFORE UPDATE ON public.healthcare_providers_qualifications FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
 -- create Qualifications junction table between ApplicationVersion and ProtocolVersions
 CREATE TABLE protocol_application_qualifications(
     id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE, -- Probably not needed
@@ -193,6 +160,3 @@ CREATE TABLE protocol_application_qualifications(
 
     CONSTRAINT protocol_application_qualifications_pk PRIMARY KEY (application_version_id, protocol_version_id)
 );
-
-CREATE TRIGGER update_protocol_application_qualifications_modified_at BEFORE UPDATE ON public.protocol_application_qualifications FOR EACH ROW EXECUTE PROCEDURE update_modified_at();
-
