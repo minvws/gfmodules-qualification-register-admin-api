@@ -21,9 +21,7 @@ from app.schemas.healthcare_provider.schema import (
     HealthcareProviderApplicationVersionDTO,
 )
 
-router = APIRouter(
-    prefix="/administration/healthcare-provider", tags=["Healthcare  Provider"]
-)
+router = APIRouter(prefix="/healthcare-provider", tags=["Healthcare  Provider"])
 
 
 @router.get("/")
