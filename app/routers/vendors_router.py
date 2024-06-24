@@ -10,7 +10,7 @@ from app.container import (
     get_vendors_service,
 )
 
-router = APIRouter(prefix="/administration/vendors", tags=["Vendors"])
+router = APIRouter(prefix="/vendors", tags=["Vendors"])
 
 
 @router.get("", response_model=List[VendorDTO])

@@ -30,7 +30,7 @@ from app.db.services.application_service import ApplicationService
 from app.db.services.application_version_service import ApplicationVersionService
 from app.db.services.vendor_application_service import VendorApplicationService
 
-router = APIRouter(prefix="/administration/applications", tags=["Applications"])
+router = APIRouter(prefix="/applications", tags=["Applications"])
 
 
 @router.get("", response_model=List[ApplicationDTO])

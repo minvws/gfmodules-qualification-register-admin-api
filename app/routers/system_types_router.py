@@ -8,7 +8,7 @@ from app.schemas.system_type.mapper import map_system_type_entity_to_dto
 from app.schemas.system_type.schema import SystemTypeCreateDTO, SystemTypeDTO
 from app.db.services.system_type_service import SystemTypeService
 
-router = APIRouter(prefix="/administration/system_types", tags=["System Types"])
+router = APIRouter(prefix="/system_types", tags=["System Types"])
 
 
 @router.get("/")

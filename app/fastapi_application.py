@@ -8,15 +8,15 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.routers.default import router as default_router
 from app.routers.health import router as health_router
-from app.routers.administration.vendors_router import router as vendors_router
-from app.routers.administration.applications_router import router as applications_router
-from app.routers.administration.system_types_router import router as system_types_router
-from app.routers.administration.healthcare_provider_router import (
+from app.routers.vendors_router import router as vendors_router
+from app.routers.applications_router import router as applications_router
+from app.routers.system_types_router import router as system_types_router
+from app.routers.healthcare_provider_router import (
     router as healthcare_provider_router,
 )
-from app.routers.administration.roles_router import router as roles_router
-from app.routers.administration.protocol_router import router as protocol_router
-from app.routers.administration.qualification_router import (
+from app.routers.roles_router import router as roles_router
+from app.routers.protocol_router import router as protocol_router
+from app.routers.qualification_router import (
     router as qualification_router,
 )
 from app.config import get_config

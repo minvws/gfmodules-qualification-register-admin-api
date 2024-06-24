@@ -8,7 +8,7 @@ from app.schemas.roles.mapper import map_role_model_to_dto
 from app.schemas.roles.schema import RoleCreateDTO, RoleUpdateDTO, RoleDTO
 from app.db.services.roles_service import RolesService
 
-router = APIRouter(prefix="/administration/roles", tags=["Roles"])
+router = APIRouter(prefix="/roles", tags=["Roles"])
 
 
 @router.get("/")

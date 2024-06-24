@@ -17,7 +17,7 @@ from app.schemas.protocol.schema import (
     ProtocolVersionDTO,
 )
 
-router = APIRouter(prefix="/administration/protocols", tags=["Protocols"])
+router = APIRouter(prefix="/protocols", tags=["Protocols"])
 
 
 @router.get("", response_model=List[ProtocolDTO])

@@ -25,7 +25,7 @@ from app.schemas.protocol_application_qualification.schema import (
     ProtocolApplicationQualificationDTO,
 )
 
-router = APIRouter(prefix="/administration/qualifications", tags=["Qualification"])
+router = APIRouter(prefix="/qualifications", tags=["Qualification"])
 
 
 @router.post("/{protocol_version_id}/application_versions/{version_id}")
