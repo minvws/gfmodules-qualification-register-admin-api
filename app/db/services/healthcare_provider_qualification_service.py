@@ -2,11 +2,11 @@ from uuid import UUID
 from datetime import date, datetime
 
 from app.db.entities.healthcare_provider import HealthcareProvider
-from app.db.entities.protocol_version import ProtocolVersion
 from app.db.repository.healthcare_provider_repository import (
     HealthcareProviderRepository,
 )
 from app.db.repository.protocol_version_repository import ProtocolVersionRepository
+from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     HealthcareProviderNotFoundException,
@@ -21,8 +21,13 @@ from app.factory.healthcare_provider_qualification_factory import (
 
 
 class HealthcareProviderQualificationService:
-    def __init__(self, db_session_factory: DbSessionFactory) -> None:
+    def __init__(
+        self,
+        db_session_factory: DbSessionFactory,
+        repository_factory: RepositoryFactory,
+    ) -> None:
         self.db_session_factory = db_session_factory
+        self.repository_factory = repository_factory
 
     def qualify_healthcare_provider(
         self,
@@ -31,21 +36,20 @@ class HealthcareProviderQualificationService:
         qualification_date: date,
     ) -> HealthcareProvider:
         db_session = self.db_session_factory.create()
-        healthcare_provider_repository: HealthcareProviderRepository = (
-            db_session.get_repository(HealthcareProvider)
+        healthcare_provider_repository = self.repository_factory.create(
+            HealthcareProviderRepository, db_session
         )
-        protocol_version_repository: ProtocolVersionRepository = (
-            db_session.get_repository(ProtocolVersion)
+        protocol_version_repository = self.repository_factory.create(
+            ProtocolVersionRepository, db_session
         )
-        session = db_session.session
-        with session:
-            healthcare_provider = healthcare_provider_repository.find_one(
+        with db_session:
+            healthcare_provider = healthcare_provider_repository.get(
                 id=healthcare_provider_id
             )
             if healthcare_provider is None:
                 raise HealthcareProviderNotFoundException()
 
-            protocol_version = protocol_version_repository.find_one(
+            protocol_version = protocol_version_repository.get(
                 id=protocol_version_id
             )
             if protocol_version is None:
@@ -57,7 +61,6 @@ class HealthcareProviderQualificationService:
                     and qualified_protocols.healthcare_provider_id
                     == healthcare_provider.id
                 ):
-                    print(qualified_protocols.archived_date)
                     if qualified_protocols.archived_date is not None:
                         raise HealthcareProviderQualificationAlreadyArchivedException()
 
@@ -82,21 +85,20 @@ class HealthcareProviderQualificationService:
         self, healthcare_provider_id: UUID, protocol_version_id: UUID
     ) -> HealthcareProvider:
         db_session = self.db_session_factory.create()
-        healthcare_provider_repository: HealthcareProviderRepository = (
-            db_session.get_repository(HealthcareProvider)
+        healthcare_provider_repository = self.repository_factory.create(
+            HealthcareProviderRepository, db_session
         )
-        protocol_version_repository: ProtocolVersionRepository = (
-            db_session.get_repository(ProtocolVersion)
+        protocol_version_repository = self.repository_factory.create(
+            ProtocolVersionRepository, db_session
         )
-        session = db_session.session
-        with session:
-            healthcare_provider = healthcare_provider_repository.find_one(
+        with db_session:
+            healthcare_provider = healthcare_provider_repository.get(
                 id=healthcare_provider_id
             )
             if healthcare_provider is None:
                 raise HealthcareProviderNotFoundException()
 
-            protocol_version = protocol_version_repository.find_one(
+            protocol_version = protocol_version_repository.get(
                 id=protocol_version_id
             )
             if protocol_version is None:

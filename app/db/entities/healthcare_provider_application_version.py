@@ -47,7 +47,7 @@ class HealthcareProviderApplicationVersion(Base):
         relationship(back_populates="application_versions")
     )
     application_version: Mapped["application_version.ApplicationVersion"] = (
-        relationship(back_populates="healthcare_providers", lazy="selectin")
+        relationship(back_populates="healthcare_providers")
     )
 
     def __repr__(self) -> str:

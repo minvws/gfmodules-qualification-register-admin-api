@@ -3,9 +3,9 @@ from uuid import UUID
 
 from app.db.entities.application import Application
 from app.db.entities.application_role import ApplicationRole
-from app.db.entities.role import Role
 from app.db.repository.applications_repository import ApplicationsRepository
 from app.db.repository.roles_repository import RolesRepository
+from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
@@ -25,26 +25,27 @@ class ApplicationRolesService:
         roles_service: RolesService,
         application_service: ApplicationService,
         db_session_factory: DbSessionFactory,
+        repository_factory: RepositoryFactory,
     ) -> None:
         self.roles_service = roles_service
         self.application_service = application_service
         self.db_session_factory = db_session_factory
+        self.repository_factory = repository_factory
 
     def assign_role_to_application(
         self, application_id: UUID, role_id: UUID
     ) -> Application:
         db_session = self.db_session_factory.create()
-        application_repository: ApplicationsRepository = db_session.get_repository(
-            Application
+        application_repository = self.repository_factory.create(
+            ApplicationsRepository, db_session
         )
-        role_repository: RolesRepository = db_session.get_repository(Role)
-        session = db_session.session
-        with session:
-            application = application_repository.find_one(id=application_id)
+        role_repository = self.repository_factory.create(RolesRepository, db_session)
+        with db_session:
+            application = application_repository.get(id=application_id)
             if application is None:
                 raise ApplicationNotFoundException()
 
-            role = role_repository.find_one(id=role_id)
+            role = role_repository.get(id=role_id)
             if role is None:
                 raise RoleNotFoundException()
 
@@ -65,13 +66,12 @@ class ApplicationRolesService:
         self, application_id: UUID, role_id: UUID
     ) -> Application:
         db_session = self.db_session_factory.create()
-        application_repository: ApplicationsRepository = db_session.get_repository(
-            Application
+        application_repository = self.repository_factory.create(
+            ApplicationsRepository, db_session
         )
-        role_repository: RolesRepository = db_session.get_repository(Role)
-        session = db_session.session
-        with session:
-            application = application_repository.find_one(id=application_id)
+        role_repository = self.repository_factory.create(RolesRepository, db_session)
+        with db_session:
+            application = application_repository.get(id=application_id)
             if application is None:
                 raise ApplicationNotFoundException()
 
@@ -79,7 +79,7 @@ class ApplicationRolesService:
             if not app_has_roles:
                 raise ApplicationRoleDeleteException()
 
-            role = role_repository.find_one(id=role_id)
+            role = role_repository.get(id=role_id)
             if role is None:
                 raise RoleNotFoundException()
 
@@ -95,5 +95,5 @@ class ApplicationRolesService:
             return application
 
     def get_application_roles(self, application_id: UUID) -> List[ApplicationRole]:
-        application = self.application_service.get_one_application_by_id(application_id)
+        application = self.application_service.get_one(application_id)
         return application.roles

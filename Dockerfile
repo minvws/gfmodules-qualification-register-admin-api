@@ -34,7 +34,7 @@ RUN apt update && \
         postgresql-client-common
 
 RUN pip3 install --upgrade pip && \
-    pip3 install poetry==1.7 --no-cache-dir
+    pip3 install poetry==1.8 --no-cache-dir
 
 WORKDIR ${PROJECT_DIR}
 
@@ -54,4 +54,4 @@ WORKDIR ${PROJECT_DIR}
 
 ENV PYTHONPATH=${PROJECT_DIR}
 
-CMD python app/main.py
+CMD python -m app.main

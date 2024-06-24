@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.services.application_service import ApplicationService
 from app.db.services.application_version_service import ApplicationVersionService
 from app.db.services.protocol_application_qualification_service import (
@@ -26,57 +27,66 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.vendor_service = VendorService(db_session_factory=db_session_factory)
-        self.role_service = RolesService(db_session_factory=db_session_factory)
+        self.vendor_service = VendorService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
+        self.role_service = RolesService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory
+            db_session_factory=db_session_factory, repository_factory=repository_factory
         )
         self.application_service = ApplicationService(
             db_session_factory=db_session_factory,
             role_service=self.role_service,
             system_type_service=self.system_type_service,
+            repository_factory=repository_factory,
         )
         self.application_version_service = ApplicationVersionService(
             application_service=self.application_service,
             db_session_factory=db_session_factory,
+            repository_factory=repository_factory,
         )
-        self.protocol_service = ProtocolService(db_session_factory=db_session_factory)
+        self.protocol_service = ProtocolService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.protocol_version_service = ProtocolVersionService(
             db_session_factory=db_session_factory,
             protocol_service=self.protocol_service,
+            repository_factory=repository_factory,
         )
         self.application_qualification_service = (
             ProtocolApplicationQualificationService(
-                db_session_factory=db_session_factory
+                db_session_factory=db_session_factory,
+                repository_factory=repository_factory,
             )
         )
         # setup data
-        self.mock_vendor = self.vendor_service.add_one_vendor(
+        self.mock_vendor = self.vendor_service.add_one(
             kvk_number="example", trade_name="example", statutory_name="example"
         )
-        self.mock_role = self.role_service.create_role(
+        self.mock_role = self.role_service.add_one(
             name="example", description="example"
         )
-        self.mock_system_type = self.system_type_service.add_one_system_type(
+        self.mock_system_type = self.system_type_service.add_one(
             name="example", description="example"
         )
-        self.mock_application = self.application_service.add_one_application(
+        self.mock_application = self.application_service.add_one(
             vendor=self.mock_vendor,
             application_name="example",
             version="example",
             roles=[self.mock_role],
             system_types=[self.mock_system_type],
         )
-        self.mock_protocol = self.protocol_service.create_one(
+        self.mock_protocol = self.protocol_service.add_one(
             name="example", description="example", protocol_type="Directive"
         )
-        self.mock_protocol_version = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=self.mock_protocol.id,
-                version="example",
-                description="example",
-            )
+        self.mock_protocol_version = self.protocol_version_service.add_one(
+            protocol_id=self.mock_protocol.id,
+            version="example",
+            description="example",
         )
 
     def test_qualify_protocol_version_to_application_version(self) -> None:
@@ -87,10 +97,8 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
             qualification_date=date.today(),
         )
 
-        actual_protocol_version = (
-            self.protocol_version_service.get_one_protocol_version(
-                version_id=self.mock_protocol_version.id
-            )
+        actual_protocol_version = self.protocol_version_service.get_one(
+            version_id=self.mock_protocol_version.id
         )
 
         self.assertEqual(expected_protocol_version.id, actual_protocol_version.id)
@@ -120,10 +128,8 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
             application_version_id=mock_application_version.id,
         )
 
-        actual_protocol_version = (
-            self.protocol_version_service.get_one_protocol_version(
-                version_id=self.mock_protocol_version.id
-            )
+        actual_protocol_version = self.protocol_version_service.get_one(
+            version_id=self.mock_protocol_version.id
         )
 
         self.assertEqual(actual_protocol_version.id, expected_protocol_version.id)

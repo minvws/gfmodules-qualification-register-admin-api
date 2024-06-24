@@ -8,12 +8,12 @@ from app.schemas.roles.mapper import map_role_model_to_dto
 from app.schemas.roles.schema import RoleCreateDTO, RoleUpdateDTO, RoleDTO
 from app.db.services.roles_service import RolesService
 
-router = APIRouter(prefix="/administration/roles", tags=["Roles"])
+router = APIRouter(prefix="/roles", tags=["Roles"])
 
 
 @router.get("/")
 def get_all_roles(service: RolesService = Depends(get_roles_service)) -> List[RoleDTO]:
-    roles = service.gel_all_roles()
+    roles = service.gel_all()
     return [map_role_model_to_dto(role) for role in roles]
 
 
@@ -21,7 +21,7 @@ def get_all_roles(service: RolesService = Depends(get_roles_service)) -> List[Ro
 def get_one_role(
     role_id: UUID, service: RolesService = Depends(get_roles_service)
 ) -> RoleDTO:
-    role = service.get_one_role(role_id)
+    role = service.get_one(role_id)
     return map_role_model_to_dto(role)
 
 
@@ -29,7 +29,7 @@ def get_one_role(
 def create_role(
     data: RoleCreateDTO, service: RolesService = Depends(get_roles_service)
 ) -> RoleDTO:
-    new_role = service.create_role(**data.model_dump())
+    new_role = service.add_one(**data.model_dump())
     return map_role_model_to_dto(new_role)
 
 
@@ -49,5 +49,5 @@ def update_role_description(
 def delete_role(
     role_id: UUID, service: RolesService = Depends(get_roles_service)
 ) -> RoleDTO:
-    deleted_role = service.delete_role(role_id)
+    deleted_role = service.remove_one(role_id)
     return map_role_model_to_dto(deleted_role)

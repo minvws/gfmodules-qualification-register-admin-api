@@ -1,36 +1,68 @@
-import logging
-from typing import Type
+from typing import Any, TypeVar, Sequence
 
-from sqlalchemy import Engine
+from sqlalchemy import Engine, Select
+from sqlalchemy.exc import DatabaseError
 from sqlalchemy.orm import Session
 
-from app.db.decorator import repository_registry
-from app.db.entities.base import Base
-from app.db.repository.repository_base import TRepositoryBase
 
-logger = logging.getLogger(__name__)
+T = TypeVar("T")
 
 
 class DbSession(object):
     def __init__(self, engine: Engine) -> None:
-        self._session = Session(engine, expire_on_commit=False)
+        self._engine = engine
+        self.session = Session(self._engine, expire_on_commit=False)
 
-    @property
-    def session(self) -> Session:
-        return self._session
+    def __enter__(self) -> None:
+        self.session.begin()
 
-    @session.setter
-    def session(self, new_session: Session) -> None:
-        self._session = new_session
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        self.session.close()
 
-    def get_repository(self, model_class: Type[Base]) -> TRepositoryBase:  # type: ignore
-        """
-        Returns an instantiated repository for the given model class
+    def merge(self, entity: T) -> T:
+        return self.session.merge(entity)
 
-        :param model_class:
-        :return:
-        """
-        repo_class = repository_registry.get(model_class)
-        if repo_class:
-            return repo_class(self.session)  # type: ignore
-        raise ValueError(f"No repository registered for model {model_class}")
+    def create(self, entity: T) -> None:
+        try:
+            self.session.add(entity)
+            self.session.commit()
+            self.session.refresh(entity)
+        except DatabaseError as e:
+            self.session.rollback()
+            raise e
+
+    def update(self, entity: T) -> None:
+        try:
+            self.session.commit()
+            self.session.refresh(entity)
+        except DatabaseError as e:
+            self.session.rollback()
+            raise e
+
+    def delete(self, entity: T) -> None:
+        try:
+            self.session.delete(entity)
+            self.session.commit()
+        except DatabaseError as e:
+            self.session.rollback()
+            raise e
+
+    def scalars_first(self, statement: Select[tuple[T]]) -> T | None:
+        try:
+            return self.session.scalars(statement).first()
+        except DatabaseError as e:
+            raise e
+
+    def scalars_all(self, statement: Select[tuple[T]]) -> Sequence[T]:
+        try:
+            return self.session.scalars(statement).all()
+        except DatabaseError as e:
+            self.session.rollback()
+            raise e
+
+    def execute_scalar(self, statement: Select[tuple[T]]) -> Any | None:
+        try:
+            return self.session.execute(statement).scalar()
+        except DatabaseError as e:
+            self.session.rollback()
+            raise e

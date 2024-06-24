@@ -27,10 +27,10 @@ class Application(Base):
     vendor_id: Mapped[UUID] = mapped_column(
         ForeignKey("vendors.id", name="applications_vendors_fk")
     )
-    created_at: Mapped[TIMESTAMP] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         "created_at", TIMESTAMP, nullable=False, default=datetime.now()
     )
-    modified_at: Mapped[TIMESTAMP] = mapped_column(
+    modified_at: Mapped[datetime] = mapped_column(
         "modified_at", TIMESTAMP, nullable=False, default=datetime.now()
     )
 

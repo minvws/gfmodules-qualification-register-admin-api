@@ -1,4 +1,4 @@
-import fastapi_application
+from app import fastapi_application
 
 
 def main() -> None:

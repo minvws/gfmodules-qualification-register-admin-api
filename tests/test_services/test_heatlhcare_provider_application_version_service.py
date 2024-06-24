@@ -1,6 +1,7 @@
 import unittest
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.services.application_service import ApplicationService
 from app.db.services.application_version_service import ApplicationVersionService
 from app.db.services.healthcare_provider_application_version_service import (
@@ -22,88 +23,93 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.vendor_service = VendorService(db_session_factory=db_session_factory)
-        self.role_service = RolesService(db_session_factory=db_session_factory)
+        self.vendor_service = VendorService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
+        self.role_service = RolesService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory
+            db_session_factory=db_session_factory, repository_factory=repository_factory
         )
         self.application_service = ApplicationService(
             db_session_factory=db_session_factory,
             role_service=self.role_service,
             system_type_service=self.system_type_service,
+            repository_factory=repository_factory,
         )
         self.application_version_service = ApplicationVersionService(
             application_service=self.application_service,
             db_session_factory=db_session_factory,
+            repository_factory=repository_factory,
         )
-        self.protocol_service = ProtocolService(db_session_factory=db_session_factory)
+        self.protocol_service = ProtocolService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.protocol_version_service = ProtocolVersionService(
             db_session_factory=db_session_factory,
             protocol_service=self.protocol_service,
+            repository_factory=repository_factory,
         )
 
         self.healthcare_provider_service = HealthcareProviderService(
-            db_session_factory=db_session_factory
+            db_session_factory=db_session_factory, repository_factory=repository_factory
         )
         self.healthcare_provider_application_version_service = (
             HealthcareProviderApplicationVersionService(
                 db_session_factory=db_session_factory,
                 healthcare_provider_service=self.healthcare_provider_service,
+                repository_factory=repository_factory,
             )
         )
 
         # setup data
-        self.mock_vendor = self.vendor_service.add_one_vendor(
+        self.mock_vendor = self.vendor_service.add_one(
             kvk_number="example", trade_name="example", statutory_name="example"
         )
-        self.mock_role = self.role_service.create_role(
+        self.mock_role = self.role_service.add_one(
             name="example", description="example"
         )
-        self.mock_system_type = self.system_type_service.add_one_system_type(
+        self.mock_system_type = self.system_type_service.add_one(
             name="example", description="example"
         )
-        self.mock_application = self.application_service.add_one_application(
+        self.mock_application = self.application_service.add_one(
             vendor=self.mock_vendor,
             application_name="example",
             version="example",
             roles=[self.mock_role],
             system_types=[self.mock_system_type],
         )
-        self.mock_protocol = self.protocol_service.create_one(
+        self.mock_protocol = self.protocol_service.add_one(
             protocol_type="Directive",
             name="example",
             description="example",
         )
-        self.mock_protocol_version = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=self.mock_protocol.id,
-                version="example",
-                description="example",
-            )
+        self.mock_protocol_version = self.protocol_version_service.add_one(
+            protocol_id=self.mock_protocol.id,
+            version="example",
+            description="example",
         )
-        self.mock_healthcare_provider = (
-            self.healthcare_provider_service.add_one_provider(
-                ura_code="example",
-                agb_code="example",
-                trade_name="example",
-                statutory_name="example",
-                protocol_version_id=self.mock_protocol_version.id,
-            )
+        self.mock_healthcare_provider = self.healthcare_provider_service.add_one(
+            ura_code="example",
+            agb_code="example",
+            trade_name="example",
+            statutory_name="example",
+            protocol_version_id=self.mock_protocol_version.id,
         )
 
     def test_assign_application_version_to_healthcare_provider(self) -> None:
-        mock_app_versions = (
-            self.application_version_service.get_one_application_versions(
-                application_id=self.mock_application.id
-            )
+        mock_app_versions = self.application_version_service.get_one(
+            application_id=self.mock_application.id
         )
         expected_healthcare_provider = self.healthcare_provider_application_version_service.assign_application_version_to_healthcare_provider(
             provider_id=self.mock_healthcare_provider.id,
             application_version_id=mock_app_versions[0].id,
         )
 
-        actual_healthcare_provider = self.healthcare_provider_service.get_one_by_id(
+        actual_healthcare_provider = self.healthcare_provider_service.get_one(
             self.mock_healthcare_provider.id
         )
 
@@ -123,10 +129,8 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
         )
 
     def test_unassign_application_version_to_healthcare_provider(self) -> None:
-        mock_app_versions = (
-            self.application_version_service.get_one_application_versions(
-                application_id=self.mock_application.id
-            )
+        mock_app_versions = self.application_version_service.get_one(
+            application_id=self.mock_application.id
         )
         self.healthcare_provider_application_version_service.assign_application_version_to_healthcare_provider(
             provider_id=self.mock_healthcare_provider.id,
@@ -141,10 +145,8 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
         self.assertEqual(len(self.mock_healthcare_provider.application_versions), 0)
 
     def test_get_all_application_versions(self) -> None:
-        mock_app_versions = (
-            self.application_version_service.get_one_application_versions(
-                application_id=self.mock_application.id
-            )
+        mock_app_versions = self.application_version_service.get_one(
+            application_id=self.mock_application.id
         )
         expected_provider = self.healthcare_provider_application_version_service.assign_application_version_to_healthcare_provider(
             provider_id=self.mock_healthcare_provider.id,
@@ -153,7 +155,7 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
         self.healthcare_provider_application_version_service.get_healthcare_provider_application_versions(
             provider_id=self.mock_healthcare_provider.id
         )
-        actual_provider = self.healthcare_provider_service.get_one_by_id(
+        actual_provider = self.healthcare_provider_service.get_one(
             provider_id=self.mock_healthcare_provider.id
         )
 
