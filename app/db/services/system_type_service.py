@@ -14,10 +14,11 @@ from app.helpers.validators import validate_sets_equal
 
 class SystemTypeService:
     @session_manager
-    def get_all(
-        self, system_type_repository: SystemTypeRepository = get_repository()
+    def get_many(
+        self,
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Sequence[SystemType]:
-        system_types = system_type_repository.get_all()
+        system_types = system_type_repository.get_many()
         return system_types
 
     @session_manager

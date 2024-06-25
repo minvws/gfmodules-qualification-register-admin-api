@@ -12,17 +12,12 @@ from app.exceptions.app_exceptions import (
     ApplicationAlreadyExistsException,
 )
 from app.factory.application_factory import ApplicationFactory
+from app.schemas.application.mapper import map_application_entity_to_dto
+from app.schemas.application.schema import ApplicationDTO
+from app.schemas.meta.schema import Page
 
 
 class ApplicationService:
-
-    @session_manager
-    def get_all(
-        self, application_repository: ApplicationRepository = get_repository()
-    ) -> Sequence[Application]:
-        applications = application_repository.get_all()
-        return applications
-
     @session_manager
     def get_by_vendor_id(
         self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
@@ -108,3 +103,16 @@ class ApplicationService:
         application_repository.create(new_application)
 
         return new_application
+
+    @session_manager
+    def get_paginated(
+        self,
+        limit: int,
+        offset: int,
+        application_repository: ApplicationRepository = get_repository(),
+    ) -> Page[ApplicationDTO]:
+        applications = application_repository.get_many(limit=limit, offset=offset)
+        dto = [map_application_entity_to_dto(app) for app in applications]
+        total = application_repository.count()
+
+        return Page(items=dto, limit=limit, offset=offset, total=total)

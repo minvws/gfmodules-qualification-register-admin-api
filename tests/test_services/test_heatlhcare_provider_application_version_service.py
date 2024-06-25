@@ -87,8 +87,8 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
             statutory_name="example",
             protocol_version_id=self.mock_protocol_version.id,
         )
-        self.mock_app_versions = self.application_version_service.get_many(
-            application_id=self.mock_application.id
+        self.mock_app_versions = self.application_version_service.add_one(
+            application_id=self.mock_application.id, version="example"
         )
 
     def test_assign_application_version_to_healthcare_provider(self) -> None:
@@ -128,21 +128,3 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
         )
 
         self.assertEqual(len(self.mock_healthcare_provider.application_versions), 0)
-
-    def test_get_all_application_versions(self) -> None:
-        expected_provider = self.healthcare_provider_application_version_service.assign_application_version_to_healthcare_provider(
-            provider_id=self.mock_healthcare_provider.id,
-            application_version_id=self.mock_app_versions[0].id,
-        )
-        self.healthcare_provider_application_version_service.get_healthcare_provider_application_versions(
-            provider_id=self.mock_healthcare_provider.id
-        )
-        actual_provider = self.healthcare_provider_service.get_one(
-            provider_id=self.mock_healthcare_provider.id
-        )
-
-        self.assertEqual(expected_provider.id, actual_provider.id)
-        self.assertEqual(
-            [version.to_dict() for version in expected_provider.application_versions],
-            [version.to_dict() for version in actual_provider.application_versions],
-        )

@@ -24,10 +24,6 @@ class ApplicationVersionService:
     ) -> None:
         self.application_service = application_service
 
-    def get_many(self, application_id: UUID) -> Sequence[ApplicationVersion]:
-        application = self.application_service.get_one(application_id)
-        return application.versions
-
     @session_manager
     def add_one(
         self,

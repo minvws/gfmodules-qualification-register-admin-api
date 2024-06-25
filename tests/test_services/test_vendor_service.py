@@ -14,6 +14,8 @@ from app.db.services.application_service import ApplicationService
 from app.db.services.roles_service import RolesService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
+from app.schemas.meta.schema import Page
+from app.schemas.vendor.mapper import map_vendor_entity_to_dto
 from tests.utils.config_binder import config_binder
 
 
@@ -90,6 +92,19 @@ class TestVendorCRUD(unittest.TestCase):
             self.vendor_service.get_one(expected_vendor.id)
 
             self.assertTrue("does not exist" not in str(context.exception))
+
+    def test_get_vendors_paginated(self) -> None:
+        mock_vendor = self.vendor_service.add_one(
+            kvk_number=self.mock_vendor.kvk_number,
+            trade_name=self.mock_vendor.trade_name,
+            statutory_name=self.mock_vendor.statutory_name,
+        )
+        expected_vendors = self.vendor_service.get_paginated(limit=10, offset=0)
+        actual_vendors = Page(
+            items=[map_vendor_entity_to_dto(mock_vendor)], limit=10, offset=0, total=1
+        )
+
+        self.assertEqual(expected_vendors, actual_vendors)
 
 
 class TestDeleteVendorWithRegisterdApplications(unittest.TestCase):

@@ -1,10 +1,6 @@
-from typing import Sequence
 from uuid import UUID
 
 from app.db.entities.healthcare_provider import HealthcareProvider
-from app.db.entities.healthcare_provider_application_version import (
-    HealthcareProviderApplicationVersion,
-)
 from app.db.repository.application_version_repository import (
     ApplicationVersionRepository,
 )
@@ -30,12 +26,6 @@ class HealthcareProviderApplicationVersionService:
         healthcare_provider_service: HealthcareProviderService,
     ) -> None:
         self.healthcare_provider_service = healthcare_provider_service
-
-    def get_healthcare_provider_application_versions(
-        self, provider_id: UUID
-    ) -> Sequence[HealthcareProviderApplicationVersion]:
-        healthcare_provider = self.healthcare_provider_service.get_one(provider_id)
-        return healthcare_provider.application_versions
 
     @session_manager
     def assign_application_version_to_healthcare_provider(

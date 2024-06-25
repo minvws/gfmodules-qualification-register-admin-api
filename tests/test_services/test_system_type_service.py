@@ -71,7 +71,7 @@ class TestSystemTypeService(unittest.TestCase):
         )
         expected_system_types = [mock_system_type.to_dict()]
 
-        actual_db_system_types = self.system_type_service.get_all()
+        actual_db_system_types = self.system_type_service.get_many()
         actual_system_types = [
             system_type.to_dict() for system_type in actual_db_system_types
         ]

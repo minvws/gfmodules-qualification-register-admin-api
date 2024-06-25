@@ -1,4 +1,3 @@
-from typing import Sequence
 from uuid import UUID
 
 from app.db.entities.healthcare_provider import HealthcareProvider
@@ -14,6 +13,9 @@ from app.exceptions.app_exceptions import (
     ProtocolVersionNotFoundException,
 )
 from app.factory.healthcare_provider_factory import HealthcareProviderFactory
+from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
+from app.schemas.healthcare_provider.schema import HealthcareProviderDTO
+from app.schemas.meta.schema import Page
 
 
 class HealthcareProviderService:
@@ -30,12 +32,22 @@ class HealthcareProviderService:
         return healthcare_provider
 
     @session_manager
-    def get_all(
+    def get_paginated(
         self,
-        healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
-    ) -> Sequence[HealthcareProvider]:
-        healthcare_providers = healthcare_provider_repository.get_all()
-        return healthcare_providers
+        limit: int,
+        offset: int,
+        healthcare_providers_repository: HealthcareProviderRepository = get_repository(),
+    ) -> Page[HealthcareProviderDTO]:
+        healthcare_providers = healthcare_providers_repository.get_many(
+            limit=limit, offset=offset
+        )
+        dto = [
+            map_healthcare_provider_entity_to_dto(provider)
+            for provider in healthcare_providers
+        ]
+        total = healthcare_providers_repository.count()
+
+        return Page(items=dto, total=total, limit=limit, offset=offset)
 
     @session_manager
     def add_one(

@@ -79,7 +79,7 @@ class TestRoleService(unittest.TestCase):
             name="example role", description="some description"
         )
         expected_roles = [mock_role.to_dict()]
-        actual_db_roles = self.role_service.gel_all()
+        actual_db_roles = self.role_service.get_many()
         actual_roles = [role.to_dict() for role in actual_db_roles]
 
         self.assertSequenceEqual(expected_roles, actual_roles)

@@ -33,13 +33,11 @@ class RolesService:
         return role
 
     @session_manager
-    def gel_all(
-        self, role_repository: RoleRepository = get_repository()
+    def get_many(
+        self,
+        role_repository: RoleRepository = get_repository(),
     ) -> Sequence[Role]:
-        roles = role_repository.get_all()
-        if roles is None:
-            raise RoleNotFoundException()
-
+        roles = role_repository.get_many()
         return roles
 
     @session_manager

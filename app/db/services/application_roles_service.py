@@ -1,8 +1,6 @@
-from typing import List
 from uuid import UUID
 
 from app.db.entities.application import Application
-from app.db.entities.application_role import ApplicationRole
 from app.db.repository.application_repository import ApplicationRepository
 from app.db.repository.role_repository import RoleRepository
 from app.db.session_manager import session_manager, get_repository
@@ -83,7 +81,3 @@ class ApplicationRolesService:
                 break
 
         return application
-
-    def get_application_roles(self, application_id: UUID) -> List[ApplicationRole]:
-        application = self.application_service.get_one(application_id)
-        return application.roles

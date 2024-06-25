@@ -5,6 +5,8 @@ import inject
 from app.db.db import Database
 from app.db.services.protocol_service import ProtocolService
 from app.exceptions.app_exceptions import ProtocolNotFoundException
+from app.schemas.meta.schema import Page
+from app.schemas.protocol.mapper import map_protocol_entity_to_dto
 from tests.utils.config_binder import config_binder
 
 
@@ -52,15 +54,19 @@ class TestProtocolService(unittest.TestCase):
 
             self.assertTrue("does not exist" not in str(context.exception))
 
-    def test_get_many_protocols(self) -> None:
-        expected_protocol = self.protocol_service.add_one(
+    def test_get_protocols_paginated(self) -> None:
+        mock_protocol = self.protocol_service.add_one(
             name="test protocol",
             description="some description",
             protocol_type="Directive",
         )
-        expected_protocols = [expected_protocol.to_dict()]
 
-        actual_db_protocols = self.protocol_service.get_all()
-        actual_protocols = [protocol.to_dict() for protocol in actual_db_protocols]
+        expected_protocols = Page(
+            items=[map_protocol_entity_to_dto(mock_protocol)],
+            limit=10,
+            offset=0,
+            total=1,
+        )
+        actual_protocols = self.protocol_service.get_paginated(limit=10, offset=0)
 
-        self.assertCountEqual(expected_protocols, actual_protocols)
+        self.assertEqual(expected_protocols, actual_protocols)
