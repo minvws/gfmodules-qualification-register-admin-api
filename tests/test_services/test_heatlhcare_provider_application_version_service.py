@@ -65,7 +65,7 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
             )
         )
 
-        # setup data
+        # arrange
         self.mock_vendor = self.vendor_service.add_one(
             kvk_number="example", trade_name="example", statutory_name="example"
         )
@@ -99,14 +99,14 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
             statutory_name="example",
             protocol_version_id=self.mock_protocol_version.id,
         )
-
-    def test_assign_application_version_to_healthcare_provider(self) -> None:
-        mock_app_versions = self.application_version_service.get_one(
+        self.mock_app_versions = self.application_version_service.get_many(
             application_id=self.mock_application.id
         )
+
+    def test_assign_application_version_to_healthcare_provider(self) -> None:
         expected_healthcare_provider = self.healthcare_provider_application_version_service.assign_application_version_to_healthcare_provider(
             provider_id=self.mock_healthcare_provider.id,
-            application_version_id=mock_app_versions[0].id,
+            application_version_id=self.mock_app_versions[0].id,
         )
 
         actual_healthcare_provider = self.healthcare_provider_service.get_one(
@@ -129,28 +129,22 @@ class TestHeathlhcareProviderApplicationVersionService(unittest.TestCase):
         )
 
     def test_unassign_application_version_to_healthcare_provider(self) -> None:
-        mock_app_versions = self.application_version_service.get_one(
-            application_id=self.mock_application.id
-        )
         self.healthcare_provider_application_version_service.assign_application_version_to_healthcare_provider(
             provider_id=self.mock_healthcare_provider.id,
-            application_version_id=mock_app_versions[0].id,
+            application_version_id=self.mock_app_versions[0].id,
         )
 
         self.healthcare_provider_application_version_service.unassing_application_version_to_healthcare_provider(
             healthcare_provider_id=self.mock_healthcare_provider.id,
-            application_version_id=mock_app_versions[0].id,
+            application_version_id=self.mock_app_versions[0].id,
         )
 
         self.assertEqual(len(self.mock_healthcare_provider.application_versions), 0)
 
     def test_get_all_application_versions(self) -> None:
-        mock_app_versions = self.application_version_service.get_one(
-            application_id=self.mock_application.id
-        )
         expected_provider = self.healthcare_provider_application_version_service.assign_application_version_to_healthcare_provider(
             provider_id=self.mock_healthcare_provider.id,
-            application_version_id=mock_app_versions[0].id,
+            application_version_id=self.mock_app_versions[0].id,
         )
         self.healthcare_provider_application_version_service.get_healthcare_provider_application_versions(
             provider_id=self.mock_healthcare_provider.id

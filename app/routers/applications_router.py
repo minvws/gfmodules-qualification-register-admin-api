@@ -53,9 +53,7 @@ def get_application_by_id(
 def delete_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
 ) -> ApplicationDTO:
-    deleted_application = service.remove_one(
-        application_id=application_id
-    )
+    deleted_application = service.remove_one(application_id=application_id)
     return map_application_entity_to_dto(deleted_application)
 
 
@@ -64,7 +62,7 @@ def get_applications_versions(
     application_id: UUID,
     service: ApplicationVersionService = Depends(get_application_version_service),
 ) -> List[ApplicationVersionDTO]:
-    versions = service.get_one(application_id=application_id)
+    versions = service.get_many(application_id=application_id)
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
