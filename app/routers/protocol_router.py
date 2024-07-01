@@ -32,7 +32,7 @@ def get_all_protocols(
 def define_a_protocol(
     data: ProtocolCreateDTO, service: ProtocolService = Depends(get_protocol_service)
 ) -> ProtocolDTO:
-    protocol = service.create_one(**data.model_dump())
+    protocol = service.add_one(**data.model_dump())
     return map_protocol_entity_to_dto(protocol)
 
 
@@ -41,7 +41,7 @@ def get_one_protocol_by_id(
     protocol_id: UUID,
     service: ProtocolService = Depends(get_protocol_service),
 ) -> ProtocolDTO:
-    protocol = service.get_one_by_id(protocol_id)
+    protocol = service.get_one(protocol_id)
     return map_protocol_entity_to_dto(protocol)
 
 
@@ -49,7 +49,7 @@ def get_one_protocol_by_id(
 def delete_protocol(
     protocol_id: UUID, service: ProtocolService = Depends(get_protocol_service)
 ) -> ProtocolDTO:
-    protocol = service.delete_one_by_id(protocol_id)
+    protocol = service.remove_one(protocol_id)
     return map_protocol_entity_to_dto(protocol)
 
 
@@ -58,7 +58,7 @@ def get_protocol_versions(
     protocol_id: UUID,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
 ) -> List[ProtocolVersionDTO]:
-    versions = service.get_one_protocol_versions(protocol_id)
+    versions = service.get_many(protocol_id)
     return [map_protocol_version_entity_to_dto(version) for version in versions]
 
 
@@ -68,7 +68,7 @@ def add_protocol_version(
     data: ProtocolVersionCreateDTO,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
 ) -> ProtocolVersionDTO:
-    version = service.add_one_protocol_version(
+    version = service.add_one(
         protocol_id=protocol_id, version=data.version, description=data.description
     )
     return map_protocol_version_entity_to_dto(version)
@@ -80,9 +80,7 @@ def delete_protocol_version(
     version_id: UUID,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
 ) -> List[ProtocolVersionDTO]:
-    versions = service.delete_one_protocol_version(
-        protocol_id=protocol_id, version_id=version_id
-    )
+    versions = service.remove_one(protocol_id=protocol_id, version_id=version_id)
     return [map_protocol_version_entity_to_dto(version) for version in versions]
 
 
@@ -91,5 +89,5 @@ def get_protocol_version(
     version_id: UUID,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
 ) -> ProtocolVersionDTO:
-    protocol_version = service.get_one_protocol_version(version_id)
+    protocol_version = service.get_one(version_id)
     return map_protocol_version_entity_to_dto(protocol_version)

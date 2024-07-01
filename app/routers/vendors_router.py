@@ -17,7 +17,7 @@ router = APIRouter(prefix="/vendors", tags=["Vendors"])
 def get_all_vendors(
     vendor_service: VendorService = Depends(get_vendors_service),
 ) -> list[VendorDTO]:
-    result = vendor_service.get_all_vendors()
+    result = vendor_service.get_all()
     return [map_vendor_entity_to_dto(vendor) for vendor in result]
 
 
@@ -25,7 +25,7 @@ def get_all_vendors(
 def add_one_vendor(
     data: VendorCreateDTO, vendor_service: VendorService = Depends(get_vendors_service)
 ) -> VendorDTO:
-    results = vendor_service.add_one_vendor(
+    results = vendor_service.add_one(
         kvk_number=data.kvk_number,
         trade_name=data.trade_name,
         statutory_name=data.statutory_name,
@@ -37,7 +37,7 @@ def add_one_vendor(
 def get_vendor_by_id(
     vendor_id: UUID, vendor_service: VendorService = Depends(get_vendors_service)
 ) -> VendorDTO:
-    vendor = vendor_service.get_one_vendor_by_id(vendor_id=vendor_id)
+    vendor = vendor_service.get_one(vendor_id=vendor_id)
     return map_vendor_entity_to_dto(vendor)
 
 
@@ -45,7 +45,7 @@ def get_vendor_by_id(
 def delete_vendor_by_id(
     vendor_id: UUID, vendor_service: VendorService = Depends(get_vendors_service)
 ) -> VendorDTO:
-    deleted_vendor = vendor_service.delete_one_vendor_by_id(vendor_id=vendor_id)
+    deleted_vendor = vendor_service.remove_one(vendor_id=vendor_id)
     return map_vendor_entity_to_dto(deleted_vendor)
 
 
@@ -53,5 +53,5 @@ def delete_vendor_by_id(
 def get_one_vendor_by_kvk_number(
     kvk_number: str, vendor_service: VendorService = Depends(get_vendors_service)
 ) -> VendorDTO:
-    result = vendor_service.get_one_vendor_by_kvk_number(kvk_number)
+    result = vendor_service.get_one_by_kvk_number(kvk_number)
     return map_vendor_entity_to_dto(result)

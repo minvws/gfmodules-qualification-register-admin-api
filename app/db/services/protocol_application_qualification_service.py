@@ -1,12 +1,12 @@
 from datetime import date, datetime
 from uuid import UUID
 
-from app.db.entities.application_version import ApplicationVersion
 from app.db.entities.protocol_version import ProtocolVersion
 from app.db.repository.application_version_repository import (
     ApplicationVersionRepository,
 )
 from app.db.repository.protocol_version_repository import ProtocolVersionRepository
+from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     ProtocolVersionNotFoundException,
@@ -21,8 +21,13 @@ from app.factory.protocol_application_qualification_factory import (
 
 
 class ProtocolApplicationQualificationService:
-    def __init__(self, db_session_factory: DbSessionFactory) -> None:
+    def __init__(
+        self,
+        db_session_factory: DbSessionFactory,
+        repository_factory: RepositoryFactory,
+    ) -> None:
         self.db_session_factory = db_session_factory
+        self.repository_factory = repository_factory
 
     def qualify_protocol_version_to_application_version(
         self,
@@ -31,21 +36,20 @@ class ProtocolApplicationQualificationService:
         qualification_date: date,
     ) -> ProtocolVersion:
         db_session = self.db_session_factory.create()
-        application_version_repository: ApplicationVersionRepository = (
-            db_session.get_repository(ApplicationVersion)
+        application_version_repository = self.repository_factory.create(
+            ApplicationVersionRepository, db_session
         )
-        protocol_version_repository: ProtocolVersionRepository = (
-            db_session.get_repository(ProtocolVersion)
+        protocol_version_repository = self.repository_factory.create(
+            ProtocolVersionRepository, db_session
         )
-        session = db_session.session
-        with session:
-            protocol_version = protocol_version_repository.find_one(
+        with db_session:
+            protocol_version = protocol_version_repository.get(
                 id=protocol_version_id
             )
             if protocol_version is None:
                 raise ProtocolVersionNotFoundException()
 
-            application_version = application_version_repository.find_one(
+            application_version = application_version_repository.get(
                 id=application_version_id
             )
             if application_version is None:
@@ -76,21 +80,21 @@ class ProtocolApplicationQualificationService:
         self, application_version_id: UUID, protocol_version_id: UUID
     ) -> ProtocolVersion:
         db_session = self.db_session_factory.create()
-        protocol_version_repository: ProtocolVersionRepository = (
-            db_session.get_repository(ProtocolVersion)
+        protocol_version_repository = self.repository_factory.create(
+            ProtocolVersionRepository, db_session
         )
-        application_version_repository: ApplicationVersionRepository = (
-            db_session.get_repository(ApplicationVersion)
+
+        application_version_repository = self.repository_factory.create(
+            ApplicationVersionRepository, db_session
         )
-        session = db_session.session
-        with session:
-            protocol_version = protocol_version_repository.find_one(
+        with db_session:
+            protocol_version = protocol_version_repository.get(
                 id=protocol_version_id
             )
             if protocol_version is None:
                 raise ProtocolVersionNotFoundException()
 
-            application_version = application_version_repository.find_one(
+            application_version = application_version_repository.get(
                 id=application_version_id
             )
             if application_version is None:

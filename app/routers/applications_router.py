@@ -37,7 +37,7 @@ router = APIRouter(prefix="/applications", tags=["Applications"])
 def get_all_registered_applications(
     service: ApplicationService = Depends(get_application_service),
 ) -> List[ApplicationDTO]:
-    applications = service.get_all_applications()
+    applications = service.get_all()
     return [map_application_entity_to_dto(app) for app in applications]
 
 
@@ -45,7 +45,7 @@ def get_all_registered_applications(
 def get_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
 ) -> ApplicationDTO:
-    application = service.get_one_application_by_id(application_id=application_id)
+    application = service.get_one(application_id=application_id)
     return map_application_entity_to_dto(application)
 
 
@@ -53,7 +53,7 @@ def get_application_by_id(
 def delete_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
 ) -> ApplicationDTO:
-    deleted_application = service.delete_one_application_by_id(
+    deleted_application = service.remove_one(
         application_id=application_id
     )
     return map_application_entity_to_dto(deleted_application)
@@ -64,7 +64,7 @@ def get_applications_versions(
     application_id: UUID,
     service: ApplicationVersionService = Depends(get_application_version_service),
 ) -> List[ApplicationVersionDTO]:
-    versions = service.get_one_application_versions(application_id=application_id)
+    versions = service.get_one(application_id=application_id)
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
@@ -74,9 +74,7 @@ def add_application_version(
     data: ApplicationVersionCreateDTO,
     service: ApplicationVersionService = Depends(get_application_version_service),
 ) -> List[ApplicationVersionDTO]:
-    versions = service.add_application_version(
-        application_id=application_id, version=data.version
-    )
+    versions = service.add_one(application_id=application_id, version=data.version)
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
@@ -86,9 +84,7 @@ def delete_application_version(
     version_id: UUID,
     service: ApplicationVersionService = Depends(get_application_version_service),
 ) -> List[ApplicationVersionDTO]:
-    versions = service.delete_application_version(
-        application_id=application_id, version_id=version_id
-    )
+    versions = service.remove_one(application_id=application_id, version_id=version_id)
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
@@ -153,7 +149,7 @@ def get_application_types(
     application_id: UUID,
     service: ApplicationTypeService = Depends(get_application_type_service),
 ) -> List[ApplicationTypeDTO]:
-    application_types = service.get_all_application_types(application_id)
+    application_types = service.get_all(application_id)
     return [
         map_application_system_type_entity_to_dto(app_type)
         for app_type in application_types
