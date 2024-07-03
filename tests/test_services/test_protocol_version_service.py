@@ -1,6 +1,7 @@
 import unittest
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.services.protocol_service import ProtocolService
 from app.db.services.protocol_version_service import ProtocolVersionService
 from app.db.session_factory import DbSessionFactory
@@ -14,31 +15,31 @@ class TestProtocolVersionService(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.protocol_service = ProtocolService(db_session_factory=db_session_factory)
+        self.protocol_service = ProtocolService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.protocol_version_service = ProtocolVersionService(
             db_session_factory=db_session_factory,
             protocol_service=self.protocol_service,
+            repository_factory=repository_factory,
         )
 
     def test_add_one_protocol_version(self) -> None:
-        mock_protocol = self.protocol_service.create_one(
+        mock_protocol = self.protocol_service.add_one(
             protocol_type="Directive",
             name="example name",
             description="example description",
         )
-        expected_protocol_version = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=mock_protocol.id,
-                version="some version",
-                description="some description",
-            )
+        expected_protocol_version = self.protocol_version_service.add_one(
+            protocol_id=mock_protocol.id,
+            version="some version",
+            description="some description",
         )
 
-        actual_protocol_version = (
-            self.protocol_version_service.get_one_protocol_version(
-                version_id=expected_protocol_version.id
-            )
+        actual_protocol_version = self.protocol_version_service.get_one(
+            version_id=expected_protocol_version.id
         )
 
         self.assertEqual(expected_protocol_version.id, actual_protocol_version.id)
@@ -47,24 +48,20 @@ class TestProtocolVersionService(unittest.TestCase):
         )
 
     def test_get_one_protocol_versions(self) -> None:
-        mock_protocol = self.protocol_service.create_one(
+        mock_protocol = self.protocol_service.add_one(
             protocol_type="Directive",
             name="example name",
             description="example description",
         )
-        expected_db_protocol_version = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=mock_protocol.id,
-                version="some version",
-                description="some description",
-            )
+        expected_db_protocol_version = self.protocol_version_service.add_one(
+            protocol_id=mock_protocol.id,
+            version="some version",
+            description="some description",
         )
         expected_protocol_versions = [expected_db_protocol_version.to_dict()]
 
-        actual_db_protocol_versions = (
-            self.protocol_version_service.get_one_protocol_versions(
-                protocol_id=mock_protocol.id
-            )
+        actual_db_protocol_versions = self.protocol_version_service.get_many(
+            protocol_id=mock_protocol.id
         )
         actual_protocol_versions = [
             version.to_dict() for version in actual_db_protocol_versions
@@ -73,23 +70,19 @@ class TestProtocolVersionService(unittest.TestCase):
         self.assertCountEqual(expected_protocol_versions, actual_protocol_versions)
 
     def test_get_one_protocol_version(self) -> None:
-        mock_protocol = self.protocol_service.create_one(
+        mock_protocol = self.protocol_service.add_one(
             protocol_type="Directive",
             name="example name",
             description="example description",
         )
-        expected_protocol_version = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=mock_protocol.id,
-                version="some version",
-                description="some description",
-            )
+        expected_protocol_version = self.protocol_version_service.add_one(
+            protocol_id=mock_protocol.id,
+            version="some version",
+            description="some description",
         )
 
-        actual_protocol_version = (
-            self.protocol_version_service.get_one_protocol_version(
-                expected_protocol_version.id
-            )
+        actual_protocol_version = self.protocol_version_service.get_one(
+            expected_protocol_version.id
         )
 
         self.assertEqual(expected_protocol_version.id, actual_protocol_version.id)
@@ -101,22 +94,22 @@ class TestProtocolVersionService(unittest.TestCase):
         )
 
     def test_fetching_a_deleted_version_should_raise_exception(self) -> None:
-        mock_protocol = self.protocol_service.create_one(
+        mock_protocol = self.protocol_service.add_one(
             protocol_type="Directive",
             name="example name",
             description="example description",
         )
-        mock_protocol_version = self.protocol_version_service.add_one_protocol_version(
+        mock_protocol_version = self.protocol_version_service.add_one(
             protocol_id=mock_protocol.id,
             version="some version",
             description="some description",
         )
 
-        self.protocol_version_service.delete_one_protocol_version(
+        self.protocol_version_service.remove_one(
             protocol_id=mock_protocol.id, version_id=mock_protocol_version.id
         )
 
         with self.assertRaises(ProtocolVersionNotFoundException) as context:
-            self.protocol_version_service.get_one_protocol_version(mock_protocol.id)
+            self.protocol_version_service.get_one(mock_protocol.id)
 
             self.assertTrue("not found" in str(context.exception))

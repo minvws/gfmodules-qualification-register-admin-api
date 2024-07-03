@@ -1,6 +1,7 @@
 import unittest
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     VendorNotFoundException,
@@ -21,8 +22,11 @@ class TestVendorCRUD(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.vendor_service = VendorService(db_session_factory=db_session_factory)
+        self.vendor_service = VendorService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
 
         # arrange
         self.mock_vendor = VendorFactory.create_instance(
@@ -31,12 +35,12 @@ class TestVendorCRUD(unittest.TestCase):
 
     def test_add_one_vendor(self) -> None:
         # act
-        expected_vendor = self.vendor_service.add_one_vendor(
+        expected_vendor = self.vendor_service.add_one(
             kvk_number=self.mock_vendor.kvk_number,
             trade_name=self.mock_vendor.trade_name,
             statutory_name=self.mock_vendor.statutory_name,
         )
-        actual_vendor = self.vendor_service.get_one_vendor_by_kvk_number(
+        actual_vendor = self.vendor_service.get_one_by_kvk_number(
             expected_vendor.kvk_number
         )
 
@@ -47,13 +51,13 @@ class TestVendorCRUD(unittest.TestCase):
 
     def test_get_vendor_by_id(self) -> None:
         # act
-        expected_vendor = self.vendor_service.add_one_vendor(
+        expected_vendor = self.vendor_service.add_one(
             kvk_number=self.mock_vendor.kvk_number,
             trade_name=self.mock_vendor.trade_name,
             statutory_name=self.mock_vendor.statutory_name,
         )
 
-        actual_vendor = self.vendor_service.get_one_vendor_by_id(expected_vendor.id)
+        actual_vendor = self.vendor_service.get_one(expected_vendor.id)
 
         # assert
         self.assertEqual(expected_vendor.id, actual_vendor.id)
@@ -62,12 +66,12 @@ class TestVendorCRUD(unittest.TestCase):
 
     def test_delete_one_vendor_by_id(self) -> None:
         # act
-        expected_vendor = self.vendor_service.add_one_vendor(
+        expected_vendor = self.vendor_service.add_one(
             kvk_number=self.mock_vendor.kvk_number,
             trade_name=self.mock_vendor.trade_name,
             statutory_name=self.mock_vendor.statutory_name,
         )
-        actual_vendor = self.vendor_service.delete_one_vendor_by_id(expected_vendor.id)
+        actual_vendor = self.vendor_service.remove_one(expected_vendor.id)
 
         # assert
         self.assertEqual(expected_vendor.id, actual_vendor.id)
@@ -75,7 +79,7 @@ class TestVendorCRUD(unittest.TestCase):
         self.assertEqual(expected_vendor.trade_name, actual_vendor.trade_name)
 
         with self.assertRaises(VendorNotFoundException) as context:
-            self.vendor_service.get_one_vendor_by_id(expected_vendor.id)
+            self.vendor_service.get_one(expected_vendor.id)
 
             self.assertTrue("does not exist" not in str(context.exception))
 
@@ -87,16 +91,22 @@ class TestDeleteVendorWithRegisterdApplications(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.vendor_service = VendorService(db_session_factory=db_session_factory)
-        self.role_service = RolesService(db_session_factory=db_session_factory)
+        self.vendor_service = VendorService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
+        self.role_service = RolesService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory
+            db_session_factory=db_session_factory, repository_factory=repository_factory
         )
         self.application_servcice = ApplicationService(
             role_service=self.role_service,
             system_type_service=self.system_type_service,
             db_session_factory=db_session_factory,
+            repository_factory=repository_factory,
         )
         self.vendor_application_service = VendorApplicationService(
             application_service=self.application_servcice,
@@ -111,13 +121,13 @@ class TestDeleteVendorWithRegisterdApplications(unittest.TestCase):
         )
 
     def test_delete_vendor_with_registered_applications(self) -> None:
-        vendor = self.vendor_service.add_one_vendor(
+        vendor = self.vendor_service.add_one(
             kvk_number=self.mock_vendor.kvk_number,
             trade_name=self.mock_vendor.trade_name,
             statutory_name=self.mock_vendor.statutory_name,
         )
-        self.role_service.create_role("example_role", "example_role")
-        self.system_type_service.add_one_system_type("example_type", "example_type")
+        self.role_service.add_one("example_role", "example_role")
+        self.system_type_service.add_one("example_type", "example_type")
 
         self.vendor_application_service.register_one_app(
             vendor_id=vendor.id,
@@ -128,6 +138,6 @@ class TestDeleteVendorWithRegisterdApplications(unittest.TestCase):
         )
 
         with self.assertRaises(VendorCannotBeDeletedException) as context:
-            self.vendor_service.delete_one_vendor_by_id(vendor_id=vendor.id)
+            self.vendor_service.remove_one(vendor_id=vendor.id)
 
             self.assertTrue("does not exist" not in str(context.exception))

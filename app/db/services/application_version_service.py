@@ -1,13 +1,12 @@
 from typing import Sequence
 from uuid import UUID
 
-
-from app.db.entities.application import Application
 from app.db.entities.application_version import ApplicationVersion
-from app.db.repository.applications_repository import ApplicationsRepository
 from app.db.repository.application_version_repository import (
     ApplicationVersionRepository,
 )
+from app.db.repository.applications_repository import ApplicationsRepository
+from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     ApplicationVersionDeleteException,
@@ -24,27 +23,26 @@ class ApplicationVersionService:
         self,
         application_service: ApplicationService,
         db_session_factory: DbSessionFactory,
+        repository_factory: RepositoryFactory,
     ) -> None:
         self.db_session_factory = db_session_factory
         self.application_service = application_service
+        self.repository_factory = repository_factory
 
-    def get_one_application_versions(
-        self, application_id: UUID
-    ) -> Sequence[ApplicationVersion]:
-        application = self.application_service.get_one_application_by_id(application_id)
+    def get_one(self, application_id: UUID) -> Sequence[ApplicationVersion]:
+        application = self.application_service.get_one(application_id)
         return application.versions
 
-    def add_application_version(
+    def add_one(
         self, application_id: UUID, version: str
     ) -> Sequence[ApplicationVersion]:
         db_session = self.db_session_factory.create()
-        application_repository: ApplicationsRepository = db_session.get_repository(
-            Application
+        application_repository = self.repository_factory.create(
+            ApplicationsRepository, db_session
         )
-        session = db_session.session
-        with session:
-            application = session.merge(
-                self.application_service.get_one_application_by_id(application_id)
+        with db_session:
+            application = db_session.merge(
+                self.application_service.get_one(application_id)
             )
             new_version = ApplicationVersionFactory.create_instance(version=version)
             new_version.application = application
@@ -53,19 +51,18 @@ class ApplicationVersionService:
 
         return application.versions
 
-    def delete_application_version(
+    def remove_one(
         self, application_id: UUID, version_id: UUID
     ) -> Sequence[ApplicationVersion]:
         db_session = self.db_session_factory.create()
-        application_repository: ApplicationsRepository = db_session.get_repository(
-            Application
+        application_repository = self.repository_factory.create(
+            ApplicationsRepository, db_session
         )
-        application_version_repository: ApplicationVersionRepository = (
-            db_session.get_repository(ApplicationVersion)
+        application_version_repository = self.repository_factory.create(
+            ApplicationVersionRepository, db_session
         )
-        session = db_session.session
-        with session:
-            application = application_repository.find_one(id=application_id)
+        with db_session:
+            application = application_repository.get(id=application_id)
             if application is None:
                 raise ApplicationNotFoundException()
 
@@ -73,7 +70,7 @@ class ApplicationVersionService:
             if not app_has_versions:
                 raise ApplicationVersionDeleteException()
 
-            application_version = application_version_repository.find_one(id=version_id)
+            application_version = application_version_repository.get(id=version_id)
             if application_version is None:
                 raise ApplicationVersionNotFoundException()
 

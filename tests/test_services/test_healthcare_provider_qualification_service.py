@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.services.healthcare_provider_qualification_service import (
     HealthcareProviderQualificationService,
 )
@@ -23,52 +24,51 @@ class TestHealthcareProviderQualificationService(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.protocol_service = ProtocolService(db_session_factory=db_session_factory)
+        self.protocol_service = ProtocolService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.protocol_version_service = ProtocolVersionService(
             db_session_factory=db_session_factory,
             protocol_service=self.protocol_service,
+            repository_factory=repository_factory,
         )
         self.healthcare_provider_service = HealthcareProviderService(
-            db_session_factory=db_session_factory
+            db_session_factory=db_session_factory, repository_factory=repository_factory
         )
         self.healthcare_provider_qualification_service = (
             HealthcareProviderQualificationService(
-                db_session_factory=db_session_factory
+                db_session_factory=db_session_factory,
+                repository_factory=repository_factory,
             )
         )
 
         # setup data
-        self.mock_protocol = self.protocol_service.create_one(
+        self.mock_protocol = self.protocol_service.add_one(
             protocol_type="Directive",
             name="example",
             description="example",
         )
-        self.mock_protocol_version = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=self.mock_protocol.id,
-                version="example",
-                description="example",
-            )
+        self.mock_protocol_version = self.protocol_version_service.add_one(
+            protocol_id=self.mock_protocol.id,
+            version="example",
+            description="example",
         )
 
-        self.mock_healthcare_provider = (
-            self.healthcare_provider_service.add_one_provider(
-                ura_code="example",
-                agb_code="example",
-                trade_name="example",
-                statutory_name="example",
-                protocol_version_id=self.mock_protocol_version.id,
-            )
+        self.mock_healthcare_provider = self.healthcare_provider_service.add_one(
+            ura_code="example",
+            agb_code="example",
+            trade_name="example",
+            statutory_name="example",
+            protocol_version_id=self.mock_protocol_version.id,
         )
 
     def test_qualify_healthcare_provider(self) -> None:
-        mock_protocol_version_2 = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=self.mock_protocol.id,
-                version="example",
-                description="example",
-            )
+        mock_protocol_version_2 = self.protocol_version_service.add_one(
+            protocol_id=self.mock_protocol.id,
+            version="example",
+            description="example",
         )
 
         expected_healthcare_provider = (
@@ -78,7 +78,7 @@ class TestHealthcareProviderQualificationService(unittest.TestCase):
                 qualification_date=date.today(),
             )
         )
-        actual_healthcare_provider = self.healthcare_provider_service.get_one_by_id(
+        actual_healthcare_provider = self.healthcare_provider_service.get_one(
             self.mock_healthcare_provider.id
         )
 
@@ -113,7 +113,7 @@ class TestHealthcareProviderQualificationService(unittest.TestCase):
             healthcare_provider_id=self.mock_healthcare_provider.id,
             protocol_version_id=self.mock_protocol_version.id,
         )
-        actual_healthcare_provider = self.healthcare_provider_service.get_one_by_id(
+        actual_healthcare_provider = self.healthcare_provider_service.get_one(
             provider_id=self.mock_healthcare_provider.id
         )
 
@@ -150,12 +150,10 @@ class TestHealthcareProviderQualificationService(unittest.TestCase):
     def test_archive_a_non_qualified_healthcare_provider_should_raise_exception(
         self,
     ) -> None:
-        mock_protocol_version_2 = (
-            self.protocol_version_service.add_one_protocol_version(
-                protocol_id=self.mock_protocol.id,
-                version="example",
-                description="example",
-            )
+        mock_protocol_version_2 = self.protocol_version_service.add_one(
+            protocol_id=self.mock_protocol.id,
+            version="example",
+            description="example",
         )
 
         with self.assertRaises(

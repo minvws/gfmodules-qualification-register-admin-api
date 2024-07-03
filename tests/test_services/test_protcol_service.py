@@ -1,6 +1,7 @@
 import unittest
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.services.protocol_service import ProtocolService
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import ProtocolNotFoundException
@@ -13,37 +14,40 @@ class TestProtocolService(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.protocol_service = ProtocolService(db_session_factory=db_session_factory)
+        self.protocol_service = ProtocolService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
 
     def test_add_one_protocol(self) -> None:
-        mock_protocol = self.protocol_service.create_one(
+        mock_protocol = self.protocol_service.add_one(
             name="test protocol",
             description="some description",
             protocol_type="Directive",
         )
 
-        actual_protocol = self.protocol_service.get_one_by_id(mock_protocol.id)
+        actual_protocol = self.protocol_service.get_one(mock_protocol.id)
         self.assertEqual(mock_protocol.id, actual_protocol.id)
         self.assertEqual(mock_protocol.protocol_type, actual_protocol.protocol_type)
         self.assertEqual(mock_protocol.description, actual_protocol.description)
         self.assertEqual(mock_protocol.name, actual_protocol.name)
 
     def test_delete_protocol(self) -> None:
-        mock_protocol = self.protocol_service.create_one(
+        mock_protocol = self.protocol_service.add_one(
             name="test protocol",
             description="some description",
             protocol_type="Directive",
         )
-        self.protocol_service.delete_one_by_id(mock_protocol.id)
+        self.protocol_service.remove_one(mock_protocol.id)
 
         with self.assertRaises(ProtocolNotFoundException) as context:
-            self.protocol_service.get_one_by_id(mock_protocol.id)
+            self.protocol_service.get_one(mock_protocol.id)
 
             self.assertTrue("does not exist" not in str(context.exception))
 
     def test_get_many_protocols(self) -> None:
-        mock_protocol = self.protocol_service.create_one(
+        mock_protocol = self.protocol_service.add_one(
             name="test protocol",
             description="some description",
             protocol_type="Directive",

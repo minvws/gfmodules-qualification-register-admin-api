@@ -1,6 +1,7 @@
 import unittest
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.services.application_service import ApplicationService
 from app.db.services.application_type_service import ApplicationTypeService
 from app.db.services.roles_service import RolesService
@@ -17,38 +18,46 @@ class TestApplicationTypeService(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
-        self.vendor_service = VendorService(db_session_factory=db_session_factory)
-        self.role_service = RolesService(db_session_factory=db_session_factory)
+        self.vendor_service = VendorService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
+        self.role_service = RolesService(
+            db_session_factory=db_session_factory, repository_factory=repository_factory
+        )
         self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory
+            db_session_factory=db_session_factory, repository_factory=repository_factory
         )
         self.application_service = ApplicationService(
             db_session_factory=db_session_factory,
             role_service=self.role_service,
             system_type_service=self.system_type_service,
+            repository_factory=repository_factory,
         )
         self.application_service = ApplicationService(
             role_service=self.role_service,
             system_type_service=self.system_type_service,
             db_session_factory=db_session_factory,
+            repository_factory=repository_factory,
         )
         self.application_type_service = ApplicationTypeService(
             db_session_factory=db_session_factory,
             application_service=self.application_service,
+            repository_factory=repository_factory,
         )
 
         # setup data
-        self.mock_vendor = self.vendor_service.add_one_vendor(
+        self.mock_vendor = self.vendor_service.add_one(
             kvk_number="example", trade_name="example", statutory_name="example"
         )
-        self.mock_role = self.role_service.create_role(
+        self.mock_role = self.role_service.add_one(
             name="example", description="example"
         )
-        self.mock_system_type = self.system_type_service.add_one_system_type(
+        self.mock_system_type = self.system_type_service.add_one(
             name="example", description="example"
         )
-        self.mock_application = self.application_service.add_one_application(
+        self.mock_application = self.application_service.add_one(
             vendor=self.mock_vendor,
             application_name="example",
             version="example",
@@ -57,7 +66,7 @@ class TestApplicationTypeService(unittest.TestCase):
         )
 
     def test_get_all_application_types(self) -> None:
-        test_system_type = self.system_type_service.add_one_system_type(
+        test_system_type = self.system_type_service.add_one(
             name="example 2", description="some description"
         )
         expected_application = (
@@ -66,7 +75,7 @@ class TestApplicationTypeService(unittest.TestCase):
                 system_type_id=test_system_type.id,
             )
         )
-        actual_application = self.application_service.get_one_application_by_id(
+        actual_application = self.application_service.get_one(
             self.mock_application.id
         )
 
@@ -83,7 +92,7 @@ class TestApplicationTypeService(unittest.TestCase):
         )
 
     def test_assign_system_type_to_application(self) -> None:
-        test_system_type = self.system_type_service.add_one_system_type(
+        test_system_type = self.system_type_service.add_one(
             name="example 2", description="some description"
         )
         expected_application = (
@@ -92,7 +101,7 @@ class TestApplicationTypeService(unittest.TestCase):
                 system_type_id=test_system_type.id,
             )
         )
-        actual_application = self.application_service.get_one_application_by_id(
+        actual_application = self.application_service.get_one(
             application_id=self.mock_application.id
         )
 
@@ -106,7 +115,7 @@ class TestApplicationTypeService(unittest.TestCase):
         )
 
     def test_unassign_system_type_to_application(self) -> None:
-        test_system_type = self.system_type_service.add_one_system_type(
+        test_system_type = self.system_type_service.add_one(
             name="example 2", description="some description"
         )
         self.application_type_service.assign_system_type_to_application(
