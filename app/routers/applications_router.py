@@ -64,7 +64,7 @@ def get_applications_versions(
     application_id: UUID,
     service: ApplicationVersionService = Depends(get_application_version_service),
 ) -> List[ApplicationVersionDTO]:
-    versions = service.get_one(application_id=application_id)
+    versions = service.get_many(application_id=application_id)
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 

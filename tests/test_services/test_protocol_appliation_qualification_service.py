@@ -63,7 +63,7 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
                 repository_factory=repository_factory,
             )
         )
-        # setup data
+        # arrange
         self.mock_vendor = self.vendor_service.add_one(
             kvk_number="example", trade_name="example", statutory_name="example"
         )

@@ -10,6 +10,8 @@ CREATE TABLE vendors (
     PRIMARY KEY (id)
 );
 
+-- create Protocols table with types and triggers
+
 /*
   as specified in the architecture document, see:
   https://github.com/minvws/nl-irealisatie-zmodules-process-internal/blob/metadata-register/architectuur/kwalificatieregister.md#protocol

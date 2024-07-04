@@ -44,73 +44,53 @@ class TestApplicationRoleService(unittest.TestCase):
             db_session_factory=db_session_factory,
             repository_factory=repository_factory,
         )
-
-    def test_assign_role_to_application(self) -> None:
-        mock_vendor = self.vendor_service.add_one(
+        self.mock_vendor = self.vendor_service.add_one(
             kvk_number="12456",
             trade_name="example vendor",
             statutory_name="example vendor bv",
         )
-        mock_role = self.role_service.add_one(
+        self.mock_role = self.role_service.add_one(
             name="example role", description="some description"
         )
-        mock_system_type = self.system_type_service.add_one(
+        self.mock_system_type = self.system_type_service.add_one(
             name="example system type", description="some description"
         )
-        mock_application = self.vendor_application_service.register_one_app(
-            vendor_id=mock_vendor.id,
+        self.mock_application = self.vendor_application_service.register_one_app(
+            vendor_id=self.mock_vendor.id,
             application_name="example application",
             application_version="v1.0.0",
-            system_type_names=[mock_system_type.name],
-            role_names=[mock_role.name],
+            system_type_names=[self.mock_system_type.name],
+            role_names=[self.mock_role.name],
         )
 
+    def test_assign_role_to_application(self) -> None:
         expected_role = self.role_service.add_one(
             "new example role", description="some description"
         )
         updated_app = self.application_role_service.assign_role_to_application(
-            application_id=mock_application.id, role_id=expected_role.id
+            application_id=self.mock_application.id, role_id=expected_role.id
         )
         expected_db_roles = updated_app.roles
         expected_roles = [role.to_dict() for role in expected_db_roles]
 
         actual_db_roles = self.application_role_service.get_application_roles(
-            mock_application.id
+            self.mock_application.id
         )
         actual_roles = [role.to_dict() for role in actual_db_roles]
 
         self.assertListEqual(expected_roles, actual_roles)
 
     def test_unassign_role_from_application(self) -> None:
-        mock_vendor = self.vendor_service.add_one(
-            kvk_number="12456",
-            trade_name="example vendor",
-            statutory_name="example vendor bv",
-        )
-        mock_role = self.role_service.add_one(
-            name="example role", description="some description"
-        )
-        mock_system_type = self.system_type_service.add_one(
-            name="example system type", description="some description"
-        )
-        mock_application = self.vendor_application_service.register_one_app(
-            vendor_id=mock_vendor.id,
-            application_name="example application",
-            application_version="v1.0.0",
-            system_type_names=[mock_system_type.name],
-            role_names=[mock_role.name],
-        )
-
         role_to_unassign = self.role_service.add_one(
             name="role_to_unassign", description="some description"
         )
         self.application_role_service.assign_role_to_application(
-            application_id=mock_application.id, role_id=role_to_unassign.id
+            application_id=self.mock_application.id, role_id=role_to_unassign.id
         )
 
         updated_application = (
             self.application_role_service.unassign_role_from_application(
-                application_id=mock_application.id, role_id=role_to_unassign.id
+                application_id=self.mock_application.id, role_id=role_to_unassign.id
             )
         )
         expected_db_roles = updated_application.roles
@@ -127,7 +107,7 @@ class TestApplicationRoleService(unittest.TestCase):
 
         with self.assertRaises(ApplicationRoleDeleteException) as context:
             self.application_role_service.unassign_role_from_application(
-                application_id=mock_application.id, role_id=mock_role.id
+                application_id=self.mock_application.id, role_id=self.mock_role.id
             )
 
             self.assertTrue("does not exist" not in str(context.exception))

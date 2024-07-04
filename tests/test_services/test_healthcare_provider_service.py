@@ -70,7 +70,7 @@ class TestHealthcareProviderService(unittest.TestCase):
             actual_healthcare_provider.statutory_name,
         )
 
-    def test_duplicate_ura_code_shoud_raise_exception(self) -> None:
+    def test_duplicate_ura_code_should_raise_exception(self) -> None:
         ura_code = "123456"
         self.healthcare_provider_service.add_one(
             ura_code=ura_code,
@@ -90,7 +90,7 @@ class TestHealthcareProviderService(unittest.TestCase):
             )
             self.assertTrue("ura code does not exits" in str(context.exception))
 
-    def test_duplicate_agb_code_shoud_raise_exception(self) -> None:
+    def test_duplicate_agb_code_should_raise_exception(self) -> None:
         agb_code = "example agb code"
         self.healthcare_provider_service.add_one(
             ura_code="123456",
