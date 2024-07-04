@@ -44,7 +44,7 @@ class HealthcareProviderApplicationVersion(Base):
     )
 
     healthcare_provider: Mapped["healthcare_provider.HealthcareProvider"] = (
-        relationship(back_populates="application_versions")
+        relationship(back_populates="application_versions", lazy="selectin")
     )
     application_version: Mapped["application_version.ApplicationVersion"] = (
         relationship(back_populates="healthcare_providers", lazy="selectin")
