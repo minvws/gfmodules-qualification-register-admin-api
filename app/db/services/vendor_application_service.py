@@ -31,13 +31,13 @@ class VendorApplicationService:
         role_names: List[str],
     ) -> Application:
 
-        vendor = self.vendor_service.get_one_vendor_by_id(vendor_id)
-        system_types = self.system_type_service.get_many_system_types(
+        vendor = self.vendor_service.get_one(vendor_id)
+        system_types = self.system_type_service.get_many_by_names(
             system_type_names=system_type_names
         )
-        roles = self.roles_service.get_many_roles(role_names=role_names)
+        roles = self.roles_service.get_many_by_names(role_names=role_names)
 
-        new_application = self.application_service.add_one_application(
+        new_application = self.application_service.add_one(
             application_name=application_name,
             version=application_version,
             system_types=system_types,
@@ -48,5 +48,5 @@ class VendorApplicationService:
         return new_application
 
     def get_all_vendor_applications(self, kvk_number: str) -> Sequence[Application]:
-        vendor = self.vendor_service.get_one_vendor_by_kvk_number(kvk_number=kvk_number)
+        vendor = self.vendor_service.get_one_by_kvk_number(kvk_number=kvk_number)
         return vendor.applications

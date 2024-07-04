@@ -1,0 +1,63 @@
+name: Lint, combine and import sql migrations
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - sql/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - sql/**
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  migrations:
+    runs-on: ubuntu-20.04
+
+    services:
+      postgres:
+        image: postgres:12.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install libecpg-dev postgresql-client
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pgsanity
+      - name: Run tests SQL scripts
+        run: find ./sql -type f -name '*.sql' | sort -V | xargs -I % sh -c "echo %; sed -e 's/\\\\c */-- \\\\c /g' % | pgsanity"
+      - name: Combine all SQL
+        run: find ./sql -type f -name '*.sql' | sort -V | xargs cat > database.merged.sql
+      - name: enable pgcrypto;
+        run: echo "CREATE EXTENSION pgcrypto;" | PGPASSWORD=postgres psql -U postgres -d postgres -h 127.0.0.1
+      - name: Import database.merged.sql
+        run: PGPASSWORD=postgres psql -U postgres -d postgres -h 127.0.0.1 < database.merged.sql 2>&1 | tee migrations.log
+      - name: Show and count ERRORs
+        run: |
+          if [ `grep -c ERROR migrations.log` -ne 0 ]; then grep ERROR migrations.log; fi
+          exit `grep -c ERROR migrations.log`
+      - name: Upload database import log
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: migrations.log
+          path: migrations.log

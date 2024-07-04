@@ -3,6 +3,7 @@ from uuid import UUID
 
 from app.db.entities.system_type import SystemType
 from app.db.repository.system_types_repository import SystemTypesRepository
+from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     SystemTypeNotFoundException,
@@ -13,41 +14,43 @@ from app.helpers.validators import validated_sets_equal
 
 
 class SystemTypeService:
-    def __init__(self, db_session_factory: DbSessionFactory) -> None:
+    def __init__(
+        self,
+        db_session_factory: DbSessionFactory,
+        repository_factory: RepositoryFactory,
+    ) -> None:
         self.db_session_factory = db_session_factory
+        self.repository_factory = repository_factory
 
-    def get_all_system_types(self) -> Sequence[SystemType]:
+    def get_all(self) -> Sequence[SystemType]:
         db_session = self.db_session_factory.create()
-        system_types_repository: SystemTypesRepository = db_session.get_repository(
-            SystemType
+        system_type_repository = self.repository_factory.create(
+            SystemTypesRepository, db_session
         )
-        session = db_session.session
-        with session:
-            system_types = system_types_repository.find_all()
+        with db_session:
+            system_types = system_type_repository.get_all()
 
         return system_types
 
-    def get_one_by_id(self, system_type_id: UUID) -> SystemType:
+    def get_one(self, system_type_id: UUID) -> SystemType:
         db_session = self.db_session_factory.create()
-        system_types_repository: SystemTypesRepository = db_session.get_repository(
-            SystemType
+        system_type_repository = self.repository_factory.create(
+            SystemTypesRepository, db_session
         )
-        session = db_session.session
-        with session:
-            system_type = system_types_repository.fine_one(id=system_type_id)
+        with db_session:
+            system_type = system_type_repository.get(id=system_type_id)
             if system_type is None:
                 raise SystemTypeNotFoundException()
 
         return system_type
 
-    def add_one_system_type(self, name: str, description: str) -> SystemType:
+    def add_one(self, name: str, description: str) -> SystemType:
         db_session = self.db_session_factory.create()
-        session = db_session.session
-        system_type_repository: SystemTypesRepository = db_session.get_repository(
-            SystemType
+        system_type_repository = self.repository_factory.create(
+            SystemTypesRepository, db_session
         )
-        with session:
-            system_type = system_type_repository.fine_one(name=name)
+        with db_session:
+            system_type = system_type_repository.get(name=name)
             if system_type is not None:
                 raise SystemTypeAlreadyExistsException()
 
@@ -58,31 +61,30 @@ class SystemTypeService:
 
         return new_system_type
 
-    def delete_one_system_type(self, system_type_id: UUID) -> SystemType:
+    def delete_one(self, system_type_id: UUID) -> SystemType:
         db_session = self.db_session_factory.create()
-        system_types_repository: SystemTypesRepository = db_session.get_repository(
-            SystemType
+        system_type_repository = self.repository_factory.create(
+            SystemTypesRepository, db_session
         )
-        session = db_session.session
-        with session:
-            system_type = system_types_repository.fine_one(id=system_type_id)
+        with db_session:
+            system_type = system_type_repository.get(id=system_type_id)
             if system_type is None:
                 raise SystemTypeNotFoundException()
 
-            system_types_repository.delete(system_type)
+            system_type_repository.delete(system_type)
 
         return system_type
 
-    def get_many_system_types(
-        self, system_type_names: List[str]
-    ) -> Sequence[SystemType]:
+    def get_many_by_names(self, system_type_names: List[str]) -> Sequence[SystemType]:
         db_session = self.db_session_factory.create()
-        system_types_repository: SystemTypesRepository = db_session.get_repository(
-            SystemType
+        system_type_repository = self.repository_factory.create(
+            SystemTypesRepository, db_session
         )
-        session = db_session.session
-        with session:
-            system_types = system_types_repository.find_many(names=system_type_names)
+        with db_session:
+            system_types = system_type_repository.get_by_property(
+                attribute="name",
+                values=system_type_names
+            )
             if system_types is None:
                 raise SystemTypeNotFoundException()
 

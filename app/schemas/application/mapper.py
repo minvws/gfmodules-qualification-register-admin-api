@@ -6,14 +6,14 @@ from app.schemas.application.schema import (
     ApplicationDTO,
     ApplicationVersionDTO,
     ApplicationRoleDTO,
-    SystemTypeInApplicationDTO,
+    ApplicationTypeDTO,
 )
 
 
 def map_application_version_entity_to_dto(
     version: ApplicationVersion,
 ) -> ApplicationVersionDTO:
-    return ApplicationVersionDTO(version_id=version.id, version=version.version)
+    return ApplicationVersionDTO(id=version.id, version=version.version)
 
 
 def map_application_roles_entity_to_dto(
@@ -28,8 +28,8 @@ def map_application_roles_entity_to_dto(
 
 def map_application_system_type_entity_to_dto(
     app_type: ApplicationType,
-) -> SystemTypeInApplicationDTO:
-    return SystemTypeInApplicationDTO(
+) -> ApplicationTypeDTO:
+    return ApplicationTypeDTO(
         id=app_type.system_type.id,
         name=app_type.system_type.name,
         description=app_type.system_type.description,

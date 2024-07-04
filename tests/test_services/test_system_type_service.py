@@ -1,6 +1,7 @@
 import unittest
 
 from app.db.db import Database
+from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import SystemTypeNotFoundException
 from app.db.services.system_type_service import SystemTypeService
@@ -13,18 +14,17 @@ class TestSystemTypeService(unittest.TestCase):
         self.database.generate_tables()
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
+        repository_factory = RepositoryFactory()
         # setup service
         self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory
+            db_session_factory=db_session_factory, repository_factory=repository_factory
         )
 
     def test_add_one_single_type(self) -> None:
-        expected_system_type = self.system_type_service.add_one_system_type(
+        expected_system_type = self.system_type_service.add_one(
             name="example", description="some description"
         )
-        actual_system_type = self.system_type_service.get_one_by_id(
-            expected_system_type.id
-        )
+        actual_system_type = self.system_type_service.get_one(expected_system_type.id)
 
         self.assertEqual(expected_system_type.id, actual_system_type.id)
         self.assertEqual(expected_system_type.name, actual_system_type.name)
@@ -33,10 +33,10 @@ class TestSystemTypeService(unittest.TestCase):
         )
 
     def test_delete_one_system_type(self) -> None:
-        expected_system_type = self.system_type_service.add_one_system_type(
+        expected_system_type = self.system_type_service.add_one(
             name="example", description="some description"
         )
-        actual_system_type = self.system_type_service.delete_one_system_type(
+        actual_system_type = self.system_type_service.delete_one(
             expected_system_type.id
         )
 
@@ -47,17 +47,17 @@ class TestSystemTypeService(unittest.TestCase):
         )
 
         with self.assertRaises(SystemTypeNotFoundException) as context:
-            self.system_type_service.get_one_by_id(expected_system_type.id)
+            self.system_type_service.get_one(expected_system_type.id)
 
             self.assertTrue("does not exist" in str(context.exception))
 
     def test_get_many_system_types(self) -> None:
-        mock_system_type = self.system_type_service.add_one_system_type(
+        mock_system_type = self.system_type_service.add_one(
             name="example", description="some description"
         )
         expected_system_types = [mock_system_type.to_dict()]
 
-        system_types = self.system_type_service.get_many_system_types(
+        system_types = self.system_type_service.get_many_by_names(
             [mock_system_type.name]
         )
         actual_system_types = [system_type.to_dict() for system_type in system_types]
@@ -65,12 +65,12 @@ class TestSystemTypeService(unittest.TestCase):
         self.assertListEqual(expected_system_types, actual_system_types)
 
     def test_get_all_system_types(self) -> None:
-        mock_system_type = self.system_type_service.add_one_system_type(
+        mock_system_type = self.system_type_service.add_one(
             name="example", description="some description"
         )
         expected_system_types = [mock_system_type.to_dict()]
 
-        actual_db_system_types = self.system_type_service.get_all_system_types()
+        actual_db_system_types = self.system_type_service.get_all()
         actual_system_types = [
             system_type.to_dict() for system_type in actual_db_system_types
         ]

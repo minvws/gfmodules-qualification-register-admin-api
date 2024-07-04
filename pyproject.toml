@@ -8,7 +8,11 @@ repository = "https://github.com/minvws/nl-irealisatie-python-api-skeleton"
 readme = "README.md"
 packages = [
     { include = "app" },
+    { include = "tools" }
 ]
+
+[tool.poetry.scripts]
+data-generation = "tools.create_data:run"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -19,6 +23,7 @@ pydantic-settings = "^2.1.0"
 inject = "^5.2.0"
 sqlalchemy = "^2.0.25"
 psycopg = { extras = ["binary", "pool"], version = "^3.1.17" }
+faker = "^25.9.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

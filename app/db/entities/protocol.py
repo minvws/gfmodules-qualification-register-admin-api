@@ -30,10 +30,8 @@ class Protocol(Base):
             validate_strings=True,
         ),
     )
-    protocol_name: Mapped[str] = mapped_column(
-        "protocol_name", String(150), nullable=False
-    )
-    description: Mapped[datetime] = mapped_column("description", String, nullable=True)
+    name: Mapped[str] = mapped_column("name", String(150), nullable=False)
+    description: Mapped[str] = mapped_column("description", String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         "created_at", TIMESTAMP, nullable=False, default=datetime.now()
     )
@@ -42,14 +40,14 @@ class Protocol(Base):
     )
 
     versions: Mapped[List["protocol_version.ProtocolVersion"]] = relationship(
-        back_populates="protocol"
+        back_populates="protocol", lazy="selectin", cascade="all, delete, delete-orphan"
     )
 
     def __repr__(self) -> str:
         return self._repr(
             id=str(self.id),
             protocol_type=self.protocol_type,
-            protocol_name=self.protocol_name,
+            name=self.name,
             description=self.description,
             created_at=self.created_at,
             modified_at=self.modified_at,

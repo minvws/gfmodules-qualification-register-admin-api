@@ -39,10 +39,16 @@ class ApplicationVersion(Base):
         List[
             "healthcare_provider_application_version.HealthcareProviderApplicationVersion"
         ]
-    ] = relationship(back_populates="application_version")
+    ] = relationship(
+        back_populates="application_version",
+        lazy="selectin"
+    )
     qualified_protocol_versions: Mapped[
-        List["application_version_qualification.ApplicationVersionQualification"]
-    ] = relationship(back_populates="application_version")
+        List["application_version_qualification.ProtocolApplicationQualification"]
+    ] = relationship(
+        back_populates="application_version",
+        lazy="selectin"
+    )
 
     def __repr__(self) -> str:
         return self._repr(

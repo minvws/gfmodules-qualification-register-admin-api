@@ -82,4 +82,83 @@ class SystemTypeNotFoundException(NotFoundException):
 
 class SystemTypeAlreadyExistsException(ConflictException):
     def __init__(self) -> None:
-        super().__init__("System type already exists in app")
+        super().__init__("System type already exists")
+
+
+class SystemTypeExistInApplicationException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("System type already exist in application")
+
+
+class SystemTypeNotUsedByApplicationException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("System type does not exist in application")
+
+
+class HealthcareProviderNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Healthcare provider not found")
+
+
+class URACodeAlreadyExists(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("URA code already exists")
+
+
+class AGBCodeAlreadyExists(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("AGB code already exists")
+
+
+class ProtocolNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Protocol not found")
+
+
+class ProtocolVersionNotFoundException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Protocol version not found")
+
+
+class AppVersionExistsInHealthcareProviderException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__(
+            "Application Version already being used by Healthcare provider"
+        )
+
+
+class AppVersionNotUsedByHealthcareProviderException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Application version is not being used by Healthcare provider")
+
+
+class AppVersionAlreadyQualifiedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Application version is already qualified for the protocol")
+
+
+class AppVersionAlreadyArchivedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Application Version is already archived for protocol")
+
+
+class AppVersionNotQualifiedForProtocolException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Application version is not qualified for the protocol")
+
+
+class HealthcareProviderAlreadyQualifiedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__(
+            "Healthcare provider already qualified for the protocol version"
+        )
+
+
+class HealthcareProviderQualificationAlreadyArchivedException(ConflictException):
+    def __init__(self) -> None:
+        super().__init__("Qualification is already archived for healthcare provider")
+
+
+class HealthcareProviderNotQualifiedForProtocolException(NotFoundException):
+    def __init__(self) -> None:
+        super().__init__("Healthcare provider is not qualified for the protocol")

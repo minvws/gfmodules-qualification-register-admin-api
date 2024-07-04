@@ -24,7 +24,7 @@ class HealthcareProvider(Base):
         "ura_code", String(50), nullable=False, unique=True
     )
     agb_code: Mapped[str] = mapped_column(
-        "abg_code", String(50), nullable=False, unique=True
+        "agb_code", String(50), nullable=False, unique=True
     )
     trade_name: Mapped[str] = mapped_column("trade_name", String(150), nullable=False)
     statutory_name: Mapped[str] = mapped_column(
@@ -41,10 +41,18 @@ class HealthcareProvider(Base):
         List[
             "healthcare_provider_application_version.HealthcareProviderApplicationVersion"
         ]
-    ] = relationship(back_populates="healthcare_provider")
+    ] = relationship(
+        back_populates="healthcare_provider",
+        lazy="selectin",
+        cascade="save-update, delete, delete-orphan",
+    )
     qualified_protocols: Mapped[
         List["healthcare_provider_qualification.HealthcareProviderQualification"]
-    ] = relationship(back_populates="healthcare_provider")
+    ] = relationship(
+        back_populates="healthcare_provider",
+        lazy="selectin",
+        cascade="save-update, delete, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return self._repr(
