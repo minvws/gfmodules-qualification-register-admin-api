@@ -40,7 +40,9 @@ class ApplicationVersion(Base):
             "healthcare_provider_application_version.HealthcareProviderApplicationVersion"
         ]
     ] = relationship(
-        back_populates="application_version"
+        back_populates="application_version",
+        lazy="selectin",
+        cascade="delete, delete-orphan",
     )
     qualified_protocol_versions: Mapped[
         List["application_version_qualification.ProtocolApplicationQualification"]
