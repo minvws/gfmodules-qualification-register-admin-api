@@ -29,7 +29,7 @@ class ApplicationVersionService:
         self.application_service = application_service
         self.repository_factory = repository_factory
 
-    def get_one(self, application_id: UUID) -> Sequence[ApplicationVersion]:
+    def get_many(self, application_id: UUID) -> Sequence[ApplicationVersion]:
         application = self.application_service.get_one(application_id)
         return application.versions
 

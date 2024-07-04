@@ -21,40 +21,45 @@ class TestProtocolService(unittest.TestCase):
         )
 
     def test_add_one_protocol(self) -> None:
-        mock_protocol = self.protocol_service.add_one(
+        expected_protocol = self.protocol_service.add_one(
             name="test protocol",
             description="some description",
             protocol_type="Directive",
         )
+        actual_protocol = self.protocol_service.get_one(expected_protocol.id)
 
-        actual_protocol = self.protocol_service.get_one(mock_protocol.id)
-        self.assertEqual(mock_protocol.id, actual_protocol.id)
-        self.assertEqual(mock_protocol.protocol_type, actual_protocol.protocol_type)
-        self.assertEqual(mock_protocol.description, actual_protocol.description)
-        self.assertEqual(mock_protocol.name, actual_protocol.name)
+        self.assertEqual(expected_protocol.id, actual_protocol.id)
+        self.assertEqual(expected_protocol.protocol_type, actual_protocol.protocol_type)
+        self.assertEqual(expected_protocol.description, actual_protocol.description)
+        self.assertEqual(expected_protocol.name, actual_protocol.name)
 
     def test_delete_protocol(self) -> None:
-        mock_protocol = self.protocol_service.add_one(
+        expected_protocol = self.protocol_service.add_one(
             name="test protocol",
             description="some description",
             protocol_type="Directive",
         )
-        self.protocol_service.remove_one(mock_protocol.id)
+        actual_protocol = self.protocol_service.remove_one(expected_protocol.id)
+
+        self.assertEqual(expected_protocol.id, actual_protocol.id)
+        self.assertEqual(expected_protocol.protocol_type, actual_protocol.protocol_type)
+        self.assertEqual(expected_protocol.description, actual_protocol.description)
+        self.assertEqual(expected_protocol.name, actual_protocol.name)
 
         with self.assertRaises(ProtocolNotFoundException) as context:
-            self.protocol_service.get_one(mock_protocol.id)
+            self.protocol_service.get_one(expected_protocol.id)
 
             self.assertTrue("does not exist" not in str(context.exception))
 
     def test_get_many_protocols(self) -> None:
-        mock_protocol = self.protocol_service.add_one(
+        expected_protocol = self.protocol_service.add_one(
             name="test protocol",
             description="some description",
             protocol_type="Directive",
         )
-        mock_protocols = [mock_protocol.to_dict()]
+        expected_protocols = [expected_protocol.to_dict()]
 
         actual_db_protocols = self.protocol_service.get_all()
         actual_protocols = [protocol.to_dict() for protocol in actual_db_protocols]
 
-        self.assertCountEqual(mock_protocols, actual_protocols)
+        self.assertCountEqual(expected_protocols, actual_protocols)
