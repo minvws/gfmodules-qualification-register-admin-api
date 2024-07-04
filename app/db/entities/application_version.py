@@ -41,12 +41,14 @@ class ApplicationVersion(Base):
         ]
     ] = relationship(
         back_populates="application_version",
-        lazy="selectin",
-        cascade="delete, delete-orphan",
+        lazy="selectin"
     )
     qualified_protocol_versions: Mapped[
         List["application_version_qualification.ProtocolApplicationQualification"]
-    ] = relationship(back_populates="application_version")
+    ] = relationship(
+        back_populates="application_version",
+        lazy="selectin"
+    )
 
     def __repr__(self) -> str:
         return self._repr(

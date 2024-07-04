@@ -16,6 +16,7 @@ CREATE TABLE vendors (
   as specified in the architecture document, see:
   https://github.com/minvws/nl-irealisatie-zmodules-process-internal/blob/metadata-register/architectuur/kwalificatieregister.md#protocol
 */
+-- create Protocols table with types and triggers
 CREATE TYPE protocol_type as ENUM('InformationStandard', 'Directive');
 
 CREATE TABLE protocols (
