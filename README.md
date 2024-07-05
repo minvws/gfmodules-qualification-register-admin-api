@@ -46,3 +46,14 @@ export NEW_GID=$(id -g)
 When you're ready, build the application with: make container-build.
 
 Run make up to start the application.
+
+## Application Architecture
+
+This application is a straightforward CRUD API that enables authorized clients to
+**C**reate, **R**ead, **U**pdate and **D**elete. <!-- codespell:ignore -->
+
+Because this application doesn't have a business layer (Yet) the application is split up into 2 layers. See the image
+below for an example entity split up into the 2 layers.
+
+![ApplicationLayers](docs/ApplicationLayers.png "Application Layers")
+
