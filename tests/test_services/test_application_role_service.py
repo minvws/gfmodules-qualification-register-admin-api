@@ -1,5 +1,7 @@
 import unittest
 
+import inject
+
 from app.db.db import Database
 from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
@@ -8,8 +10,8 @@ from app.db.services.application_roles_service import ApplicationRolesService
 from app.db.services.application_service import ApplicationService
 from app.db.services.roles_service import RolesService
 from app.db.services.system_type_service import SystemTypeService
-from app.db.services.vendor_application_service import VendorApplicationService
 from app.db.services.vendors_service import VendorService
+from tests.utils.config_binder import config_binder
 
 
 class TestApplicationRoleService(unittest.TestCase):
@@ -20,24 +22,15 @@ class TestApplicationRoleService(unittest.TestCase):
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
         repository_factory = RepositoryFactory()
+        inject.configure(
+            lambda binder: config_binder(binder, self.database),
+            clear=True,
+        )
         # set up services
-        self.vendor_service = VendorService(db_session_factory, repository_factory)
+        self.vendor_service = VendorService()
         self.role_service = RolesService(db_session_factory, repository_factory)
-        self.system_type_service = SystemTypeService(
-            db_session_factory, repository_factory
-        )
-        self.application_service = ApplicationService(
-            db_session_factory=db_session_factory,
-            role_service=self.role_service,
-            system_type_service=self.system_type_service,
-            repository_factory=repository_factory,
-        )
-        self.vendor_application_service = VendorApplicationService(
-            application_service=self.application_service,
-            vendor_service=self.vendor_service,
-            system_type_service=self.system_type_service,
-            roles_service=self.role_service,
-        )
+        self.system_type_service = SystemTypeService()
+        self.application_service = ApplicationService()
         self.application_role_service = ApplicationRolesService(
             roles_service=self.role_service,
             application_service=self.application_service,
@@ -55,10 +48,10 @@ class TestApplicationRoleService(unittest.TestCase):
         self.mock_system_type = self.system_type_service.add_one(
             name="example system type", description="some description"
         )
-        self.mock_application = self.vendor_application_service.register_one_app(
+        self.mock_application = self.application_service.add_one(
             vendor_id=self.mock_vendor.id,
             application_name="example application",
-            application_version="v1.0.0",
+            version="v1.0.0",
             system_type_names=[self.mock_system_type.name],
             role_names=[self.mock_role.name],
         )

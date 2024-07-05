@@ -3,66 +3,56 @@ from uuid import UUID
 
 from app.db.entities.protocol import Protocol
 from app.db.repository.protocol_repository import ProtocolRepository
-from app.db.repository_factory import RepositoryFactory
-from app.db.session_factory import DbSessionFactory
+from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import ProtocolNotFoundException
 from app.factory.protocol_factory import ProtocolFactory
 
 
 class ProtocolService:
-    def __init__(
+    @session_manager
+    def get_one(
         self,
-        db_session_factory: DbSessionFactory,
-        repository_factory: RepositoryFactory,
-    ) -> None:
-        self.db_session_factory = db_session_factory
-        self.repository_factory = repository_factory
-
-    def get_one(self, protocol_id: UUID) -> Protocol:
-        db_session = self.db_session_factory.create()
-        protocol_repository = self.repository_factory.create(
-            ProtocolRepository, db_session
-        )
-        with db_session:
-            protocol = protocol_repository.get(id=protocol_id)
-            if protocol is None:
-                raise ProtocolNotFoundException()
+        protocol_id: UUID,
+        protocol_repository: ProtocolRepository = get_repository(),
+    ) -> Protocol:
+        protocol = protocol_repository.get(id=protocol_id)
+        if protocol is None:
+            raise ProtocolNotFoundException()
 
         return protocol
 
-    def get_all(self) -> Sequence[Protocol]:
-        db_session = self.db_session_factory.create()
-        protocol_repository = self.repository_factory.create(
-            ProtocolRepository, db_session
-        )
-        with db_session:
-            protocols = protocol_repository.get_all()
-
+    @session_manager
+    def get_all(
+        self, protocol_repository: ProtocolRepository = get_repository()
+    ) -> Sequence[Protocol]:
+        protocols = protocol_repository.get_all()
         return protocols
 
-    def add_one(self, protocol_type: str, name: str, description: str) -> Protocol:
-        db_session = self.db_session_factory.create()
-        protocol_repository = self.repository_factory.create(
-            ProtocolRepository, db_session
+    @session_manager
+    def add_one(
+        self,
+        protocol_type: str,
+        name: str,
+        description: str,
+        protocol_repository: ProtocolRepository = get_repository(),
+    ) -> Protocol:
+        new_protocol = ProtocolFactory.create_instance(
+            name=name, description=description, protocol_type=protocol_type
         )
-        with db_session:
-            new_protocol = ProtocolFactory.create_instance(
-                name=name, description=description, protocol_type=protocol_type
-            )
-            protocol_repository.create(new_protocol)
+        protocol_repository.create(new_protocol)
 
         return new_protocol
 
-    def remove_one(self, protocol_id: UUID) -> Protocol:
-        db_session = self.db_session_factory.create()
-        protocol_repository = self.repository_factory.create(
-            ProtocolRepository, db_session
-        )
-        with db_session:
-            protocol = protocol_repository.get(id=protocol_id)
-            if protocol is None:
-                raise ProtocolNotFoundException()
+    @session_manager
+    def remove_one(
+        self,
+        protocol_id: UUID,
+        protocol_repository: ProtocolRepository = get_repository(),
+    ) -> Protocol:
+        protocol = protocol_repository.get(id=protocol_id)
+        if protocol is None:
+            raise ProtocolNotFoundException()
 
-            protocol_repository.delete(protocol)
+        protocol_repository.delete(protocol)
 
         return protocol

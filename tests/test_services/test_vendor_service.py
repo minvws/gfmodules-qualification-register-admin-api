@@ -1,5 +1,7 @@
 import unittest
 
+import inject
+
 from app.db.db import Database
 from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
@@ -11,8 +13,8 @@ from app.factory.vendor_factory import VendorFactory
 from app.db.services.application_service import ApplicationService
 from app.db.services.roles_service import RolesService
 from app.db.services.system_type_service import SystemTypeService
-from app.db.services.vendor_application_service import VendorApplicationService
 from app.db.services.vendors_service import VendorService
+from tests.utils.config_binder import config_binder
 
 
 class TestVendorCRUD(unittest.TestCase):
@@ -23,10 +25,16 @@ class TestVendorCRUD(unittest.TestCase):
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
         repository_factory = RepositoryFactory()
-        # setup service
-        self.vendor_service = VendorService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
+
+        inject.configure(
+            lambda binder: binder.bind(DbSessionFactory, db_session_factory).bind(  # type: ignore
+                RepositoryFactory, repository_factory
+            ),
+            clear=True,
         )
+
+        # setup service
+        self.vendor_service = VendorService()
 
         # arrange
         self.mock_vendor = VendorFactory.create_instance(
@@ -92,28 +100,17 @@ class TestDeleteVendorWithRegisterdApplications(unittest.TestCase):
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
         repository_factory = RepositoryFactory()
-        # setup service
-        self.vendor_service = VendorService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
+        inject.configure(
+            lambda binder: config_binder(binder, self.database),
+            clear=True,
         )
+        # setup service
+        self.vendor_service = VendorService()
         self.role_service = RolesService(
             db_session_factory=db_session_factory, repository_factory=repository_factory
         )
-        self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
-        self.application_servcice = ApplicationService(
-            role_service=self.role_service,
-            system_type_service=self.system_type_service,
-            db_session_factory=db_session_factory,
-            repository_factory=repository_factory,
-        )
-        self.vendor_application_service = VendorApplicationService(
-            application_service=self.application_servcice,
-            vendor_service=self.vendor_service,
-            system_type_service=self.system_type_service,
-            roles_service=self.role_service,
-        )
+        self.system_type_service = SystemTypeService()
+        self.application_servcice = ApplicationService()
 
         # arrange
         self.mock_vendor = VendorFactory.create_instance(
@@ -129,10 +126,10 @@ class TestDeleteVendorWithRegisterdApplications(unittest.TestCase):
         self.role_service.add_one("example_role", "example_role")
         self.system_type_service.add_one("example_type", "example_type")
 
-        self.vendor_application_service.register_one_app(
+        self.application_servcice.add_one(
             vendor_id=vendor.id,
             application_name="example app",
-            application_version="1.0.0",
+            version="1.0.0",
             system_type_names=["example_type"],
             role_names=["example_role"],
         )
