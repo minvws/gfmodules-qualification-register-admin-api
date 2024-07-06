@@ -8,15 +8,15 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.routers.default import router as default_router
 from app.routers.health import router as health_router
-from app.routers.vendors_router import router as vendors_router
-from app.routers.applications_router import router as applications_router
-from app.routers.system_types_router import router as system_types_router
-from app.routers.healthcare_provider_router import (
+from app.routers.v1.vendors_router import router as vendors_router
+from app.routers.v1.applications_router import router as applications_router
+from app.routers.v1.system_types_router import router as system_types_router
+from app.routers.v1.healthcare_provider_router import (
     router as healthcare_provider_router,
 )
-from app.routers.roles_router import router as roles_router
-from app.routers.protocol_router import router as protocol_router
-from app.routers.qualification_router import (
+from app.routers.v1.roles_router import router as roles_router
+from app.routers.v1.protocol_router import router as protocol_router
+from app.routers.v1.qualification_router import (
     router as qualification_router,
 )
 from app.config import get_config
@@ -90,6 +90,14 @@ def setup_fastapi() -> FastAPI:
     routers = [
         default_router,
         health_router,
+    ]
+    for router in routers:
+        fastapi.include_router(router)
+
+    # v1 api
+    api_v1 = FastAPI()
+
+    v1_routers = [
         vendors_router,
         roles_router,
         system_types_router,
@@ -98,7 +106,9 @@ def setup_fastapi() -> FastAPI:
         healthcare_provider_router,
         qualification_router,
     ]
-    for router in routers:
-        fastapi.include_router(router)
+    for router in v1_routers:
+        api_v1.include_router(router)
+
+    fastapi.mount("/v1", api_v1)
 
     return fastapi
