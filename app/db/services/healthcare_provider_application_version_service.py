@@ -11,9 +11,8 @@ from app.db.repository.application_version_repository import (
 from app.db.repository.healthcare_provider_repository import (
     HealthcareProviderRepository,
 )
-from app.db.repository_factory import RepositoryFactory
 from app.db.services.healthcare_provider_service import HealthcareProviderService
-from app.db.session_factory import DbSessionFactory
+from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     HealthcareProviderNotFoundException,
     ApplicationVersionNotFoundException,
@@ -28,12 +27,8 @@ from app.factory.healthcare_provider_application_version_factory import (
 class HealthcareProviderApplicationVersionService:
     def __init__(
         self,
-        db_session_factory: DbSessionFactory,
-        repository_factory: RepositoryFactory,
         healthcare_provider_service: HealthcareProviderService,
     ) -> None:
-        self.db_session_factory = db_session_factory
-        self.repository_factory = repository_factory
         self.healthcare_provider_service = healthcare_provider_service
 
     def get_healthcare_provider_application_versions(
@@ -42,78 +37,70 @@ class HealthcareProviderApplicationVersionService:
         healthcare_provider = self.healthcare_provider_service.get_one(provider_id)
         return healthcare_provider.application_versions
 
+    @session_manager
     def assign_application_version_to_healthcare_provider(
-        self, provider_id: UUID, application_version_id: UUID
+        self,
+        provider_id: UUID,
+        application_version_id: UUID,
+        healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
+        application_version_repository: ApplicationVersionRepository = get_repository(),
     ) -> HealthcareProvider:
-        db_session = self.db_session_factory.create()
-        healthcare_provider_repository = self.repository_factory.create(
-            HealthcareProviderRepository, db_session
+        healthcare_provider = healthcare_provider_repository.get(id=provider_id)
+        if healthcare_provider is None:
+            raise HealthcareProviderNotFoundException()
+
+        application_version = application_version_repository.get(
+            id=application_version_id
         )
-        application_version_repository = self.repository_factory.create(
-            ApplicationVersionRepository, db_session
+        if application_version is None:
+            raise ApplicationVersionNotFoundException()
+
+        for app_version in healthcare_provider.application_versions:
+            if app_version.application_version_id == application_version.id:
+                raise AppVersionExistsInHealthcareProviderException()
+
+        new_healthcare_provider_app_version = (
+            HealthcareProviderApplicationVersionFactory.create_instance(
+                healthcare_provider=healthcare_provider,
+                application_version=application_version,
+            )
         )
-        with db_session:
-            healthcare_provider = healthcare_provider_repository.get(
-                id=provider_id
-            )
-            if healthcare_provider is None:
-                raise HealthcareProviderNotFoundException()
 
-            application_version = application_version_repository.get(
-                id=application_version_id
-            )
-            if application_version is None:
-                raise ApplicationVersionNotFoundException()
+        healthcare_provider.application_versions.append(
+            new_healthcare_provider_app_version
+        )
 
-            for app_version in healthcare_provider.application_versions:
-                if app_version.application_version_id == application_version.id:
-                    raise AppVersionExistsInHealthcareProviderException()
-
-            new_healthcare_provider_app_version = (
-                HealthcareProviderApplicationVersionFactory.create_instance(
-                    healthcare_provider=healthcare_provider,
-                    application_version=application_version,
-                )
-            )
-
-            healthcare_provider.application_versions.append(
-                new_healthcare_provider_app_version
-            )
-
-            healthcare_provider_repository.update(healthcare_provider)
+        healthcare_provider_repository.update(healthcare_provider)
 
         return healthcare_provider
 
+    @session_manager
     def unassing_application_version_to_healthcare_provider(
-        self, healthcare_provider_id: UUID, application_version_id: UUID
+        self,
+        healthcare_provider_id: UUID,
+        application_version_id: UUID,
+        healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
+        application_version_repository: ApplicationVersionRepository = get_repository(),
     ) -> HealthcareProvider:
-        db_session = self.db_session_factory.create()
-        healthcare_provider_repository = self.repository_factory.create(
-            HealthcareProviderRepository, db_session
+        healthcare_provider = healthcare_provider_repository.get(
+            id=healthcare_provider_id
         )
-        application_version_repository = self.repository_factory.create(
-            ApplicationVersionRepository, db_session
+        if healthcare_provider is None:
+            raise HealthcareProviderNotFoundException()
+
+        application_version = application_version_repository.get(
+            id=application_version_id
         )
-        with db_session:
-            healthcare_provider = healthcare_provider_repository.get(
-                id=healthcare_provider_id
-            )
-            if healthcare_provider is None:
-                raise HealthcareProviderNotFoundException()
+        if application_version is None:
+            raise ApplicationVersionNotFoundException()
 
-            application_version = application_version_repository.get(
-                id=application_version_id
-            )
-            if application_version is None:
-                raise ApplicationVersionNotFoundException()
+        for app_version in healthcare_provider.application_versions:
+            if (
+                app_version.healthcare_provider_id == healthcare_provider.id
+                and app_version.application_version_id == application_version.id
+            ):
+                healthcare_provider.application_versions.remove(app_version)
+                healthcare_provider_repository.update(healthcare_provider)
+                return healthcare_provider
 
-            for app_version in healthcare_provider.application_versions:
-                if (
-                    app_version.healthcare_provider_id == healthcare_provider.id
-                    and app_version.application_version_id == application_version.id
-                ):
-                    healthcare_provider.application_versions.remove(app_version)
-                    healthcare_provider_repository.update(healthcare_provider)
-                    return healthcare_provider
-
-            raise AppVersionNotUsedByHealthcareProviderException()
+        raise AppVersionNotUsedByHealthcareProviderException()

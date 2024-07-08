@@ -32,10 +32,7 @@ class TestApplicationRoleService(unittest.TestCase):
         self.system_type_service = SystemTypeService()
         self.application_service = ApplicationService()
         self.application_role_service = ApplicationRolesService(
-            roles_service=self.role_service,
-            application_service=self.application_service,
-            db_session_factory=db_session_factory,
-            repository_factory=repository_factory,
+            application_service=self.application_service
         )
         self.mock_vendor = self.vendor_service.add_one(
             kvk_number="12456",

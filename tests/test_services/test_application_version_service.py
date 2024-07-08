@@ -35,8 +35,6 @@ class TestApplicationVersionService(unittest.TestCase):
         self.application_service = ApplicationService()
         self.application_version_service = ApplicationVersionService(
             application_service=self.application_service,
-            db_session_factory=db_session_factory,
-            repository_factory=repository_factory,
         )
 
         # arrange

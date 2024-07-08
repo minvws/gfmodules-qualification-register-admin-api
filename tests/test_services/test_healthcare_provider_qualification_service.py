@@ -4,14 +4,12 @@ from datetime import date
 import inject
 
 from app.db.db import Database
-from app.db.repository_factory import RepositoryFactory
 from app.db.services.healthcare_provider_qualification_service import (
     HealthcareProviderQualificationService,
 )
 from app.db.services.healthcare_provider_service import HealthcareProviderService
 from app.db.services.protocol_service import ProtocolService
 from app.db.services.protocol_version_service import ProtocolVersionService
-from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import (
     HealthcareProviderAlreadyQualifiedException,
     HealthcareProviderQualificationAlreadyArchivedException,
@@ -25,9 +23,7 @@ class TestHealthcareProviderQualificationService(unittest.TestCase):
         # setup tables
         self.database = Database("sqlite:///:memory:")
         self.database.generate_tables()
-        # setup factory
-        db_session_factory = DbSessionFactory(engine=self.database.engine)
-        repository_factory = RepositoryFactory()
+        # setup injector
         inject.configure(
             lambda binder: config_binder(binder, self.database),
             clear=True,
@@ -39,10 +35,7 @@ class TestHealthcareProviderQualificationService(unittest.TestCase):
         )
         self.healthcare_provider_service = HealthcareProviderService()
         self.healthcare_provider_qualification_service = (
-            HealthcareProviderQualificationService(
-                db_session_factory=db_session_factory,
-                repository_factory=repository_factory,
-            )
+            HealthcareProviderQualificationService()
         )
 
         # setup data
