@@ -1,10 +1,11 @@
 import unittest
 
+import inject
+
 from app.db.db import Database
-from app.db.repository_factory import RepositoryFactory
-from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import SystemTypeNotFoundException
 from app.db.services.system_type_service import SystemTypeService
+from tests.utils.config_binder import config_binder
 
 
 class TestSystemTypeService(unittest.TestCase):
@@ -13,12 +14,12 @@ class TestSystemTypeService(unittest.TestCase):
         self.database = Database("sqlite:///:memory:")
         self.database.generate_tables()
         # setup factory
-        db_session_factory = DbSessionFactory(engine=self.database.engine)
-        repository_factory = RepositoryFactory()
-        # setup service
-        self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
+        inject.configure(
+            lambda binder: config_binder(binder, self.database),
+            clear=True,
         )
+        # setup service
+        self.system_type_service = SystemTypeService()
 
     def test_add_one_single_type(self) -> None:
         expected_system_type = self.system_type_service.add_one(

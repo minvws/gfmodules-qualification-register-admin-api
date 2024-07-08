@@ -1,5 +1,7 @@
 import unittest
 
+import inject
+
 from app.db.db import Database
 from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
@@ -8,8 +10,8 @@ from app.db.services.application_service import ApplicationService
 from app.db.services.application_version_service import ApplicationVersionService
 from app.db.services.roles_service import RolesService
 from app.db.services.system_type_service import SystemTypeService
-from app.db.services.vendor_application_service import VendorApplicationService
 from app.db.services.vendors_service import VendorService
+from tests.utils.config_binder import config_binder
 
 
 class TestApplicationVersionService(unittest.TestCase):
@@ -20,32 +22,21 @@ class TestApplicationVersionService(unittest.TestCase):
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
         repository_factory = RepositoryFactory()
-        # setup service
-        self.vendor_service = VendorService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
+        inject.configure(
+            lambda binder: config_binder(binder, self.database),
+            clear=True,
         )
+        # setup service
+        self.vendor_service = VendorService()
         self.role_service = RolesService(
             db_session_factory=db_session_factory, repository_factory=repository_factory
         )
-        self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
-        self.application_service = ApplicationService(
-            role_service=self.role_service,
-            system_type_service=self.system_type_service,
-            db_session_factory=db_session_factory,
-            repository_factory=repository_factory,
-        )
+        self.system_type_service = SystemTypeService()
+        self.application_service = ApplicationService()
         self.application_version_service = ApplicationVersionService(
             application_service=self.application_service,
             db_session_factory=db_session_factory,
             repository_factory=repository_factory,
-        )
-        self.vendor_application_service = VendorApplicationService(
-            application_service=self.application_service,
-            vendor_service=self.vendor_service,
-            system_type_service=self.system_type_service,
-            roles_service=self.role_service,
         )
 
         # arrange
@@ -59,10 +50,10 @@ class TestApplicationVersionService(unittest.TestCase):
             "example_type", "example_type"
         )
 
-        self.mock_app = self.vendor_application_service.register_one_app(
+        self.mock_app = self.application_service.add_one(
             vendor_id=self.mock_vendor.id,
             application_name="example app",
-            application_version="1.0.0",
+            version="1.0.0",
             system_type_names=[self.mock_system_type.name],
             role_names=[self.mock_role.name],
         )

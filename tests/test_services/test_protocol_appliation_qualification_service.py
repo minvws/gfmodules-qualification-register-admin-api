@@ -1,6 +1,8 @@
 import unittest
 from datetime import date
 
+import inject
+
 from app.db.db import Database
 from app.db.repository_factory import RepositoryFactory
 from app.db.services.application_service import ApplicationService
@@ -18,6 +20,7 @@ from app.exceptions.app_exceptions import (
     AppVersionAlreadyQualifiedException,
     AppVersionAlreadyArchivedException,
 )
+from tests.utils.config_binder import config_binder
 
 
 class TestProtocolApplianceQualificationService(unittest.TestCase):
@@ -28,34 +31,25 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
         repository_factory = RepositoryFactory()
-        # setup service
-        self.vendor_service = VendorService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
+        inject.configure(
+            lambda binder: config_binder(binder, self.database),
+            clear=True,
         )
+        # setup service
+        self.vendor_service = VendorService()
         self.role_service = RolesService(
             db_session_factory=db_session_factory, repository_factory=repository_factory
         )
-        self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
-        self.application_service = ApplicationService(
-            db_session_factory=db_session_factory,
-            role_service=self.role_service,
-            system_type_service=self.system_type_service,
-            repository_factory=repository_factory,
-        )
+        self.system_type_service = SystemTypeService()
+        self.application_service = ApplicationService()
         self.application_version_service = ApplicationVersionService(
             application_service=self.application_service,
             db_session_factory=db_session_factory,
             repository_factory=repository_factory,
         )
-        self.protocol_service = ProtocolService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
+        self.protocol_service = ProtocolService()
         self.protocol_version_service = ProtocolVersionService(
-            db_session_factory=db_session_factory,
             protocol_service=self.protocol_service,
-            repository_factory=repository_factory,
         )
         self.application_qualification_service = (
             ProtocolApplicationQualificationService(
@@ -74,11 +68,11 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
             name="example", description="example"
         )
         self.mock_application = self.application_service.add_one(
-            vendor=self.mock_vendor,
+            vendor_id=self.mock_vendor.id,
             application_name="example",
             version="example",
-            roles=[self.mock_role],
-            system_types=[self.mock_system_type],
+            role_names=[self.mock_role.name],
+            system_type_names=[self.mock_system_type.name],
         )
         self.mock_protocol = self.protocol_service.add_one(
             name="example", description="example", protocol_type="Directive"

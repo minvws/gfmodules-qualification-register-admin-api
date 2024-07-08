@@ -1,5 +1,7 @@
 import unittest
 
+import inject
+
 from app.db.db import Database
 from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
@@ -8,6 +10,7 @@ from app.db.services.application_service import ApplicationService
 from app.db.services.roles_service import RolesService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
+from tests.utils.config_binder import config_binder
 
 
 class TestApplicationCRUDOperations(unittest.TestCase):
@@ -18,22 +21,17 @@ class TestApplicationCRUDOperations(unittest.TestCase):
         # setup factory
         db_session_factory = DbSessionFactory(engine=self.database.engine)
         repository_factory = RepositoryFactory()
+        inject.configure(
+            lambda binder: config_binder(binder, self.database),
+            clear=True,
+        )
         # setup services
         self.role_service = RolesService(
             db_session_factory=db_session_factory, repository_factory=repository_factory
         )
-        self.system_type_service = SystemTypeService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
-        self.application_service = ApplicationService(
-            db_session_factory=db_session_factory,
-            role_service=self.role_service,
-            system_type_service=self.system_type_service,
-            repository_factory=repository_factory,
-        )
-        self.vendor_service = VendorService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
+        self.system_type_service = SystemTypeService()
+        self.application_service = ApplicationService()
+        self.vendor_service = VendorService()
         self.mock_role = self.role_service.add_one(
             name="example_role_1", description="some description"
         )
@@ -44,40 +42,34 @@ class TestApplicationCRUDOperations(unittest.TestCase):
             kvk_number="123456", trade_name="example", statutory_name="example bv"
         )
 
-        self.mock_roles = self.role_service.get_many_by_names([self.mock_role.name])
-        self.mock_system_types = self.system_type_service.get_many_by_names(
-            [self.mock_system_type.name]
+        self.expected_application = self.application_service.add_one(
+            vendor_id=self.mock_vendor.id,
+            application_name="example application",
+            version="v1.0.0",
+            system_type_names=[self.mock_system_type.name],
+            role_names=[self.mock_role.name],
         )
 
     def test_add_one_application(self) -> None:
-        expected_application = self.application_service.add_one(
-            vendor=self.mock_vendor,
-            roles=self.mock_roles,
-            system_types=self.mock_system_types,
-            application_name="example application",
-            version="v1.0.0",
+        actual_application = self.application_service.get_one(
+            self.expected_application.id
         )
-        actual_application = self.application_service.get_one(expected_application.id)
 
-        self.assertEqual(expected_application.id, actual_application.id)
-        self.assertEqual(expected_application.name, actual_application.name)
-        self.assertEqual(expected_application.vendor.id, actual_application.vendor.id)
+        self.assertEqual(self.expected_application.id, actual_application.id)
+        self.assertEqual(self.expected_application.name, actual_application.name)
+        self.assertEqual(
+            self.expected_application.vendor.id, actual_application.vendor.id
+        )
 
     def test_delete_one_application_by_id(self) -> None:
-        expected_application = self.application_service.add_one(
-            vendor=self.mock_vendor,
-            roles=self.mock_roles,
-            system_types=self.mock_system_types,
-            application_name="example application",
-            version="v1.0.0",
-        )
-
         actual_application = self.application_service.remove_one(
-            expected_application.id
+            self.expected_application.id
         )
-        self.assertEqual(expected_application.id, actual_application.id)
-        self.assertEqual(expected_application.name, actual_application.name)
-        self.assertEqual(expected_application.vendor.id, actual_application.vendor.id)
+        self.assertEqual(self.expected_application.id, actual_application.id)
+        self.assertEqual(self.expected_application.name, actual_application.name)
+        self.assertEqual(
+            self.expected_application.vendor.id, actual_application.vendor.id
+        )
 
         with self.assertRaises(ApplicationNotFoundException) as context:
             self.application_service.remove_one(actual_application.id)
@@ -85,24 +77,20 @@ class TestApplicationCRUDOperations(unittest.TestCase):
             self.assertTrue("does not exist" not in str(context.exception))
 
     def test_delete_one_application_by_name(self) -> None:
-        expected_application = self.application_service.add_one(
-            vendor=self.mock_vendor,
-            roles=self.mock_roles,
-            system_types=self.mock_system_types,
-            application_name="example application",
-            version="v1.0.0",
-        )
         actual_application = self.application_service.remove_one_by_name(
-            application_name=expected_application.name, vendor_id=self.mock_vendor.id
+            application_name=self.expected_application.name,
+            vendor_id=self.mock_vendor.id,
         )
 
-        self.assertEqual(expected_application.id, actual_application.id)
-        self.assertEqual(expected_application.name, actual_application.name)
-        self.assertEqual(expected_application.vendor.id, actual_application.vendor.id)
+        self.assertEqual(self.expected_application.id, actual_application.id)
+        self.assertEqual(self.expected_application.name, actual_application.name)
+        self.assertEqual(
+            self.expected_application.vendor.id, actual_application.vendor.id
+        )
 
         with self.assertRaises(ApplicationNotFoundException) as context:
             self.application_service.remove_one_by_name(
-                application_name=expected_application.name,
+                application_name=self.expected_application.name,
                 vendor_id=self.mock_vendor.id,
             )
 

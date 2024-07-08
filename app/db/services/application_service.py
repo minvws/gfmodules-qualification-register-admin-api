@@ -1,115 +1,110 @@
-from typing import Sequence
+from typing import Sequence, List
 from uuid import UUID
 
-from app.db.entities.system_type import SystemType
-from app.db.entities.vendor import Vendor
-from app.db.repository_factory import RepositoryFactory
-from app.db.session_factory import DbSessionFactory
+from app.db.repository.roles_repository import RolesRepository
+from app.db.repository.system_types_repository import SystemTypesRepository
+from app.db.repository.vendors_repository import VendorsRepository
 from app.db.entities.application import Application
-from app.db.entities.role import Role
 from app.db.repository.applications_repository import ApplicationsRepository
+from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
     ApplicationAlreadyExistsException,
 )
 from app.factory.application_factory import ApplicationFactory
-from app.db.services.roles_service import RolesService
-from app.db.services.system_type_service import SystemTypeService
 
 
 class ApplicationService:
-    def __init__(
-        self,
-        role_service: RolesService,
-        system_type_service: SystemTypeService,
-        db_session_factory: DbSessionFactory,
-        repository_factory: RepositoryFactory,
-    ) -> None:
-        self.role_service = role_service
-        self.system_type_service = system_type_service
-        self.db_session_factory = db_session_factory
-        self.repository_factory = repository_factory
 
-    def get_all(self) -> Sequence[Application]:
-        db_session = self.db_session_factory.create()
-        application_repository = self.repository_factory.create(
-            ApplicationsRepository, db_session
-        )
-        with db_session:
-            applications = application_repository.get_all()
-
+    @session_manager
+    def get_all(
+        self, application_repository: ApplicationsRepository = get_repository()
+    ) -> Sequence[Application]:
+        applications = application_repository.get_all()
         return applications
 
-    def get_one(self, application_id: UUID) -> Application:
-        db_session = self.db_session_factory.create()
-        application_repository = self.repository_factory.create(
-            ApplicationsRepository, db_session
-        )
-        with db_session:
-            application = application_repository.get(id=application_id)
-            if application is None:
-                raise ApplicationNotFoundException()
+    @session_manager
+    def get_by_vendor_id(
+        self, vendor_id: UUID, vendor_repository: VendorsRepository = get_repository()
+    ) -> Sequence[Application]:
+        vendor = vendor_repository.get_or_fail(id=vendor_id)
+        return vendor.applications
 
-        return application
-
-    def remove_one(self, application_id: UUID) -> Application:
-        db_session = self.db_session_factory.create()
-        application_repository = self.repository_factory.create(
-            ApplicationsRepository, db_session
-        )
-        with db_session:
-            application = self.get_one(application_id)
-            if application is None:
-                raise ApplicationNotFoundException()
-
-            application_repository.delete(application)
-        return application
-
-    def remove_one_by_name(
-        self, application_name: str, vendor_id: UUID
+    @session_manager
+    def get_one(
+        self,
+        application_id: UUID,
+        application_repository: ApplicationsRepository = get_repository(),
     ) -> Application:
-        db_session = self.db_session_factory.create()
-        application_repository = self.repository_factory.create(
-            ApplicationsRepository, db_session
-        )
-        with db_session:
-            application = application_repository.get(
-                name=application_name, vendor_id=vendor_id
-            )
-            if application is None:
-                raise ApplicationNotFoundException()
+        application = application_repository.get(id=application_id)
+        if application is None:
+            raise ApplicationNotFoundException()
 
-            application_repository.delete(application)
         return application
 
+    @session_manager
+    def remove_one(
+        self,
+        application_id: UUID,
+        application_repository: ApplicationsRepository = get_repository(),
+    ) -> Application:
+        application = self.get_one(application_id)
+        if application is None:
+            raise ApplicationNotFoundException()
+
+        application_repository.delete(application)
+        return application
+
+    @session_manager
+    def remove_one_by_name(
+        self,
+        application_name: str,
+        vendor_id: UUID,
+        application_repository: ApplicationsRepository = get_repository(),
+    ) -> Application:
+        application = application_repository.get(
+            name=application_name, vendor_id=vendor_id
+        )
+        if application is None:
+            raise ApplicationNotFoundException()
+
+        application_repository.delete(application)
+        return application
+
+    @session_manager
     def add_one(
         self,
-        vendor: Vendor,
+        vendor_id: UUID,
         application_name: str,
         version: str,
-        roles: Sequence[Role],
-        system_types: Sequence[SystemType],
+        role_names: List[str],
+        system_type_names: List[str],
+        application_repository: ApplicationsRepository = get_repository(),
+        vendor_repository: VendorsRepository = get_repository(),
+        system_type_repository: SystemTypesRepository = get_repository(),
+        roles_repository: RolesRepository = get_repository(),
     ) -> Application:
-        db_session = self.db_session_factory.create()
-        application_repository = self.repository_factory.create(
-            ApplicationsRepository, db_session
-        )
-        with db_session:
-            application = application_repository.get(
-                name=application_name, vendor_id=vendor.id
-            )
-            if application is not None:
-                raise ApplicationAlreadyExistsException()
+        vendor = vendor_repository.get_or_fail(id=vendor_id)
 
-            new_application = ApplicationFactory.create_instance(
-                application_name=application_name,
-                application_version=version,
-                vendor=db_session.merge(vendor),
-                application_roles=[db_session.merge(role) for role in roles],
-                application_types=[
-                    db_session.merge(system_type) for system_type in system_types
-                ],
-            )
-            application_repository.create(new_application)
+        system_types = system_type_repository.get_by_property_exact(
+            "name", system_type_names
+        )
+
+        roles = roles_repository.get_by_property_exact("name", role_names)
+
+        application = application_repository.get(
+            name=application_name, vendor_id=vendor.id
+        )
+        if application is not None:
+            raise ApplicationAlreadyExistsException()
+
+        new_application = ApplicationFactory.create_instance(
+            application_name=application_name,
+            application_version=version,
+            vendor=vendor,
+            application_roles=roles,
+            application_types=system_types,
+        )
+        application_repository.create(new_application)
 
         return new_application
