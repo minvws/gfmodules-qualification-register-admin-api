@@ -44,18 +44,13 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
         self.application_service = ApplicationService()
         self.application_version_service = ApplicationVersionService(
             application_service=self.application_service,
-            db_session_factory=db_session_factory,
-            repository_factory=repository_factory,
         )
         self.protocol_service = ProtocolService()
         self.protocol_version_service = ProtocolVersionService(
             protocol_service=self.protocol_service,
         )
         self.application_qualification_service = (
-            ProtocolApplicationQualificationService(
-                db_session_factory=db_session_factory,
-                repository_factory=repository_factory,
-            )
+            ProtocolApplicationQualificationService()
         )
         # arrange
         self.mock_vendor = self.vendor_service.add_one(
