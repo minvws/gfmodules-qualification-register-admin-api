@@ -6,10 +6,6 @@ loglevel=debug
 # Dsn for database connection
 dsn=postgresql+psycopg://postgres:postgres@localhost:5432/postgres
 
-[example]
-argument1: "foobar"
-argument2: true
-
 [uvicorn]
 # If true, the api docs will be enabled
 swagger_enabled = True
