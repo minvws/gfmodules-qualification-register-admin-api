@@ -1,0 +1,1 @@
+alter table system_types add constraint system_type_name_key UNIQUE(name);
