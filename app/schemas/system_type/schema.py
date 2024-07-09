@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class SystemTypeBase(BaseModel):
     name: str
-    description: str
+    description: str | None
 
 
 class SystemTypeCreateDTO(SystemTypeBase):

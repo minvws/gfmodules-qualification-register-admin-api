@@ -20,7 +20,7 @@ class SystemType(Base):
         default=uuid4,
     )
     name: Mapped[str] = mapped_column("name", String(150), nullable=False, unique=True)
-    description: Mapped[str] = mapped_column("description", String, nullable=True)
+    description: Mapped[str | None] = mapped_column("description", String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         "created_at", TIMESTAMP, nullable=False, default=datetime.now()
     )

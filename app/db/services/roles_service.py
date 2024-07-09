@@ -44,7 +44,7 @@ class RolesService:
     def add_one(
         self,
         name: str,
-        description: str,
+        description: str | None,
         role_repository: RoleRepository = get_repository(),
     ) -> Role:
         role = role_repository.get(name=name)
@@ -60,7 +60,7 @@ class RolesService:
     def update_role_description(
         self,
         role_id: UUID,
-        description: str,
+        description: str | None,
         role_repository: RoleRepository = get_repository(),
     ) -> Role:
         role = role_repository.get(id=role_id)
