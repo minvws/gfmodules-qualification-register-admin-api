@@ -68,7 +68,7 @@ def get_applications_versions(
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
-@router.post("/{application_id}/version/")
+@router.post("/{application_id}/version")
 def add_application_version(
     application_id: UUID,
     data: ApplicationVersionCreateDTO,
@@ -145,7 +145,7 @@ def unassign_one_application_role(
     return map_application_entity_to_dto(results)
 
 
-@router.get("/{application_id}/system_types/")
+@router.get("/{application_id}/system_types")
 def get_application_types(
     application_id: UUID,
     service: ApplicationTypeService = Depends(get_application_type_service),
@@ -157,7 +157,7 @@ def get_application_types(
     ]
 
 
-@router.post("/{application_id}/system_types/{system_type_id}/")
+@router.post("/{application_id}/system_types/{system_type_id}")
 def assign_system_type_to_application(
     application_id: UUID,
     system_type_id: UUID,
@@ -169,7 +169,7 @@ def assign_system_type_to_application(
     return map_application_entity_to_dto(application)
 
 
-@router.delete("/{application_id}/system_types/{system_type_id}/")
+@router.delete("/{application_id}/system_types/{system_type_id}")
 def unassing_system_type_from_application(
     application_id: UUID,
     system_type_id: UUID,

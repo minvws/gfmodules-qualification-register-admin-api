@@ -28,7 +28,7 @@ def get_all_protocols(
     return [map_protocol_entity_to_dto(protocol) for protocol in protocols]
 
 
-@router.post("/", response_model=ProtocolDTO)
+@router.post("", response_model=ProtocolDTO)
 def define_a_protocol(
     data: ProtocolCreateDTO, service: ProtocolService = Depends(get_protocol_service)
 ) -> ProtocolDTO:
@@ -62,7 +62,7 @@ def get_protocol_versions(
     return [map_protocol_version_entity_to_dto(version) for version in versions]
 
 
-@router.post("/{protocol_id}/versions/")
+@router.post("/{protocol_id}/versions")
 def add_protocol_version(
     protocol_id: UUID,
     data: ProtocolVersionCreateDTO,
