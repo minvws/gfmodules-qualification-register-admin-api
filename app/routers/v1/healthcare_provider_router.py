@@ -24,7 +24,7 @@ from app.schemas.healthcare_provider.schema import (
 router = APIRouter(prefix="/healthcare-provider", tags=["Healthcare  Provider"])
 
 
-@router.get("/")
+@router.get("")
 def get_all_healthcare_providers(
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
 ) -> List[HealthcareProviderDTO]:
@@ -44,7 +44,7 @@ def get_healthcare_provider_by_id(
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
-@router.post("/")
+@router.post("")
 def register_one_healthcare_provider(
     data: HealthcareProviderCreateDTO,
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
@@ -62,7 +62,7 @@ def deregister_one_healthcare_provider(
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
-@router.get("/{healthcare_provider_id}/application_versions/")
+@router.get("/{healthcare_provider_id}/application_versions")
 def get_healthcare_provider_application_versions(
     healthcare_provider_id: UUID,
     service: HealthcareProviderApplicationVersionService = Depends(

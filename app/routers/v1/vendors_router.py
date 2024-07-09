@@ -21,7 +21,7 @@ def get_all_vendors(
     return [map_vendor_entity_to_dto(vendor) for vendor in result]
 
 
-@router.post("/", response_model=None)
+@router.post("", response_model=None)
 def add_one_vendor(
     data: VendorCreateDTO, vendor_service: VendorService = Depends(get_vendors_service)
 ) -> VendorDTO:

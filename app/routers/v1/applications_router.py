@@ -2,15 +2,16 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.exc import NoResultFound
 
 from app.container import (
     get_application_roles_service,
-    get_vendor_application_service,
     get_application_service,
     get_application_version_service,
     get_application_type_service,
 )
 from app.db.services.application_type_service import ApplicationTypeService
+from app.exceptions.http_base_exceptions import NotFoundException
 from app.schemas.application.mapper import (
     map_application_entity_to_dto,
     map_application_version_entity_to_dto,
@@ -28,7 +29,6 @@ from app.schemas.vendor.schema import VendorApplicationCreateDTO
 from app.db.services.application_roles_service import ApplicationRolesService
 from app.db.services.application_service import ApplicationService
 from app.db.services.application_version_service import ApplicationVersionService
-from app.db.services.vendor_application_service import VendorApplicationService
 
 router = APIRouter(prefix="/applications", tags=["Applications"])
 
@@ -68,7 +68,7 @@ def get_applications_versions(
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
-@router.post("/{application_id}/version/")
+@router.post("/{application_id}/version")
 def add_application_version(
     application_id: UUID,
     data: ApplicationVersionCreateDTO,
@@ -88,14 +88,12 @@ def delete_application_version(
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
-@router.get("/vendor/{kvk_number}")
+@router.get("/vendor/{vendor_id}")
 def get_all_vendor_applications(
-    kvk_number: str,
-    vendor_application_service: VendorApplicationService = Depends(
-        get_vendor_application_service
-    ),
+    vendor_id: UUID,
+    application_service: ApplicationService = Depends(get_application_service),
 ) -> list[ApplicationDTO]:
-    results = vendor_application_service.get_all_vendor_applications(kvk_number)
+    results = application_service.get_by_vendor_id(vendor_id)
     return [map_application_entity_to_dto(result) for result in results]
 
 
@@ -103,16 +101,19 @@ def get_all_vendor_applications(
 def register_one_vendor_application(
     vendor_id: UUID,
     data: VendorApplicationCreateDTO,
-    service: VendorApplicationService = Depends(get_vendor_application_service),
+    service: ApplicationService = Depends(get_application_service),
 ) -> ApplicationDTO:
-    result = service.register_one_app(
-        vendor_id=vendor_id,
-        application_name=data.name,
-        application_version=data.version,
-        system_type_names=data.system_types,
-        role_names=data.roles,
-    )
-    return map_application_entity_to_dto(result)
+    try:
+        result = service.add_one(
+            vendor_id=vendor_id,
+            application_name=data.name,
+            version=data.version,
+            system_type_names=data.system_types,
+            role_names=data.roles,
+        )
+        return map_application_entity_to_dto(result)
+    except NoResultFound as e:
+        raise NotFoundException(str(e))
 
 
 @router.get("/{application_id}/roles")
@@ -144,7 +145,7 @@ def unassign_one_application_role(
     return map_application_entity_to_dto(results)
 
 
-@router.get("/{application_id}/system_types/")
+@router.get("/{application_id}/system_types")
 def get_application_types(
     application_id: UUID,
     service: ApplicationTypeService = Depends(get_application_type_service),
@@ -156,7 +157,7 @@ def get_application_types(
     ]
 
 
-@router.post("/{application_id}/system_types/{system_type_id}/")
+@router.post("/{application_id}/system_types/{system_type_id}")
 def assign_system_type_to_application(
     application_id: UUID,
     system_type_id: UUID,
@@ -168,7 +169,7 @@ def assign_system_type_to_application(
     return map_application_entity_to_dto(application)
 
 
-@router.delete("/{application_id}/system_types/{system_type_id}/")
+@router.delete("/{application_id}/system_types/{system_type_id}")
 def unassing_system_type_from_application(
     application_id: UUID,
     system_type_id: UUID,

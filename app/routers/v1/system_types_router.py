@@ -11,7 +11,7 @@ from app.db.services.system_type_service import SystemTypeService
 router = APIRouter(prefix="/system_types", tags=["System Types"])
 
 
-@router.get("/")
+@router.get("")
 def get_all_system_types(
     service: SystemTypeService = Depends(get_system_type_service),
 ) -> List[SystemTypeDTO]:
@@ -29,7 +29,7 @@ def get_system_type_by_id(
     return map_system_type_entity_to_dto(system_type)
 
 
-@router.post("/")
+@router.post("")
 def create_new_system_type(
     data: SystemTypeCreateDTO,
     service: SystemTypeService = Depends(get_system_type_service),

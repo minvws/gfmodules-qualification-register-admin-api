@@ -11,7 +11,7 @@ from app.db.services.roles_service import RolesService
 router = APIRouter(prefix="/roles", tags=["Roles"])
 
 
-@router.get("/")
+@router.get("")
 def get_all_roles(service: RolesService = Depends(get_roles_service)) -> List[RoleDTO]:
     roles = service.gel_all()
     return [map_role_model_to_dto(role) for role in roles]
@@ -25,7 +25,7 @@ def get_one_role(
     return map_role_model_to_dto(role)
 
 
-@router.post("/")
+@router.post("")
 def create_role(
     data: RoleCreateDTO, service: RolesService = Depends(get_roles_service)
 ) -> RoleDTO:
