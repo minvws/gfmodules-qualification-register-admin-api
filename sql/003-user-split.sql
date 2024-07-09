@@ -1,5 +1,5 @@
 -- Split users
-REVOKE ALL ON TABLE deploy_releases FROM qualification
+REVOKE ALL ON TABLE deploy_releases FROM qualification;
 DROP ROLE qualification;
 
 CREATE ROLE qualification_admin;
