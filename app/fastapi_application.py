@@ -76,9 +76,9 @@ def setup_fastapi() -> FastAPI:
     config = get_config()
 
     fastapi = (
-        FastAPI(docs_url=config.uvicorn.docs_url, redoc_url=config.uvicorn.redoc_url)
+        FastAPI(docs_url=config.uvicorn.docs_url, redoc_url=config.uvicorn.redoc_url, redirect_slashes=False)
         if config.uvicorn.swagger_enabled
-        else FastAPI(docs_url=None, redoc_url=None)
+        else FastAPI(docs_url=None, redoc_url=None, redirect_slashes=False)
     )
     fastapi.add_middleware(
         CORSMiddleware,
@@ -95,7 +95,11 @@ def setup_fastapi() -> FastAPI:
         fastapi.include_router(router)
 
     # v1 api
-    api_v1 = FastAPI()
+    api_v1 = (
+        FastAPI(docs_url=config.uvicorn.docs_url, redoc_url=config.uvicorn.redoc_url, redirect_slashes=False)
+        if config.uvicorn.swagger_enabled
+        else FastAPI(docs_url=None, redoc_url=None, redirect_slashes=False)
+    )
 
     v1_routers = [
         vendors_router,
