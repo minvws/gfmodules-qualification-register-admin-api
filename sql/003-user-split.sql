@@ -25,7 +25,6 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON applications_types TO qualification_admin;
 GRANT SELECT,INSERT,UPDATE,DELETE ON healthcare_providers_application_versions TO qualification_admin;
 GRANT SELECT,INSERT,UPDATE,DELETE ON healthcare_providers_qualifications TO qualification_admin;
 GRANT SELECT,INSERT,UPDATE,DELETE ON protocol_application_qualifications TO qualification_admin;
-;
 GRANT SELECT ON vendors TO qualification_api;
 GRANT SELECT ON protocols TO qualification_api;
 GRANT SELECT ON protocol_versions TO qualification_api;
