@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -12,13 +11,11 @@ router = APIRouter(prefix="/system_types", tags=["System Types"])
 
 
 @router.get("")
-def get_all_system_types(
+def get_system_types(
     service: SystemTypeService = Depends(get_system_type_service),
-) -> List[SystemTypeDTO]:
-    system_types = service.get_all()
-    return [
-        map_system_type_entity_to_dto(system_types) for system_types in system_types
-    ]
+) -> list[SystemTypeDTO]:
+    system_types = service.get_many()
+    return [map_system_type_entity_to_dto(system_type) for system_type in system_types]
 
 
 @router.get("/{system_type_id}")

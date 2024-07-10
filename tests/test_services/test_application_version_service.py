@@ -60,9 +60,9 @@ class TestApplicationVersionService(unittest.TestCase):
         expected_app_versions = [
             version.to_dict() for version in self.mock_app.versions
         ]
-        actual_db_app_version = self.application_version_service.get_many(
+        actual_db_app_version = self.application_service.get_one(
             self.mock_app.id,
-        )
+        ).versions
         actual_app_version = [version.to_dict() for version in actual_db_app_version]
 
         self.assertListEqual(expected_app_versions, actual_app_version)
@@ -81,3 +81,17 @@ class TestApplicationVersionService(unittest.TestCase):
             self.application_version_service.remove_one(self.mock_app.id, version_2.id)
 
             self.assertTrue("does not exist" not in str(context.exception))
+
+    def test_get_one_application_version(self) -> None:
+        expected_db_app_versions = self.application_version_service.add_one(
+            application_id=self.mock_app.id, version="v1.0.1"
+        )
+        expected_app_versions = [
+            version.to_dict() for version in expected_db_app_versions
+        ]
+        actual_db_app_versions = self.application_service.get_one(
+            application_id=self.mock_app.id
+        ).versions
+        actual_app_versions = [version.to_dict() for version in actual_db_app_versions]
+
+        self.assertCountEqual(expected_app_versions, actual_app_versions)

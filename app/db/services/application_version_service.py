@@ -5,7 +5,7 @@ from app.db.entities.application_version import ApplicationVersion
 from app.db.repository.application_version_repository import (
     ApplicationVersionRepository,
 )
-from app.db.repository.applications_repository import ApplicationsRepository
+from app.db.repository.application_repository import ApplicationRepository
 from app.db.session_manager import get_repository, session_manager
 from app.exceptions.app_exceptions import (
     ApplicationVersionDeleteException,
@@ -24,16 +24,12 @@ class ApplicationVersionService:
     ) -> None:
         self.application_service = application_service
 
-    def get_many(self, application_id: UUID) -> Sequence[ApplicationVersion]:
-        application = self.application_service.get_one(application_id)
-        return application.versions
-
     @session_manager
     def add_one(
         self,
         application_id: UUID,
         version: str,
-        application_respository: ApplicationsRepository = get_repository(),
+        application_respository: ApplicationRepository = get_repository(),
     ) -> Sequence[ApplicationVersion]:
 
         application = application_respository.get_or_fail(id=application_id)
@@ -50,7 +46,7 @@ class ApplicationVersionService:
         self,
         application_id: UUID,
         version_id: UUID,
-        application_repository: ApplicationsRepository = get_repository(),
+        application_repository: ApplicationRepository = get_repository(),
         application_version_repository: ApplicationVersionRepository = get_repository(),
     ) -> Sequence[ApplicationVersion]:
         application = application_repository.get(id=application_id)

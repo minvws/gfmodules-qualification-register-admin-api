@@ -2,7 +2,7 @@ from typing import Sequence, List
 from uuid import UUID
 
 from app.db.entities.system_type import SystemType
-from app.db.repository.system_types_repository import SystemTypesRepository
+from app.db.repository.system_type_repository import SystemTypeRepository
 from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     SystemTypeNotFoundException,
@@ -14,17 +14,18 @@ from app.helpers.validators import validate_sets_equal
 
 class SystemTypeService:
     @session_manager
-    def get_all(
-        self, system_type_repository: SystemTypesRepository = get_repository()
+    def get_many(
+        self,
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Sequence[SystemType]:
-        system_types = system_type_repository.get_all()
+        system_types = system_type_repository.get_many()
         return system_types
 
     @session_manager
     def get_one(
         self,
         system_type_id: UUID,
-        system_type_repository: SystemTypesRepository = get_repository(),
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> SystemType:
         system_type = system_type_repository.get(id=system_type_id)
         if system_type is None:
@@ -37,7 +38,7 @@ class SystemTypeService:
         self,
         name: str,
         description: str,
-        system_type_repository: SystemTypesRepository = get_repository(),
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> SystemType:
         system_type = system_type_repository.get(name=name)
         if system_type is not None:
@@ -54,7 +55,7 @@ class SystemTypeService:
     def delete_one(
         self,
         system_type_id: UUID,
-        system_type_repository: SystemTypesRepository = get_repository(),
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> SystemType:
         system_type = system_type_repository.get(id=system_type_id)
         if system_type is None:
@@ -68,7 +69,7 @@ class SystemTypeService:
     def get_many_by_names(
         self,
         system_type_names: List[str],
-        system_type_repository: SystemTypesRepository = get_repository(),
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Sequence[SystemType]:
         system_types = system_type_repository.get_by_property(
             attribute="name", values=system_type_names

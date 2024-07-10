@@ -1,10 +1,8 @@
-from typing import Sequence
 from uuid import UUID
 
 from app.db.entities.application import Application
-from app.db.entities.application_type import ApplicationType
-from app.db.repository.applications_repository import ApplicationsRepository
-from app.db.repository.system_types_repository import SystemTypesRepository
+from app.db.repository.application_repository import ApplicationRepository
+from app.db.repository.system_type_repository import SystemTypeRepository
 from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
@@ -17,21 +15,12 @@ from app.factory.application_type_factory import ApplicationTypeFactory
 
 class ApplicationTypeService:
     @session_manager
-    def get_all(
-        self,
-        application_id: UUID,
-        application_repository: ApplicationsRepository = get_repository(),
-    ) -> Sequence[ApplicationType]:
-        application = application_repository.get_or_fail(id=application_id)
-        return application.system_types
-
-    @session_manager
     def assign_system_type_to_application(
         self,
         application_id: UUID,
         system_type_id: UUID,
-        application_repository: ApplicationsRepository = get_repository(),
-        system_type_repository: SystemTypesRepository = get_repository(),
+        application_repository: ApplicationRepository = get_repository(),
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Application:
         application = application_repository.get(id=application_id)
         if application is None:
@@ -62,8 +51,8 @@ class ApplicationTypeService:
         self,
         application_id: UUID,
         system_type_id: UUID,
-        application_repository: ApplicationsRepository = get_repository(),
-        system_type_repository: SystemTypesRepository = get_repository(),
+        application_repository: ApplicationRepository = get_repository(),
+        system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Application:
         application = application_repository.get(id=application_id)
         if application is None:

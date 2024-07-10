@@ -10,6 +10,8 @@ from app.db.services.application_service import ApplicationService
 from app.db.services.roles_service import RolesService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
+from app.schemas.application.mapper import map_application_entity_to_dto
+from app.schemas.meta.schema import Page
 from tests.utils.config_binder import config_binder
 
 
@@ -95,3 +97,14 @@ class TestApplicationCRUDOperations(unittest.TestCase):
             )
 
             self.assertTrue("does not exist" not in str(context.exception))
+
+    def test_applications_paginated(self) -> None:
+        expected_application = Page(
+            items=[map_application_entity_to_dto(self.expected_application)],
+            limit=10,
+            offset=0,
+            total=1,
+        )
+        actual_applications = self.application_service.get_paginated(limit=10, offset=0)
+
+        self.assertEqual(expected_application, actual_applications)

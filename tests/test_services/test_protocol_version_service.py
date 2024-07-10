@@ -55,9 +55,9 @@ class TestProtocolVersionService(unittest.TestCase):
         )
         expected_protocol_versions = [expected_db_protocol_version.to_dict()]
 
-        actual_db_protocol_versions = self.protocol_version_service.get_many(
+        actual_db_protocol_versions = self.protocol_service.get_one(
             protocol_id=self.mock_protocol.id
-        )
+        ).versions
         actual_protocol_versions = [
             version.to_dict() for version in actual_db_protocol_versions
         ]

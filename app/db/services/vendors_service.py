@@ -1,7 +1,6 @@
-from typing import Sequence
 from uuid import UUID
 
-from app.db.repository.vendors_repository import VendorsRepository
+from app.db.repository.vendor_repository import VendorRepository
 from app.db.session_manager import session_manager, get_repository
 from app.factory.vendor_factory import VendorFactory
 from app.db.entities.vendor import Vendor
@@ -10,12 +9,15 @@ from app.exceptions.app_exceptions import (
     VendorAlreadyExistsException,
     VendorCannotBeDeletedException,
 )
+from app.schemas.meta.schema import Page
+from app.schemas.vendor.mapper import map_vendor_entity_to_dto
+from app.schemas.vendor.schema import VendorDTO
 
 
 class VendorService:
     @session_manager
     def get_one_by_kvk_number(
-        self, kvk_number: str, vendor_repository: VendorsRepository = get_repository()
+        self, kvk_number: str, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(kvk_number=kvk_number)
         if vendor is None:
@@ -25,7 +27,7 @@ class VendorService:
 
     @session_manager
     def get_one(
-        self, vendor_id: UUID, vendor_repository: VendorsRepository = get_repository()
+        self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(id=vendor_id)
         if vendor is None:
@@ -34,19 +36,12 @@ class VendorService:
         return vendor
 
     @session_manager
-    def get_all(
-        self, vendor_repository: VendorsRepository = get_repository()
-    ) -> Sequence[Vendor]:
-        vendors = vendor_repository.get_all()
-        return vendors
-
-    @session_manager
     def add_one(
         self,
         kvk_number: str,
         trade_name: str,
         statutory_name: str,
-        vendor_repository: VendorsRepository = get_repository(),
+        vendor_repository: VendorRepository = get_repository(),
     ) -> Vendor:
         vendor = vendor_repository.get(kvk_number=kvk_number)
         if vendor is not None:
@@ -63,7 +58,7 @@ class VendorService:
 
     @session_manager
     def remove_one(
-        self, vendor_id: UUID, vendor_repository: VendorsRepository = get_repository()
+        self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(id=vendor_id)
         if vendor is None:
@@ -76,6 +71,19 @@ class VendorService:
         vendor_repository.delete(vendor)
 
         return vendor
+
+    @session_manager
+    def get_paginated(
+        self,
+        limit: int,
+        offset: int,
+        vendor_repository: VendorRepository = get_repository(),
+    ) -> Page[VendorDTO]:
+        vendors = vendor_repository.get_many(limit=limit, offset=offset)
+        total = vendor_repository.count()
+
+        vendors_dto = [map_vendor_entity_to_dto(vendor) for vendor in vendors]
+        return Page(items=vendors_dto, total=total, offset=offset, limit=limit)
 
     @staticmethod
     def _vendor_has_applications(vendor: Vendor) -> bool:

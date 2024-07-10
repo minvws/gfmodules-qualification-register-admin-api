@@ -11,6 +11,8 @@ from app.exceptions.app_exceptions import (
     AGBCodeAlreadyExists,
     HealthcareProviderNotFoundException,
 )
+from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
+from app.schemas.meta.schema import Page
 from tests.utils.config_binder import config_binder
 
 
@@ -127,7 +129,7 @@ class TestHealthcareProviderService(unittest.TestCase):
 
             self.assertTrue("healthcare provider not found" in str(context.exception))
 
-    def test_get_all_healthcare_providers(self) -> None:
+    def test_get_paginated_healthcare_providers(self) -> None:
         new_healthcare_provider = self.healthcare_provider_service.add_one(
             ura_code="example ura code",
             agb_code="example agb code",
@@ -135,12 +137,14 @@ class TestHealthcareProviderService(unittest.TestCase):
             statutory_name="example statutory name",
             protocol_version_id=self.mock_protocol_version.id,
         )
-        expected_healthcare_providers = [new_healthcare_provider.to_dict()]
-        actual_db_healthcare_providers = self.healthcare_provider_service.get_all()
-        actual_healthcare_providers = [
-            provider.to_dict() for provider in actual_db_healthcare_providers
-        ]
-
-        self.assertCountEqual(
-            expected_healthcare_providers, actual_healthcare_providers
+        expected_healthcare_providers = Page(
+            limit=10,
+            offset=0,
+            items=[map_healthcare_provider_entity_to_dto(new_healthcare_provider)],
+            total=1,
         )
+        actual_healthcare_providers = self.healthcare_provider_service.get_paginated(
+            limit=10, offset=0
+        )
+
+        self.assertEqual(expected_healthcare_providers, actual_healthcare_providers)

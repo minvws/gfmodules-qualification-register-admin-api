@@ -32,10 +32,6 @@ class ProtocolVersionService:
 
         return protocol_version
 
-    def get_many(self, protocol_id: UUID) -> Sequence[ProtocolVersion]:
-        protocol = self.protocol_service.get_one(protocol_id)
-        return protocol.versions
-
     @session_manager
     def add_one(
         self,

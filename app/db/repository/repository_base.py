@@ -1,7 +1,7 @@
 from typing import TypeVar, Union, Dict, Generic, Sequence, List
 from uuid import UUID
 
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, func
 
 from app.db.db_session import DbSession
 from app.db.repository.exception import EntryNotFound
@@ -38,9 +38,25 @@ class RepositoryBase(Generic[T]):
 
         return result
 
-    def get_all(self, **kwargs: TArgs) -> Sequence[T]:
-        stmt = select(self.model).filter_by(**kwargs)
+    def get_many(
+        self, limit: int | None = None, offset: int | None = None, **kwargs: TArgs
+    ) -> Sequence[T]:
+        stmt = (
+            select(self.model)
+            .limit(limit=limit)
+            .offset(offset=offset)
+            .order_by("created_at")
+            .filter_by(**kwargs)
+        )
         return self.session.scalars_all(stmt)
+
+    def count(self, **kwargs: TArgs) -> int:
+        stmt = select(func.count()).select_from(self.model).filter_by(**kwargs)
+        result = self.session.execute_scalar(stmt)
+        if isinstance(result, int) and not None:
+            return result
+
+        raise TypeError(f"{result} is not an integer")
 
     def get_by_property(self, attribute: str, values: List[str]) -> Sequence[T]:
         """
