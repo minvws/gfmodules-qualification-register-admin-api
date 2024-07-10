@@ -2,7 +2,7 @@ from typing import Sequence, List
 from uuid import UUID
 
 from app.db.entities.role import Role
-from app.db.repository.roles_repository import RolesRepository
+from app.db.repository.role_repository import RoleRepository
 from app.db.repository_factory import RepositoryFactory
 from app.db.session_factory import DbSessionFactory
 from app.db.session_manager import session_manager, get_repository
@@ -24,7 +24,7 @@ class RolesService:
 
     @session_manager
     def get_one(
-        self, role_id: UUID, role_repository: RolesRepository = get_repository()
+        self, role_id: UUID, role_repository: RoleRepository = get_repository()
     ) -> Role:
         role = role_repository.get(id=role_id)
         if role is None:
@@ -34,7 +34,7 @@ class RolesService:
 
     @session_manager
     def gel_all(
-        self, role_repository: RolesRepository = get_repository()
+        self, role_repository: RoleRepository = get_repository()
     ) -> Sequence[Role]:
         roles = role_repository.get_all()
         if roles is None:
@@ -47,7 +47,7 @@ class RolesService:
         self,
         name: str,
         description: str,
-        role_repository: RolesRepository = get_repository(),
+        role_repository: RoleRepository = get_repository(),
     ) -> Role:
         role = role_repository.get(name=name)
         if role is not None:
@@ -63,7 +63,7 @@ class RolesService:
         self,
         role_id: UUID,
         description: str,
-        role_repository: RolesRepository = get_repository(),
+        role_repository: RoleRepository = get_repository(),
     ) -> Role:
         role = role_repository.get(id=role_id)
         if role is None:
@@ -76,7 +76,7 @@ class RolesService:
 
     @session_manager
     def remove_one(
-        self, role_id: UUID, role_repository: RolesRepository = get_repository()
+        self, role_id: UUID, role_repository: RoleRepository = get_repository()
     ) -> Role:
         role = role_repository.get(id=role_id)
         if role is None:
@@ -88,7 +88,7 @@ class RolesService:
 
     @session_manager
     def get_many_by_names(
-        self, role_names: List[str], role_repository: RolesRepository = get_repository()
+        self, role_names: List[str], role_repository: RoleRepository = get_repository()
     ) -> Sequence[Role]:
         roles = role_repository.get_by_property("name", role_names)
         if roles is None:
