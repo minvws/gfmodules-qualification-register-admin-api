@@ -2,6 +2,7 @@ from typing import TypeVar, Union, Dict, Generic, Sequence, List
 from uuid import UUID
 
 from sqlalchemy import select, or_, func
+from sqlalchemy.exc import InvalidRequestError
 
 from app.db.db_session import DbSession
 from app.db.repository.exception import EntryNotFound
@@ -28,10 +29,12 @@ class RepositoryBase(Generic[T]):
         return self.session.delete(entity)
 
     def get(self, **kwargs: TArgs) -> T | None:
+        self._validate_kwargs(**kwargs)
         stmt = select(self.model).filter_by(**kwargs)
         return self.session.scalars_first(stmt)
 
     def get_or_fail(self, **kwargs: TArgs) -> T:
+        self._validate_kwargs(**kwargs)
         result = self.get(**kwargs)
         if result is None:
             raise EntryNotFound(self.model)
@@ -41,6 +44,7 @@ class RepositoryBase(Generic[T]):
     def get_many(
         self, limit: int | None = None, offset: int | None = None, **kwargs: TArgs
     ) -> Sequence[T]:
+        self._validate_kwargs(**kwargs)
         stmt = (
             select(self.model)
             .limit(limit=limit)
@@ -51,6 +55,7 @@ class RepositoryBase(Generic[T]):
         return self.session.scalars_all(stmt)
 
     def count(self, **kwargs: TArgs) -> int:
+        self._validate_kwargs(**kwargs)
         stmt = select(func.count()).select_from(self.model).filter_by(**kwargs)
         result = self.session.execute_scalar(stmt)
         if isinstance(result, int) and not None:
@@ -82,6 +87,13 @@ class RepositoryBase(Generic[T]):
             raise EntryNotFound(self.model)
 
         return results
+
+    def _validate_kwargs(self, **kwargs: TArgs) -> None:
+        # check if kwargs are a subset of column names for a given model
+        if not (set([*kwargs]) <= set([*self.model.__table__.columns.keys()])):
+            raise InvalidRequestError(
+                f"{[*kwargs]} is not a column in the {self.model.__name__}ß"
+            )
 
 
 TRepositoryBase = TypeVar("TRepositoryBase", bound=RepositoryBase, covariant=True)  # type: ignore
