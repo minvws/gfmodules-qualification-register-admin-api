@@ -4,12 +4,7 @@ from typing import Any
 
 from fastapi import FastAPI
 import uvicorn
-from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import RedirectResponse
 
-from app.middleware.api_version import ApiVersionHeaderMiddleware
-from app.routers.default import router as default_router
-from app.routers.health import router as health_router
 from app.routers.v1.vendors_router import router as vendors_router
 from app.routers.v1.applications_router import router as applications_router
 from app.routers.v1.system_types_router import router as system_types_router
@@ -21,7 +16,11 @@ from app.routers.v1.protocol_router import router as protocol_router
 from app.routers.v1.qualification_router import (
     router as qualification_router,
 )
-from app.config import get_config, Config
+
+from app.fastapi.setup import fastapi_mount_api, setup_fastapi, setup_fastapi_for_api
+from app.routers.default import router as default_router
+from app.routers.health import router as health_router
+from app.config import get_config
 
 
 def get_uvicorn_params() -> dict[str, Any]:
@@ -54,7 +53,25 @@ def run() -> None:
 
 def create_fastapi_app() -> FastAPI:
     application_init()
-    fastapi = setup_fastapi()
+
+    config = get_config()
+
+    fastapi = setup_fastapi(config, [
+        default_router,
+        health_router,
+    ])
+
+    # v1 api
+    fastapi_v1 = setup_fastapi_for_api(config, routers=[
+        vendors_router,
+        roles_router,
+        system_types_router,
+        applications_router,
+        protocol_router,
+        healthcare_provider_router,
+        qualification_router,
+    ], api_version="1.0.0")
+    fastapi_mount_api(root_fastapi=fastapi, mount_path="/v1", api=fastapi_v1)
 
     return fastapi
 
@@ -72,68 +89,3 @@ def setup_logging() -> None:
         level=loglevel,
         datefmt="%m/%d/%Y %I:%M:%S %p",
     )
-
-
-def setup_fastapi() -> FastAPI:
-    config = get_config()
-
-    fastapi = (
-        FastAPI(docs_url=config.uvicorn.docs_url, redoc_url=config.uvicorn.redoc_url, redirect_slashes=False)
-        if config.uvicorn.swagger_enabled
-        else FastAPI(docs_url=None, redoc_url=None, redirect_slashes=False)
-    )
-    fastapi.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-    routers = [
-        default_router,
-        health_router,
-    ]
-    for router in routers:
-        fastapi.include_router(router)
-
-    # v1 api
-    api_v1 = get_v1_api(config)
-    fastapi.mount("/v1", api_v1)
-
-    @fastapi.get("/v1", include_in_schema=False)
-    async def docs_redirect():
-        return RedirectResponse(url='/v1/docs')
-
-    return fastapi
-
-
-def get_v1_api(config: Config) -> FastAPI:
-    fastapi = (
-        FastAPI(docs_url=config.uvicorn.docs_url, redoc_url=config.uvicorn.redoc_url, redirect_slashes=False)
-        if config.uvicorn.swagger_enabled
-        else FastAPI(docs_url=None, redoc_url=None, redirect_slashes=False)
-    )
-    fastapi.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    fastapi.add_middleware(ApiVersionHeaderMiddleware, api_version="1.0.0")
-
-    v1_routers = [
-        vendors_router,
-        roles_router,
-        system_types_router,
-        applications_router,
-        protocol_router,
-        healthcare_provider_router,
-        qualification_router,
-    ]
-
-    for router in v1_routers:
-        fastapi.include_router(router)
-
-    return fastapi
