@@ -1,7 +1,7 @@
 from typing import Sequence
 from uuid import UUID
 
-from app.db.repository.vendors_repository import VendorsRepository
+from app.db.repository.vendor_repository import VendorRepository
 from app.db.session_manager import session_manager, get_repository
 from app.factory.vendor_factory import VendorFactory
 from app.db.entities.vendor import Vendor
@@ -15,7 +15,7 @@ from app.exceptions.app_exceptions import (
 class VendorService:
     @session_manager
     def get_one_by_kvk_number(
-        self, kvk_number: str, vendor_repository: VendorsRepository = get_repository()
+        self, kvk_number: str, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(kvk_number=kvk_number)
         if vendor is None:
@@ -25,7 +25,7 @@ class VendorService:
 
     @session_manager
     def get_one(
-        self, vendor_id: UUID, vendor_repository: VendorsRepository = get_repository()
+        self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(id=vendor_id)
         if vendor is None:
@@ -35,7 +35,7 @@ class VendorService:
 
     @session_manager
     def get_all(
-        self, vendor_repository: VendorsRepository = get_repository()
+        self, vendor_repository: VendorRepository = get_repository()
     ) -> Sequence[Vendor]:
         vendors = vendor_repository.get_all()
         return vendors
@@ -46,7 +46,7 @@ class VendorService:
         kvk_number: str,
         trade_name: str,
         statutory_name: str,
-        vendor_repository: VendorsRepository = get_repository(),
+        vendor_repository: VendorRepository = get_repository(),
     ) -> Vendor:
         vendor = vendor_repository.get(kvk_number=kvk_number)
         if vendor is not None:
@@ -63,7 +63,7 @@ class VendorService:
 
     @session_manager
     def remove_one(
-        self, vendor_id: UUID, vendor_repository: VendorsRepository = get_repository()
+        self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(id=vendor_id)
         if vendor is None:

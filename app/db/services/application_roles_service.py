@@ -3,8 +3,8 @@ from uuid import UUID
 
 from app.db.entities.application import Application
 from app.db.entities.application_role import ApplicationRole
-from app.db.repository.applications_repository import ApplicationsRepository
-from app.db.repository.roles_repository import RolesRepository
+from app.db.repository.application_repository import ApplicationRepository
+from app.db.repository.role_repository import RoleRepository
 from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
@@ -29,8 +29,8 @@ class ApplicationRolesService:
         self,
         application_id: UUID,
         role_id: UUID,
-        application_repository: ApplicationsRepository = get_repository(),
-        role_repository: RolesRepository = get_repository(),
+        application_repository: ApplicationRepository = get_repository(),
+        role_repository: RoleRepository = get_repository(),
     ) -> Application:
         application = application_repository.get(id=application_id)
         if application is None:
@@ -58,8 +58,8 @@ class ApplicationRolesService:
         self,
         application_id: UUID,
         role_id: UUID,
-        application_repository: ApplicationsRepository = get_repository(),
-        role_repository: RolesRepository = get_repository(),
+        application_repository: ApplicationRepository = get_repository(),
+        role_repository: RoleRepository = get_repository(),
     ) -> Application:
         application = application_repository.get(id=application_id)
         if application is None:
