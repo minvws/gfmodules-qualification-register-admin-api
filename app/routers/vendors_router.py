@@ -1,8 +1,10 @@
-from typing import List
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
+from app.schemas.meta.schema import Page
+from app.schemas.pagination_query_params.schema import PaginationQueryParams
 from app.schemas.vendor.mapper import map_vendor_entity_to_dto
 from app.schemas.vendor.schema import VendorDTO, VendorCreateDTO
 from app.db.services.vendors_service import VendorService
@@ -13,12 +15,12 @@ from app.container import (
 router = APIRouter(prefix="/vendors", tags=["Vendors"])
 
 
-@router.get("", response_model=List[VendorDTO])
-def get_all_vendors(
+@router.get("")
+def get_vendors(
+    query: Annotated[PaginationQueryParams, Depends()],
     vendor_service: VendorService = Depends(get_vendors_service),
-) -> list[VendorDTO]:
-    result = vendor_service.get_all()
-    return [map_vendor_entity_to_dto(vendor) for vendor in result]
+) -> Page[VendorDTO]:
+    return vendor_service.get_paginated(limit=query.limit, offset=query.offset)
 
 
 @router.post("", response_model=None)

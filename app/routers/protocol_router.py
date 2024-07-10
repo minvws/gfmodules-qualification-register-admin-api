@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from app.container import get_protocol_service, get_protocol_version_service
 from app.db.services.protocol_service import ProtocolService
 from app.db.services.protocol_version_service import ProtocolVersionService
+from app.schemas.meta.schema import Page
 from app.schemas.protocol.mapper import (
     map_protocol_entity_to_dto,
     map_protocol_version_entity_to_dto,
@@ -16,16 +17,17 @@ from app.schemas.protocol.schema import (
     ProtocolVersionCreateDTO,
     ProtocolVersionDTO,
 )
+from app.schemas.pagination_query_params.schema import PaginationQueryParams
 
 router = APIRouter(prefix="/protocols", tags=["Protocols"])
 
 
-@router.get("", response_model=List[ProtocolDTO])
-def get_all_protocols(
+@router.get("")
+def get_protocols(
+    query: Annotated[PaginationQueryParams, Depends()],
     service: ProtocolService = Depends(get_protocol_service),
-) -> List[ProtocolDTO]:
-    protocols = service.get_all()
-    return [map_protocol_entity_to_dto(protocol) for protocol in protocols]
+) -> Page[ProtocolDTO]:
+    return service.get_paginated(limit=query.limit, offset=query.offset)
 
 
 @router.post("", response_model=ProtocolDTO)
@@ -51,15 +53,6 @@ def delete_protocol(
 ) -> ProtocolDTO:
     protocol = service.remove_one(protocol_id)
     return map_protocol_entity_to_dto(protocol)
-
-
-@router.get("/{protocol_id}/versions")
-def get_protocol_versions(
-    protocol_id: UUID,
-    service: ProtocolVersionService = Depends(get_protocol_version_service),
-) -> List[ProtocolVersionDTO]:
-    versions = service.get_many(protocol_id)
-    return [map_protocol_version_entity_to_dto(version) for version in versions]
 
 
 @router.post("/{protocol_id}/versions")

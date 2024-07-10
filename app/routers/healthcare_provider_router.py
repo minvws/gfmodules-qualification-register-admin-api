@@ -1,4 +1,4 @@
-from typing import List
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -13,26 +13,23 @@ from app.db.services.healthcare_provider_application_version_service import (
 from app.db.services.healthcare_provider_service import HealthcareProviderService
 from app.schemas.healthcare_provider.mapper import (
     map_healthcare_provider_entity_to_dto,
-    map_healthcare_provider_app_version_entity_to_dto,
 )
 from app.schemas.healthcare_provider.schema import (
     HealthcareProviderCreateDTO,
     HealthcareProviderDTO,
-    HealthcareProviderApplicationVersionDTO,
 )
+from app.schemas.meta.schema import Page
+from app.schemas.pagination_query_params.schema import PaginationQueryParams
 
 router = APIRouter(prefix="/healthcare-provider", tags=["Healthcare  Provider"])
 
 
 @router.get("")
-def get_all_healthcare_providers(
+def get_healthcare_providers(
+    query: Annotated[PaginationQueryParams, Depends()],
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
-) -> List[HealthcareProviderDTO]:
-    healthcare_providers = service.get_all()
-    return [
-        map_healthcare_provider_entity_to_dto(provider)
-        for provider in healthcare_providers
-    ]
+) -> Page[HealthcareProviderDTO]:
+    return service.get_paginated(limit=query.limit, offset=query.offset)
 
 
 @router.get("/{healthcare_provider_id}")
@@ -60,22 +57,6 @@ def deregister_one_healthcare_provider(
 ) -> HealthcareProviderDTO:
     healthcare_provider = service.remove_one(healthcare_provider_id)
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
-
-
-@router.get("/{healthcare_provider_id}/application_versions")
-def get_healthcare_provider_application_versions(
-    healthcare_provider_id: UUID,
-    service: HealthcareProviderApplicationVersionService = Depends(
-        get_healthcare_provider_application_version_service
-    ),
-) -> List[HealthcareProviderApplicationVersionDTO]:
-    application_versions = service.get_healthcare_provider_application_versions(
-        healthcare_provider_id
-    )
-    return [
-        map_healthcare_provider_app_version_entity_to_dto(version)
-        for version in application_versions
-    ]
 
 
 @router.post("/{healthcare_provider_id}/application_versions/{version_id}")

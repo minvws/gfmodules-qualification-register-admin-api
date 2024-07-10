@@ -1,4 +1,3 @@
-from typing import Sequence
 from uuid import UUID
 
 from app.db.repository.vendor_repository import VendorRepository
@@ -10,6 +9,9 @@ from app.exceptions.app_exceptions import (
     VendorAlreadyExistsException,
     VendorCannotBeDeletedException,
 )
+from app.schemas.meta.schema import Page
+from app.schemas.vendor.mapper import map_vendor_entity_to_dto
+from app.schemas.vendor.schema import VendorDTO
 
 
 class VendorService:
@@ -32,13 +34,6 @@ class VendorService:
             raise VendorNotFoundException()
 
         return vendor
-
-    @session_manager
-    def get_all(
-        self, vendor_repository: VendorRepository = get_repository()
-    ) -> Sequence[Vendor]:
-        vendors = vendor_repository.get_all()
-        return vendors
 
     @session_manager
     def add_one(
@@ -76,6 +71,19 @@ class VendorService:
         vendor_repository.delete(vendor)
 
         return vendor
+
+    @session_manager
+    def get_paginated(
+        self,
+        limit: int,
+        offset: int,
+        vendor_repository: VendorRepository = get_repository(),
+    ) -> Page[VendorDTO]:
+        vendors = vendor_repository.get_many(limit=limit, offset=offset)
+        total = vendor_repository.count()
+
+        vendors_dto = [map_vendor_entity_to_dto(vendor) for vendor in vendors]
+        return Page(items=vendors_dto, total=total, offset=offset, limit=limit)
 
     @staticmethod
     def _vendor_has_applications(vendor: Vendor) -> bool:

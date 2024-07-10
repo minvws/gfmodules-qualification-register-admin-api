@@ -63,9 +63,9 @@ class TestApplicationRoleService(unittest.TestCase):
         expected_db_roles = updated_app.roles
         expected_roles = [role.to_dict() for role in expected_db_roles]
 
-        actual_db_roles = self.application_role_service.get_application_roles(
+        actual_db_roles = self.application_service.get_one(
             self.mock_application.id
-        )
+        ).roles
         actual_roles = [role.to_dict() for role in actual_db_roles]
 
         self.assertListEqual(expected_roles, actual_roles)
@@ -88,9 +88,9 @@ class TestApplicationRoleService(unittest.TestCase):
             expected_role.to_dict() for expected_role in expected_db_roles
         ]
 
-        actual_db_roles = self.application_role_service.get_application_roles(
+        actual_db_roles = self.application_service.get_one(
             application_id=updated_application.id
-        )
+        ).roles
         actual_roles = [actual_role.to_dict() for actual_role in actual_db_roles]
 
         self.assertListEqual(expected_roles, actual_roles)

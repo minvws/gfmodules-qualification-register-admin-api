@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -12,8 +11,10 @@ router = APIRouter(prefix="/roles", tags=["Roles"])
 
 
 @router.get("")
-def get_all_roles(service: RolesService = Depends(get_roles_service)) -> List[RoleDTO]:
-    roles = service.gel_all()
+def get_all_roles(
+    service: RolesService = Depends(get_roles_service),
+) -> list[RoleDTO]:
+    roles = service.get_many()
     return [map_role_model_to_dto(role) for role in roles]
 
 
