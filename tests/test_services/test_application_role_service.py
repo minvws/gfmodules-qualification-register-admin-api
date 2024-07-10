@@ -63,7 +63,6 @@ class TestApplicationRoleService(unittest.TestCase):
         expected_db_roles = updated_app.roles
         expected_roles = [role.to_dict() for role in expected_db_roles]
 
-        # fix this
         actual_db_roles = self.application_service.get_one(
             self.mock_application.id
         ).roles
