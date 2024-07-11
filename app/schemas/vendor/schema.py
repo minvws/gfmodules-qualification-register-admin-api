@@ -8,9 +8,6 @@ class VendorApplicationVersionDTO(BaseModel):
 
 
 class VendorApplicationBase(BaseModel):
-    class Config:
-        from_attributes = True
-
     name: str
 
 
@@ -25,9 +22,6 @@ class VendorApplicationTypeDTO(BaseModel):
 
 
 class VendorApplicationDTO(VendorApplicationBase):
-    class Config:
-        from_attributes = True
-
     id: UUID = uuid4()
     versions: List[VendorApplicationVersionDTO] = []
     roles: List[VendorApplicationRoleDTO] = []
@@ -35,9 +29,6 @@ class VendorApplicationDTO(VendorApplicationBase):
 
 
 class VendorBase(BaseModel):
-    class Config:
-        from_attributes = True
-
     kvk_number: str
     trade_name: str
     statutory_name: str
