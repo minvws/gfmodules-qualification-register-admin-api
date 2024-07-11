@@ -1,25 +1,14 @@
 import uuid
-from typing import Generator, Any, Sequence
+from typing import Sequence
 
 import pytest
 from sqlalchemy.exc import InvalidRequestError
 
-from app.db.db import Database
+
 from app.db.db_session import DbSession
 from app.db.entities.vendor import Vendor
 from app.db.repository.exception import EntryNotFound
 from app.db.repository.vendor_repository import VendorRepository
-from app.db.session_factory import DbSessionFactory
-
-
-@pytest.fixture()
-def session() -> Generator[DbSession, Any, None]:
-    db = Database("sqlite:///:memory:")
-    db.generate_tables()
-    session_factory = DbSessionFactory(db.engine)
-    session = session_factory.create()
-
-    yield session
 
 
 @pytest.fixture()
