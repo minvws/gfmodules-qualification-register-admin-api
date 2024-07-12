@@ -3,7 +3,7 @@ from typing import List, Literal, get_args
 from uuid import UUID, uuid4
 
 from sqlalchemy import types, String, TIMESTAMP, Enum
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship, validates
 
 from app.db.entities.base import Base
 from app.db.entities import protocol_version
@@ -53,3 +53,12 @@ class Protocol(Base):
             modified_at=self.modified_at,
             versions=self.versions,
         )
+
+    @validates("protocol_type")
+    def validate_protocol_type(
+        self, _key: str, protocol_type: ProtocolTypes
+    ) -> ProtocolTypes:
+        if protocol_type in get_args(ProtocolTypes):
+            return protocol_type
+
+        raise ValueError("Invalid protocol type")
