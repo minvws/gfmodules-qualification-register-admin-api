@@ -28,7 +28,7 @@ from app.schemas.protocol_application_qualification.schema import (
 router = APIRouter(prefix="/qualifications", tags=["Qualification"])
 
 
-@router.post("/{protocol_version_id}/application_versions/{version_id}")
+@router.post("/{protocol_version_id}/application-versions/{version_id}")
 def qualify_application_version_for_a_protocol(
     protocol_version_id: UUID,
     application_version_id: UUID,
@@ -46,7 +46,7 @@ def qualify_application_version_for_a_protocol(
     return map_protocol_qualification_entity_to_dto(protocol_version)
 
 
-@router.delete("/{protocol_version_id}/application_versions/{application_version_id}")
+@router.delete("/{protocol_version_id}/application-versions/{application_version_id}")
 def archive_application_version_qualification(
     protocol_version_id: UUID,
     application_version_id: UUID,
@@ -61,7 +61,7 @@ def archive_application_version_qualification(
     return map_protocol_qualification_entity_to_dto(protocol_version)
 
 
-@router.post("/{healthcare_provider_id}/protocol_versions/{protocol_version_id}")
+@router.post("/{healthcare_provider_id}/protocol-versions/{protocol_version_id}")
 def qualify_healthcare_provider(
     healthcare_provider_id: UUID,
     protocol_version_id: UUID,
@@ -78,7 +78,7 @@ def qualify_healthcare_provider(
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
-@router.delete("/{healthcare_provider_id}/protocol_versions/{protocol_version_id}")
+@router.delete("/{healthcare_provider_id}/protocol-versions/{protocol_version_id}")
 def archive_healthcare_provider_qualification(
     healthcare_provider_id: UUID,
     protocol_version_id: UUID,

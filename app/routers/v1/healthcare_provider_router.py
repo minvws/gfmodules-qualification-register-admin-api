@@ -59,7 +59,7 @@ def deregister_one_healthcare_provider(
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
-@router.post("/{healthcare_provider_id}/application_versions/{version_id}")
+@router.post("/{healthcare_provider_id}/application-versions/{version_id}")
 def register_application_version_to_healthcare_provider(
     healthcare_provider_id: UUID,
     version_id: UUID,
@@ -73,7 +73,7 @@ def register_application_version_to_healthcare_provider(
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
-@router.delete("/{healthcare_provider_id}/application_versions/{version_id}")
+@router.delete("/{healthcare_provider_id}/application-versions/{version_id}")
 def deregister_application_version_to_healthcare_provider(
     healthcare_provider_id: UUID,
     version_id: UUID,

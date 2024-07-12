@@ -123,7 +123,7 @@ def unassign_one_application_role(
     return map_application_entity_to_dto(results)
 
 
-@router.post("/{application_id}/system_types/{system_type_id}")
+@router.post("/{application_id}/system-types/{system_type_id}")
 def assign_system_type_to_application(
     application_id: UUID,
     system_type_id: UUID,
@@ -135,7 +135,7 @@ def assign_system_type_to_application(
     return map_application_entity_to_dto(application)
 
 
-@router.delete("/{application_id}/system_types/{system_type_id}")
+@router.delete("/{application_id}/system-types/{system_type_id}")
 def unassing_system_type_from_application(
     application_id: UUID,
     system_type_id: UUID,
