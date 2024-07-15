@@ -22,5 +22,5 @@ class ProtocolApplicationQualificationDTO(BaseModel):
     id: UUID
     protocol_id: UUID
     version: str
-    description: str
+    description: str | None
     application_versions: List[QualifiedApplicationVersionDTO] = []

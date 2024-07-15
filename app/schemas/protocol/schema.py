@@ -8,7 +8,7 @@ from app.schemas.enums.protocol_types import ProtocolTypes
 
 class ProtocolVersionBase(BaseModel):
     version: str
-    description: str
+    description: str | None
 
 
 class ProtocolVersionCreateDTO(ProtocolVersionBase):
@@ -22,7 +22,7 @@ class ProtocolVersionDTO(ProtocolVersionBase):
 class ProtocolBase(BaseModel):
     protocol_type: ProtocolTypes
     name: str
-    description: str
+    description: str | None
 
 
 class ProtocolCreateDTO(ProtocolBase):
