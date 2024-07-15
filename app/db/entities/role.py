@@ -16,7 +16,7 @@ class Role(Base):
         "id", types.Uuid, primary_key=True, nullable=False, default=uuid4
     )
     name: Mapped[str] = mapped_column("name", String(150), nullable=False, unique=True)
-    description: Mapped[str] = mapped_column("description", String)
+    description: Mapped[str | None] = mapped_column("description", String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         "created_at", TIMESTAMP, nullable=False, default=datetime.now()
     )

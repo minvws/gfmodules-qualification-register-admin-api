@@ -37,7 +37,7 @@ class ProtocolVersionService:
         self,
         protocol_id: UUID,
         version: str,
-        description: str,
+        description: str | None,
         protocol_repository: ProtocolRepository = get_repository(),
     ) -> ProtocolVersion:
         protocol = protocol_repository.get(id=protocol_id)

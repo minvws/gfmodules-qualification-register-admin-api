@@ -12,7 +12,7 @@ class QualifiedProtocolVersionsDTO(BaseModel):
     protocol_id: UUID
     version_id: UUID
     version: str
-    description: str
+    description: str | None
     qualification_date: date
     archived_date: datetime | None = None
 

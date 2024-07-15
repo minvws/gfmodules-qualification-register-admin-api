@@ -7,7 +7,7 @@ class RoleBase(BaseModel):
     class Config:
         from_attributes = True
 
-    description: str
+    description: str | None
 
 
 class RoleCreateDTO(RoleBase):

@@ -37,7 +37,7 @@ class SystemTypeService:
     def add_one(
         self,
         name: str,
-        description: str,
+        description: str | None,
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> SystemType:
         system_type = system_type_repository.get(name=name)

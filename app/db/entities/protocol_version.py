@@ -22,7 +22,7 @@ class ProtocolVersion(Base):
         default=uuid4,
     )
     version: Mapped[str] = mapped_column("version", String(50), nullable=False)
-    description: Mapped[str] = mapped_column("description", String, nullable=True)
+    description: Mapped[str | None] = mapped_column("description", String, nullable=True)
     protocol_id: Mapped[UUID] = mapped_column(
         ForeignKey("protocols.id", name="protocols_versions_protocols_fk")
     )
