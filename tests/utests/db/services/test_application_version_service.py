@@ -3,12 +3,10 @@ import unittest
 import inject
 
 from app.db.db import Database
-from app.db.repository_factory import RepositoryFactory
-from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import ApplicationVersionDeleteException
 from app.db.services.application_service import ApplicationService
 from app.db.services.application_version_service import ApplicationVersionService
-from app.db.services.roles_service import RolesService
+from app.db.services.roles_service import RoleService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
 from tests.utils.config_binder import config_binder
@@ -20,17 +18,13 @@ class TestApplicationVersionService(unittest.TestCase):
         self.database = Database("sqlite:///:memory:")
         self.database.generate_tables()
         # setup factory
-        db_session_factory = DbSessionFactory(engine=self.database.engine)
-        repository_factory = RepositoryFactory()
         inject.configure(
             lambda binder: config_binder(binder, self.database),
             clear=True,
         )
         # setup service
         self.vendor_service = VendorService()
-        self.role_service = RolesService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
+        self.role_service = RoleService()
         self.system_type_service = SystemTypeService()
         self.application_service = ApplicationService()
         self.application_version_service = ApplicationVersionService(
