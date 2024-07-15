@@ -3,8 +3,6 @@ from uuid import UUID
 
 from app.db.entities.role import Role
 from app.db.repository.role_repository import RoleRepository
-from app.db.repository_factory import RepositoryFactory
-from app.db.session_factory import DbSessionFactory
 from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     RoleAlreadyExistsException,
@@ -13,14 +11,7 @@ from app.exceptions.app_exceptions import (
 from app.helpers.validators import validate_sets_equal
 
 
-class RolesService:
-    def __init__(
-        self,
-        db_session_factory: DbSessionFactory,
-        repository_factory: RepositoryFactory,
-    ) -> None:
-        self.db_session_factory = db_session_factory
-        self.repository_factory = repository_factory
+class RoleService:
 
     @session_manager
     def get_one(

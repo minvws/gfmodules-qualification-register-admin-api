@@ -20,7 +20,7 @@ from app.db.services.protocol_version_service import ProtocolVersionService
 from app.db.session_factory import DbSessionFactory
 from app.db.services.application_roles_service import ApplicationRolesService
 from app.db.services.application_version_service import ApplicationVersionService
-from app.db.services.roles_service import RolesService
+from app.db.services.roles_service import RoleService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
 
@@ -42,10 +42,8 @@ def container_config(binder: inject.Binder) -> None:
     vendors_service = VendorService()
     binder.bind(VendorService, vendors_service)
 
-    roles_service = RolesService(
-        db_session_factory=session_factory, repository_factory=repository_factory
-    )
-    binder.bind(RolesService, roles_service)
+    roles_service = RoleService()
+    binder.bind(RoleService, roles_service)
 
     system_type_service = SystemTypeService()
     binder.bind(SystemTypeService, system_type_service)
@@ -114,8 +112,8 @@ def get_application_service() -> ApplicationService:
     return inject.instance(ApplicationService)
 
 
-def get_roles_service() -> RolesService:
-    return inject.instance(RolesService)
+def get_roles_service() -> RoleService:
+    return inject.instance(RoleService)
 
 
 def get_application_roles_service() -> ApplicationRolesService:

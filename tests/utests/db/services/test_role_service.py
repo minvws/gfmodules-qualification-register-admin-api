@@ -3,10 +3,8 @@ import unittest
 import inject
 
 from app.db.db import Database
-from app.db.repository_factory import RepositoryFactory
-from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import RoleNotFoundException
-from app.db.services.roles_service import RolesService
+from app.db.services.roles_service import RoleService
 from tests.utils.config_binder import config_binder
 
 
@@ -17,14 +15,12 @@ class TestRoleService(unittest.TestCase):
         self.database = Database("sqlite:///:memory:")
         self.database.generate_tables()
         # setup factory
-        db_session_factory = DbSessionFactory(engine=self.database.engine)
-        repository_factory = RepositoryFactory()
         inject.configure(
             lambda binder: config_binder(binder, self.database),
             clear=True,
         )
         # setup service
-        self.role_service = RolesService(db_session_factory, repository_factory)
+        self.role_service = RoleService()
 
     def test_create_role(self) -> None:
         # act

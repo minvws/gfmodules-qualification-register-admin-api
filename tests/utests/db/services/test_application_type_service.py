@@ -7,13 +7,11 @@ from app.db.entities.application import Application
 from app.db.entities.role import Role
 from app.db.entities.system_type import SystemType
 from app.db.entities.vendor import Vendor
-from app.db.repository_factory import RepositoryFactory
 from app.db.services.application_service import ApplicationService
 from app.db.services.application_type_service import ApplicationTypeService
-from app.db.services.roles_service import RolesService
+from app.db.services.roles_service import RoleService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
-from app.db.session_factory import DbSessionFactory
 from app.exceptions.app_exceptions import SystemTypeNotUsedByApplicationException
 from tests.utils.config_binder import config_binder
 
@@ -24,17 +22,13 @@ class TestApplicationTypeService(unittest.TestCase):
         self.database = Database("sqlite:///:memory:")
         self.database.generate_tables()
         # setup factory
-        db_session_factory = DbSessionFactory(engine=self.database.engine)
-        repository_factory = RepositoryFactory()
         inject.configure(
             lambda binder: config_binder(binder, self.database),
             clear=True,
         )
         # setup service
         self.vendor_service = VendorService()
-        self.role_service = RolesService(
-            db_session_factory=db_session_factory, repository_factory=repository_factory
-        )
+        self.role_service = RoleService()
         self.system_type_service = SystemTypeService()
         self.application_service = ApplicationService()
         self.application_type_service = ApplicationTypeService()
