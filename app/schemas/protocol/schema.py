@@ -1,34 +1,33 @@
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel
-
+from app.schemas.default import BaseModelConfig
 from app.schemas.enums.protocol_types import ProtocolTypes
 
 
-class ProtocolVersionBase(BaseModel):
+class ProtocolVersionBase(BaseModelConfig):
     version: str
     description: str | None
 
 
-class ProtocolVersionCreateDTO(ProtocolVersionBase):
+class ProtocolVersionCreateDto(ProtocolVersionBase):
     pass
 
 
-class ProtocolVersionDTO(ProtocolVersionBase):
+class ProtocolVersionDto(ProtocolVersionBase):
     id: UUID
 
 
-class ProtocolBase(BaseModel):
+class ProtocolBase(BaseModelConfig):
     protocol_type: ProtocolTypes
     name: str
     description: str | None
 
 
-class ProtocolCreateDTO(ProtocolBase):
+class ProtocolCreateDto(ProtocolBase):
     pass
 
 
-class ProtocolDTO(ProtocolBase):
+class ProtocolDto(ProtocolBase):
     id: UUID
-    versions: List[ProtocolVersionDTO]
+    versions: List[ProtocolVersionDto]

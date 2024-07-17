@@ -12,18 +12,19 @@ from app.container import (
 )
 from app.db.services.application_type_service import ApplicationTypeService
 from app.exceptions.http_base_exceptions import NotFoundException
+from app.openapi.responses import api_version_header_responses
 from app.schemas.application.mapper import (
     map_application_entity_to_dto,
     map_application_version_entity_to_dto,
 )
 from app.schemas.application.schema import (
-    ApplicationDTO,
-    ApplicationVersionCreateDTO,
-    ApplicationVersionDTO,
+    ApplicationDto,
+    ApplicationVersionCreateDto,
+    ApplicationVersionDto,
 )
 from app.schemas.meta.schema import Page
 from app.schemas.pagination_query_params.schema import PaginationQueryParams
-from app.schemas.vendor.schema import VendorApplicationCreateDTO
+from app.schemas.vendor.schema import VendorApplicationCreateDto
 from app.db.services.application_roles_service import ApplicationRolesService
 from app.db.services.application_service import ApplicationService
 from app.db.services.application_version_service import ApplicationVersionService
@@ -31,26 +32,26 @@ from app.db.services.application_version_service import ApplicationVersionServic
 router = APIRouter(prefix="/applications", tags=["Applications"])
 
 
-@router.get("")
+@router.get("", responses={**api_version_header_responses([200])})
 def get_applications(
     query: Annotated[PaginationQueryParams, Depends()],
     service: ApplicationService = Depends(get_application_service),
-) -> Page[ApplicationDTO]:
+) -> Page[ApplicationDto]:
     return service.get_paginated(limit=query.limit, offset=query.offset)
 
 
-@router.get("/{application_id}", response_model=ApplicationDTO)
+@router.get("/{application_id}", response_model=ApplicationDto, responses={**api_version_header_responses([200, 404, 422])})
 def get_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
-) -> ApplicationDTO:
+) -> ApplicationDto:
     application = service.get_one(application_id=application_id)
     return map_application_entity_to_dto(application)
 
 
-@router.delete("/{application_id}", response_model=ApplicationDTO)
+@router.delete("/{application_id}", response_model=ApplicationDto)
 def delete_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
-) -> ApplicationDTO:
+) -> ApplicationDto:
     deleted_application = service.remove_one(application_id=application_id)
     return map_application_entity_to_dto(deleted_application)
 
@@ -58,9 +59,9 @@ def delete_application_by_id(
 @router.post("/{application_id}/versions")
 def add_application_version(
     application_id: UUID,
-    data: ApplicationVersionCreateDTO,
+    data: ApplicationVersionCreateDto,
     service: ApplicationVersionService = Depends(get_application_version_service),
-) -> List[ApplicationVersionDTO]:
+) -> List[ApplicationVersionDto]:
     versions = service.add_one(application_id=application_id, version=data.version)
     return [map_application_version_entity_to_dto(version) for version in versions]
 
@@ -70,7 +71,7 @@ def delete_application_version(
     application_id: UUID,
     version_id: UUID,
     service: ApplicationVersionService = Depends(get_application_version_service),
-) -> List[ApplicationVersionDTO]:
+) -> List[ApplicationVersionDto]:
     versions = service.remove_one(application_id=application_id, version_id=version_id)
     return [map_application_version_entity_to_dto(version) for version in versions]
 
@@ -79,7 +80,7 @@ def delete_application_version(
 def get_all_vendor_applications(
     vendor_id: UUID,
     application_service: ApplicationService = Depends(get_application_service),
-) -> list[ApplicationDTO]:
+) -> list[ApplicationDto]:
     results = application_service.get_by_vendor_id(vendor_id)
     return [map_application_entity_to_dto(result) for result in results]
 
@@ -87,9 +88,9 @@ def get_all_vendor_applications(
 @router.post("/vendors/{vendor_id}")
 def register_one_vendor_application(
     vendor_id: UUID,
-    data: VendorApplicationCreateDTO,
+    data: VendorApplicationCreateDto,
     service: ApplicationService = Depends(get_application_service),
-) -> ApplicationDTO:
+) -> ApplicationDto:
     try:
         result = service.add_one(
             vendor_id=vendor_id,
@@ -108,7 +109,7 @@ def assign_one_application_role(
     application_id: UUID,
     role_id: UUID,
     service: ApplicationRolesService = Depends(get_application_roles_service),
-) -> ApplicationDTO:
+) -> ApplicationDto:
     results = service.assign_role_to_application(application_id, role_id)
     return map_application_entity_to_dto(results)
 
@@ -118,7 +119,7 @@ def unassign_one_application_role(
     application_id: UUID,
     role_id: UUID,
     service: ApplicationRolesService = Depends(get_application_roles_service),
-) -> ApplicationDTO:
+) -> ApplicationDto:
     results = service.unassign_role_from_application(application_id, role_id)
     return map_application_entity_to_dto(results)
 
@@ -128,7 +129,7 @@ def assign_system_type_to_application(
     application_id: UUID,
     system_type_id: UUID,
     service: ApplicationTypeService = Depends(get_application_type_service),
-) -> ApplicationDTO:
+) -> ApplicationDto:
     application = service.assign_system_type_to_application(
         application_id, system_type_id
     )
@@ -140,7 +141,7 @@ def unassing_system_type_from_application(
     application_id: UUID,
     system_type_id: UUID,
     service: ApplicationTypeService = Depends(get_application_type_service),
-) -> ApplicationDTO:
+) -> ApplicationDto:
     application = service.unassign_system_type_to_application(
         application_id, system_type_id
     )

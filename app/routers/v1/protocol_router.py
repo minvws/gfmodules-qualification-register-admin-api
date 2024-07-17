@@ -12,10 +12,10 @@ from app.schemas.protocol.mapper import (
     map_protocol_version_entity_to_dto,
 )
 from app.schemas.protocol.schema import (
-    ProtocolDTO,
-    ProtocolCreateDTO,
-    ProtocolVersionCreateDTO,
-    ProtocolVersionDTO,
+    ProtocolDto,
+    ProtocolCreateDto,
+    ProtocolVersionCreateDto,
+    ProtocolVersionDto,
 )
 from app.schemas.pagination_query_params.schema import PaginationQueryParams
 
@@ -26,31 +26,31 @@ router = APIRouter(prefix="/protocols", tags=["Protocols"])
 def get_protocols(
     query: Annotated[PaginationQueryParams, Depends()],
     service: ProtocolService = Depends(get_protocol_service),
-) -> Page[ProtocolDTO]:
+) -> Page[ProtocolDto]:
     return service.get_paginated(limit=query.limit, offset=query.offset)
 
 
-@router.post("", response_model=ProtocolDTO)
+@router.post("", response_model=ProtocolDto)
 def define_a_protocol(
-    data: ProtocolCreateDTO, service: ProtocolService = Depends(get_protocol_service)
-) -> ProtocolDTO:
+    data: ProtocolCreateDto, service: ProtocolService = Depends(get_protocol_service)
+) -> ProtocolDto:
     protocol = service.add_one(**data.model_dump())
     return map_protocol_entity_to_dto(protocol)
 
 
-@router.get("/{protocol_id}", response_model=ProtocolDTO)
+@router.get("/{protocol_id}", response_model=ProtocolDto)
 def get_one_protocol_by_id(
     protocol_id: UUID,
     service: ProtocolService = Depends(get_protocol_service),
-) -> ProtocolDTO:
+) -> ProtocolDto:
     protocol = service.get_one(protocol_id)
     return map_protocol_entity_to_dto(protocol)
 
 
-@router.delete("/{protocol_id}", response_model=ProtocolDTO)
+@router.delete("/{protocol_id}", response_model=ProtocolDto)
 def delete_protocol(
     protocol_id: UUID, service: ProtocolService = Depends(get_protocol_service)
-) -> ProtocolDTO:
+) -> ProtocolDto:
     protocol = service.remove_one(protocol_id)
     return map_protocol_entity_to_dto(protocol)
 
@@ -58,9 +58,9 @@ def delete_protocol(
 @router.post("/{protocol_id}/versions")
 def add_protocol_version(
     protocol_id: UUID,
-    data: ProtocolVersionCreateDTO,
+    data: ProtocolVersionCreateDto,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
-) -> ProtocolVersionDTO:
+) -> ProtocolVersionDto:
     version = service.add_one(
         protocol_id=protocol_id, version=data.version, description=data.description
     )
@@ -72,7 +72,7 @@ def delete_protocol_version(
     protocol_id: UUID,
     version_id: UUID,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
-) -> List[ProtocolVersionDTO]:
+) -> List[ProtocolVersionDto]:
     versions = service.remove_one(protocol_id=protocol_id, version_id=version_id)
     return [map_protocol_version_entity_to_dto(version) for version in versions]
 
@@ -81,6 +81,6 @@ def delete_protocol_version(
 def get_protocol_version(
     version_id: UUID,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
-) -> ProtocolVersionDTO:
+) -> ProtocolVersionDto:
     protocol_version = service.get_one(version_id)
     return map_protocol_version_entity_to_dto(protocol_version)

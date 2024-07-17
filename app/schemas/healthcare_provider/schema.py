@@ -2,12 +2,11 @@ from datetime import date, datetime
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel
+from app.schemas.application.schema import ApplicationVersionDto
+from app.schemas.default import BaseModelConfig
 
-from app.schemas.application.schema import ApplicationVersionDTO
 
-
-class QualifiedProtocolVersionsDTO(BaseModel):
+class QualifiedProtocolVersionsDto(BaseModelConfig):
     id: UUID
     protocol_id: UUID
     version_id: UUID
@@ -17,26 +16,26 @@ class QualifiedProtocolVersionsDTO(BaseModel):
     archived_date: datetime | None = None
 
 
-class HealthcareProviderQualificationCreateDTO(BaseModel):
+class HealthcareProviderQualificationCreateDto(BaseModelConfig):
     qualification_date: date
 
 
-class HealthcareProviderApplicationVersionDTO(ApplicationVersionDTO):
+class HealthcareProviderApplicationVersionDto(ApplicationVersionDto):
     pass
 
 
-class HealthcareProviderBase(BaseModel):
+class HealthcareProviderBase(BaseModelConfig):
     ura_code: str
     agb_code: str
     trade_name: str
     statutory_name: str
 
 
-class HealthcareProviderCreateDTO(HealthcareProviderBase):
+class HealthcareProviderCreateDto(HealthcareProviderBase):
     protocol_version_id: UUID
 
 
-class HealthcareProviderDTO(HealthcareProviderBase):
+class HealthcareProviderDto(HealthcareProviderBase):
     id: UUID
-    application_versions: List[HealthcareProviderApplicationVersionDTO] = []
-    qualified_protocols: List[QualifiedProtocolVersionsDTO] = []
+    application_versions: List[HealthcareProviderApplicationVersionDto] = []
+    qualified_protocols: List[QualifiedProtocolVersionsDto] = []

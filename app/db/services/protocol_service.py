@@ -7,7 +7,7 @@ from app.exceptions.app_exceptions import ProtocolNotFoundException
 from app.factory.protocol_factory import ProtocolFactory
 from app.schemas.meta.schema import Page
 from app.schemas.protocol.mapper import map_protocol_entity_to_dto
-from app.schemas.protocol.schema import ProtocolDTO
+from app.schemas.protocol.schema import ProtocolDto
 
 
 class ProtocolService:
@@ -58,7 +58,7 @@ class ProtocolService:
         limit: int,
         offset: int,
         protocol_repository: ProtocolRepository = get_repository(),
-    ) -> Page[ProtocolDTO]:
+    ) -> Page[ProtocolDto]:
         protocols = protocol_repository.get_many(limit=limit, offset=offset)
         dto = [map_protocol_entity_to_dto(protocol) for protocol in protocols]
         total = protocol_repository.count()

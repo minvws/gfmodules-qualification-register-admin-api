@@ -14,7 +14,7 @@ from app.exceptions.app_exceptions import (
 )
 from app.factory.healthcare_provider_factory import HealthcareProviderFactory
 from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
-from app.schemas.healthcare_provider.schema import HealthcareProviderDTO
+from app.schemas.healthcare_provider.schema import HealthcareProviderDto
 from app.schemas.meta.schema import Page
 
 
@@ -37,7 +37,7 @@ class HealthcareProviderService:
         limit: int,
         offset: int,
         healthcare_providers_repository: HealthcareProviderRepository = get_repository(),
-    ) -> Page[HealthcareProviderDTO]:
+    ) -> Page[HealthcareProviderDto]:
         healthcare_providers = healthcare_providers_repository.get_many(
             limit=limit, offset=offset
         )

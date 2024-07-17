@@ -13,7 +13,7 @@ from app.exceptions.app_exceptions import (
 )
 from app.factory.application_factory import ApplicationFactory
 from app.schemas.application.mapper import map_application_entity_to_dto
-from app.schemas.application.schema import ApplicationDTO
+from app.schemas.application.schema import ApplicationDto
 from app.schemas.meta.schema import Page
 
 
@@ -110,7 +110,7 @@ class ApplicationService:
         limit: int,
         offset: int,
         application_repository: ApplicationRepository = get_repository(),
-    ) -> Page[ApplicationDTO]:
+    ) -> Page[ApplicationDto]:
         applications = application_repository.get_many(limit=limit, offset=offset)
         dto = [map_application_entity_to_dto(app) for app in applications]
         total = application_repository.count()

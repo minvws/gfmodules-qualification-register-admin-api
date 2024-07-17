@@ -2,14 +2,14 @@ from datetime import date, datetime
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel
+from app.schemas.default import BaseModelConfig
 
 
-class ApplicationQualificationCreateDTO(BaseModel):
+class ApplicationQualificationCreateDto(BaseModelConfig):
     qualification_date: date
 
 
-class QualifiedApplicationVersionDTO(BaseModel):
+class QualifiedApplicationVersionDto(BaseModelConfig):
     qualification_id: UUID
     application_id: UUID
     version_id: UUID
@@ -18,9 +18,9 @@ class QualifiedApplicationVersionDTO(BaseModel):
     archived_date: datetime | None = None
 
 
-class ProtocolApplicationQualificationDTO(BaseModel):
+class ProtocolApplicationQualificationDto(BaseModelConfig):
     id: UUID
     protocol_id: UUID
     version: str
     description: str | None
-    application_versions: List[QualifiedApplicationVersionDTO] = []
+    application_versions: List[QualifiedApplicationVersionDto] = []

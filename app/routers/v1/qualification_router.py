@@ -12,31 +12,32 @@ from app.db.services.healthcare_provider_qualification_service import (
 from app.db.services.protocol_application_qualification_service import (
     ProtocolApplicationQualificationService,
 )
+from app.openapi.responses import api_version_header_responses
 from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
 from app.schemas.healthcare_provider.schema import (
-    HealthcareProviderDTO,
-    HealthcareProviderQualificationCreateDTO,
+    HealthcareProviderDto,
+    HealthcareProviderQualificationCreateDto,
 )
 from app.schemas.protocol_application_qualification.mapper import (
     map_protocol_qualification_entity_to_dto,
 )
 from app.schemas.protocol_application_qualification.schema import (
-    ApplicationQualificationCreateDTO,
-    ProtocolApplicationQualificationDTO,
+    ApplicationQualificationCreateDto,
+    ProtocolApplicationQualificationDto,
 )
 
 router = APIRouter(prefix="/qualifications", tags=["Qualification"])
 
 
-@router.post("/{protocol_version_id}/application-versions/{version_id}")
+@router.post("/{protocol_version_id}/application-versions/{version_id}", responses={**api_version_header_responses([200])})
 def qualify_application_version_for_a_protocol(
     protocol_version_id: UUID,
     application_version_id: UUID,
-    data: ApplicationQualificationCreateDTO,
+    data: ApplicationQualificationCreateDto,
     service: ProtocolApplicationQualificationService = Depends(
         get_protocol_application_qualification_service
     ),
-) -> ProtocolApplicationQualificationDTO:
+) -> ProtocolApplicationQualificationDto:
     protocol_version = service.qualify_protocol_version_to_application_version(
         protocol_version_id=protocol_version_id,
         application_version_id=application_version_id,
@@ -53,7 +54,7 @@ def archive_application_version_qualification(
     service: ProtocolApplicationQualificationService = Depends(
         get_protocol_application_qualification_service
     ),
-) -> ProtocolApplicationQualificationDTO:
+) -> ProtocolApplicationQualificationDto:
     protocol_version = service.archive_protocol_application_qualification(
         protocol_version_id=protocol_version_id,
         application_version_id=application_version_id,
@@ -65,11 +66,11 @@ def archive_application_version_qualification(
 def qualify_healthcare_provider(
     healthcare_provider_id: UUID,
     protocol_version_id: UUID,
-    data: HealthcareProviderQualificationCreateDTO,
+    data: HealthcareProviderQualificationCreateDto,
     service: HealthcareProviderQualificationService = Depends(
         get_healthcare_provider_qualification_service
     ),
-) -> HealthcareProviderDTO:
+) -> HealthcareProviderDto:
     healthcare_provider = service.qualify_healthcare_provider(
         healthcare_provider_id=healthcare_provider_id,
         protocol_version_id=protocol_version_id,
@@ -85,7 +86,7 @@ def archive_healthcare_provider_qualification(
     service: HealthcareProviderQualificationService = Depends(
         get_healthcare_provider_qualification_service
     ),
-) -> HealthcareProviderDTO:
+) -> HealthcareProviderDto:
     healthcare_provider = service.archive_healthcare_provider_qualification(
         healthcare_provider_id=healthcare_provider_id,
         protocol_version_id=protocol_version_id,

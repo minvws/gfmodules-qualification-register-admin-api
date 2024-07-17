@@ -1,49 +1,50 @@
 from typing import List
 from uuid import UUID, uuid4
-from pydantic import BaseModel
+
+from app.schemas.default import BaseModelConfig
 
 
-class VendorApplicationVersionDTO(BaseModel):
+class VendorApplicationVersionDto(BaseModelConfig):
     version: str
 
 
-class VendorApplicationBase(BaseModel):
+class VendorApplicationBase(BaseModelConfig):
     name: str
 
 
-class VendorApplicationRoleDTO(BaseModel):
-    name: str
-    description: str | None = None
-
-
-class VendorApplicationTypeDTO(BaseModel):
+class VendorApplicationRoleDto(BaseModelConfig):
     name: str
     description: str | None = None
 
 
-class VendorApplicationDTO(VendorApplicationBase):
+class VendorApplicationTypeDto(BaseModelConfig):
+    name: str
+    description: str | None = None
+
+
+class VendorApplicationDto(VendorApplicationBase):
     id: UUID = uuid4()
-    versions: List[VendorApplicationVersionDTO] = []
-    roles: List[VendorApplicationRoleDTO] = []
-    system_types: List[VendorApplicationTypeDTO] = []
+    versions: List[VendorApplicationVersionDto] = []
+    roles: List[VendorApplicationRoleDto] = []
+    system_types: List[VendorApplicationTypeDto] = []
 
 
-class VendorBase(BaseModel):
+class VendorBase(BaseModelConfig):
     kvk_number: str
     trade_name: str
     statutory_name: str
 
 
-class VendorDTO(VendorBase):
+class VendorDto(VendorBase):
     id: UUID
-    applications: List[VendorApplicationDTO] = []
+    applications: List[VendorApplicationDto] = []
 
 
-class VendorCreateDTO(VendorBase):
+class VendorCreateDto(VendorBase):
     pass
 
 
-class VendorApplicationCreateDTO(VendorApplicationBase):
+class VendorApplicationCreateDto(VendorApplicationBase):
     version: str
     roles: List[str]
     system_types: List[str]
