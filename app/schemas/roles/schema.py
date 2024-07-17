@@ -1,12 +1,9 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from app.schemas.default import BaseModelConfig
 
 
-class RoleBase(BaseModel):
-    class Config:
-        from_attributes = True
-
+class RoleBase(BaseModelConfig):
     description: str | None
 
 

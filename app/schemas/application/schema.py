@@ -1,10 +1,10 @@
 from typing import List
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel
+from app.schemas.default import BaseModelConfig
 
 
-class ApplicationVersionBase(BaseModel):
+class ApplicationVersionBase(BaseModelConfig):
     version: str
 
 
@@ -16,19 +16,19 @@ class ApplicationVersionDto(ApplicationVersionBase):
     id: UUID
 
 
-class ApplicationRoleDto(BaseModel):
+class ApplicationRoleDto(BaseModelConfig):
     id: UUID
     name: str
     description: str | None = None
 
 
-class ApplicationTypeDto(BaseModel):
+class ApplicationTypeDto(BaseModelConfig):
     id: UUID
     name: str
     description: str | None = None
 
 
-class ApplicationBase(BaseModel):
+class ApplicationBase(BaseModelConfig):
     name: str
 
 

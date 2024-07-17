@@ -1,7 +1,9 @@
-from pydantic import BaseModel, field_validator
+from pydantic import field_validator
+
+from app.schemas.default import BaseModelConfig
 
 
-class PaginationQueryParams(BaseModel):
+class PaginationQueryParams(BaseModelConfig):
     limit: int = 10
     offset: int = 0
 

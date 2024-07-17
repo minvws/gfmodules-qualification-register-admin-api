@@ -1,22 +1,23 @@
 from typing import List
 from uuid import UUID, uuid4
-from pydantic import BaseModel
+
+from app.schemas.default import BaseModelConfig
 
 
-class VendorApplicationVersionDto(BaseModel):
+class VendorApplicationVersionDto(BaseModelConfig):
     version: str
 
 
-class VendorApplicationBase(BaseModel):
+class VendorApplicationBase(BaseModelConfig):
     name: str
 
 
-class VendorApplicationRoleDto(BaseModel):
+class VendorApplicationRoleDto(BaseModelConfig):
     name: str
     description: str | None = None
 
 
-class VendorApplicationTypeDto(BaseModel):
+class VendorApplicationTypeDto(BaseModelConfig):
     name: str
     description: str | None = None
 
@@ -28,7 +29,7 @@ class VendorApplicationDto(VendorApplicationBase):
     system_types: List[VendorApplicationTypeDto] = []
 
 
-class VendorBase(BaseModel):
+class VendorBase(BaseModelConfig):
     kvk_number: str
     trade_name: str
     statutory_name: str

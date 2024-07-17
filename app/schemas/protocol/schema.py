@@ -1,12 +1,11 @@
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel
-
+from app.schemas.default import BaseModelConfig
 from app.schemas.enums.protocol_types import ProtocolTypes
 
 
-class ProtocolVersionBase(BaseModel):
+class ProtocolVersionBase(BaseModelConfig):
     version: str
     description: str | None
 
@@ -19,7 +18,7 @@ class ProtocolVersionDto(ProtocolVersionBase):
     id: UUID
 
 
-class ProtocolBase(BaseModel):
+class ProtocolBase(BaseModelConfig):
     protocol_type: ProtocolTypes
     name: str
     description: str | None

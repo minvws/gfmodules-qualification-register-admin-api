@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from app.schemas.default import BaseModelConfig
 
 
-class SystemTypeBase(BaseModel):
+class SystemTypeBase(BaseModelConfig):
     name: str
     description: str | None
 
