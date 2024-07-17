@@ -6,16 +6,16 @@ from app.db.entities.healthcare_provider_qualification import (
     HealthcareProviderQualification,
 )
 from app.schemas.healthcare_provider.schema import (
-    HealthcareProviderDTO,
-    HealthcareProviderApplicationVersionDTO,
-    QualifiedProtocolVersionsDTO,
+    HealthcareProviderDto,
+    HealthcareProviderApplicationVersionDto,
+    QualifiedProtocolVersionsDto,
 )
 
 
 def map_qualified_protoco_versions_entity_to_dto(
     entity: HealthcareProviderQualification,
-) -> QualifiedProtocolVersionsDTO:
-    return QualifiedProtocolVersionsDTO(
+) -> QualifiedProtocolVersionsDto:
+    return QualifiedProtocolVersionsDto(
         id=entity.id,
         protocol_id=entity.protocol_version.protocol_id,
         version_id=entity.protocol_version_id,
@@ -28,16 +28,16 @@ def map_qualified_protoco_versions_entity_to_dto(
 
 def map_healthcare_provider_app_version_entity_to_dto(
     entity: HealthcareProviderApplicationVersion,
-) -> HealthcareProviderApplicationVersionDTO:
-    return HealthcareProviderApplicationVersionDTO(
+) -> HealthcareProviderApplicationVersionDto:
+    return HealthcareProviderApplicationVersionDto(
         id=entity.application_version.id, version=entity.application_version.version
     )
 
 
 def map_healthcare_provider_entity_to_dto(
     entity: HealthcareProvider,
-) -> HealthcareProviderDTO:
-    return HealthcareProviderDTO(
+) -> HealthcareProviderDto:
+    return HealthcareProviderDto(
         id=entity.id,
         ura_code=entity.ura_code,
         agb_code=entity.agb_code,

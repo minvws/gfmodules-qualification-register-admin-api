@@ -7,7 +7,7 @@ from app.openapi.responses import api_version_header_responses, api_validation_e
 from app.schemas.meta.schema import Page
 from app.schemas.pagination_query_params.schema import PaginationQueryParams
 from app.schemas.vendor.mapper import map_vendor_entity_to_dto
-from app.schemas.vendor.schema import VendorDTO, VendorCreateDTO
+from app.schemas.vendor.schema import VendorDto, VendorCreateDto
 from app.db.services.vendors_service import VendorService
 from app.container import (
     get_vendors_service,
@@ -20,14 +20,14 @@ router = APIRouter(prefix="/vendors", tags=["Vendors"])
 def get_vendors(
     query: Annotated[PaginationQueryParams, Depends()],
     vendor_service: VendorService = Depends(get_vendors_service),
-) -> Page[VendorDTO]:
+) -> Page[VendorDto]:
     return vendor_service.get_paginated(limit=query.limit, offset=query.offset)
 
 
-@router.post("", response_model=VendorDTO, status_code=status.HTTP_201_CREATED, responses={ **api_version_header_responses([201]), **api_validation_error_response(), **api_not_found_response(), **api_conflict_response() })
+@router.post("", response_model=VendorDto, status_code=status.HTTP_201_CREATED, responses={**api_version_header_responses([201]), **api_validation_error_response(), **api_not_found_response(), **api_conflict_response()})
 def add_one_vendor(
-    data: VendorCreateDTO, vendor_service: VendorService = Depends(get_vendors_service)
-) -> VendorDTO:
+    data: VendorCreateDto, vendor_service: VendorService = Depends(get_vendors_service)
+) -> VendorDto:
     results = vendor_service.add_one(
         kvk_number=data.kvk_number,
         trade_name=data.trade_name,
@@ -36,25 +36,25 @@ def add_one_vendor(
     return map_vendor_entity_to_dto(results)
 
 
-@router.get("/{vendor_id}", response_model=VendorDTO, responses={**api_version_header_responses([200]), **api_validation_error_response(), **api_not_found_response()})
+@router.get("/{vendor_id}", response_model=VendorDto, responses={**api_version_header_responses([200]), **api_validation_error_response(), **api_not_found_response()})
 def get_vendor_by_id(
     vendor_id: UUID, vendor_service: VendorService = Depends(get_vendors_service)
-) -> VendorDTO:
+) -> VendorDto:
     vendor = vendor_service.get_one(vendor_id=vendor_id)
     return map_vendor_entity_to_dto(vendor)
 
 
-@router.delete("/{vendor_id}", response_model=VendorDTO, responses={**api_version_header_responses([200]), **api_validation_error_response(), **api_not_found_response()})
+@router.delete("/{vendor_id}", response_model=VendorDto, responses={**api_version_header_responses([200]), **api_validation_error_response(), **api_not_found_response()})
 def delete_vendor_by_id(
     vendor_id: UUID, vendor_service: VendorService = Depends(get_vendors_service)
-) -> VendorDTO:
+) -> VendorDto:
     deleted_vendor = vendor_service.remove_one(vendor_id=vendor_id)
     return map_vendor_entity_to_dto(deleted_vendor)
 
 
-@router.get("/kvk_number/{kvk_number}", response_model=VendorDTO, responses={**api_version_header_responses([200]), **api_validation_error_response(), **api_not_found_response()})
+@router.get("/kvk_number/{kvk_number}", response_model=VendorDto, responses={**api_version_header_responses([200]), **api_validation_error_response(), **api_not_found_response()})
 def get_one_vendor_by_kvk_number(
     kvk_number: str, vendor_service: VendorService = Depends(get_vendors_service)
-) -> VendorDTO:
+) -> VendorDto:
     result = vendor_service.get_one_by_kvk_number(kvk_number)
     return map_vendor_entity_to_dto(result)

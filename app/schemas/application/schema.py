@@ -8,21 +8,21 @@ class ApplicationVersionBase(BaseModel):
     version: str
 
 
-class ApplicationVersionCreateDTO(ApplicationVersionBase):
+class ApplicationVersionCreateDto(ApplicationVersionBase):
     pass
 
 
-class ApplicationVersionDTO(ApplicationVersionBase):
+class ApplicationVersionDto(ApplicationVersionBase):
     id: UUID
 
 
-class ApplicationRoleDTO(BaseModel):
+class ApplicationRoleDto(BaseModel):
     id: UUID
     name: str
     description: str | None = None
 
 
-class ApplicationTypeDTO(BaseModel):
+class ApplicationTypeDto(BaseModel):
     id: UUID
     name: str
     description: str | None = None
@@ -32,11 +32,11 @@ class ApplicationBase(BaseModel):
     name: str
 
 
-class ApplicationDTO(ApplicationBase):
+class ApplicationDto(ApplicationBase):
     id: UUID = uuid4()
     vendor_id: UUID
     vendor_kvk_number: str
     vendor_trade_name: str
-    versions: List[ApplicationVersionDTO] = []
-    roles: List[ApplicationRoleDTO] = []
-    system_types: List[ApplicationTypeDTO] = []
+    versions: List[ApplicationVersionDto] = []
+    roles: List[ApplicationRoleDto] = []
+    system_types: List[ApplicationTypeDto] = []

@@ -11,7 +11,7 @@ from app.exceptions.app_exceptions import (
 )
 from app.schemas.meta.schema import Page
 from app.schemas.vendor.mapper import map_vendor_entity_to_dto
-from app.schemas.vendor.schema import VendorDTO
+from app.schemas.vendor.schema import VendorDto
 
 
 class VendorService:
@@ -78,7 +78,7 @@ class VendorService:
         limit: int,
         offset: int,
         vendor_repository: VendorRepository = get_repository(),
-    ) -> Page[VendorDTO]:
+    ) -> Page[VendorDto]:
         vendors = vendor_repository.get_many(limit=limit, offset=offset)
         total = vendor_repository.count()
 

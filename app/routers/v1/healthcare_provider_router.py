@@ -15,8 +15,8 @@ from app.schemas.healthcare_provider.mapper import (
     map_healthcare_provider_entity_to_dto,
 )
 from app.schemas.healthcare_provider.schema import (
-    HealthcareProviderCreateDTO,
-    HealthcareProviderDTO,
+    HealthcareProviderCreateDto,
+    HealthcareProviderDto,
 )
 from app.schemas.meta.schema import Page
 from app.schemas.pagination_query_params.schema import PaginationQueryParams
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/healthcare-provider", tags=["Healthcare  Provider"])
 def get_healthcare_providers(
     query: Annotated[PaginationQueryParams, Depends()],
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
-) -> Page[HealthcareProviderDTO]:
+) -> Page[HealthcareProviderDto]:
     return service.get_paginated(limit=query.limit, offset=query.offset)
 
 
@@ -36,16 +36,16 @@ def get_healthcare_providers(
 def get_healthcare_provider_by_id(
     healthcare_provider_id: UUID,
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
-) -> HealthcareProviderDTO:
+) -> HealthcareProviderDto:
     healthcare_provider = service.get_one(healthcare_provider_id)
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
 @router.post("")
 def register_one_healthcare_provider(
-    data: HealthcareProviderCreateDTO,
+    data: HealthcareProviderCreateDto,
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
-) -> HealthcareProviderDTO:
+) -> HealthcareProviderDto:
     new_healthcare_provider = service.add_one(**data.model_dump())
     return map_healthcare_provider_entity_to_dto(new_healthcare_provider)
 
@@ -54,7 +54,7 @@ def register_one_healthcare_provider(
 def deregister_one_healthcare_provider(
     healthcare_provider_id: UUID,
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
-) -> HealthcareProviderDTO:
+) -> HealthcareProviderDto:
     healthcare_provider = service.remove_one(healthcare_provider_id)
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
@@ -66,7 +66,7 @@ def register_application_version_to_healthcare_provider(
     service: HealthcareProviderApplicationVersionService = Depends(
         get_healthcare_provider_application_version_service
     ),
-) -> HealthcareProviderDTO:
+) -> HealthcareProviderDto:
     healthcare_provider = service.assign_application_version_to_healthcare_provider(
         healthcare_provider_id, version_id
     )
@@ -80,7 +80,7 @@ def deregister_application_version_to_healthcare_provider(
     service: HealthcareProviderApplicationVersionService = Depends(
         get_healthcare_provider_application_version_service
     ),
-) -> HealthcareProviderDTO:
+) -> HealthcareProviderDto:
     healthcare_provider = service.unassing_application_version_to_healthcare_provider(
         healthcare_provider_id, version_id
     )

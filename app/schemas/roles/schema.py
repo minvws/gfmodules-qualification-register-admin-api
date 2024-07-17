@@ -10,14 +10,14 @@ class RoleBase(BaseModel):
     description: str | None
 
 
-class RoleCreateDTO(RoleBase):
+class RoleCreateDto(RoleBase):
     name: str
 
 
-class RoleUpdateDTO(RoleBase):
+class RoleUpdateDto(RoleBase):
     pass
 
 
-class RoleDTO(RoleBase):
+class RoleDto(RoleBase):
     id: UUID
     name: str

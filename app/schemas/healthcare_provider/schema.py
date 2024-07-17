@@ -4,10 +4,10 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.schemas.application.schema import ApplicationVersionDTO
+from app.schemas.application.schema import ApplicationVersionDto
 
 
-class QualifiedProtocolVersionsDTO(BaseModel):
+class QualifiedProtocolVersionsDto(BaseModel):
     id: UUID
     protocol_id: UUID
     version_id: UUID
@@ -17,11 +17,11 @@ class QualifiedProtocolVersionsDTO(BaseModel):
     archived_date: datetime | None = None
 
 
-class HealthcareProviderQualificationCreateDTO(BaseModel):
+class HealthcareProviderQualificationCreateDto(BaseModel):
     qualification_date: date
 
 
-class HealthcareProviderApplicationVersionDTO(ApplicationVersionDTO):
+class HealthcareProviderApplicationVersionDto(ApplicationVersionDto):
     pass
 
 
@@ -32,11 +32,11 @@ class HealthcareProviderBase(BaseModel):
     statutory_name: str
 
 
-class HealthcareProviderCreateDTO(HealthcareProviderBase):
+class HealthcareProviderCreateDto(HealthcareProviderBase):
     protocol_version_id: UUID
 
 
-class HealthcareProviderDTO(HealthcareProviderBase):
+class HealthcareProviderDto(HealthcareProviderBase):
     id: UUID
-    application_versions: List[HealthcareProviderApplicationVersionDTO] = []
-    qualified_protocols: List[QualifiedProtocolVersionsDTO] = []
+    application_versions: List[HealthcareProviderApplicationVersionDto] = []
+    qualified_protocols: List[QualifiedProtocolVersionsDto] = []

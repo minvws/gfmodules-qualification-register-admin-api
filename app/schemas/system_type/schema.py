@@ -8,9 +8,9 @@ class SystemTypeBase(BaseModel):
     description: str | None
 
 
-class SystemTypeCreateDTO(SystemTypeBase):
+class SystemTypeCreateDto(SystemTypeBase):
     pass
 
 
-class SystemTypeDTO(SystemTypeBase):
+class SystemTypeDto(SystemTypeBase):
     id: UUID

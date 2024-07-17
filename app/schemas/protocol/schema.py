@@ -11,11 +11,11 @@ class ProtocolVersionBase(BaseModel):
     description: str | None
 
 
-class ProtocolVersionCreateDTO(ProtocolVersionBase):
+class ProtocolVersionCreateDto(ProtocolVersionBase):
     pass
 
 
-class ProtocolVersionDTO(ProtocolVersionBase):
+class ProtocolVersionDto(ProtocolVersionBase):
     id: UUID
 
 
@@ -25,10 +25,10 @@ class ProtocolBase(BaseModel):
     description: str | None
 
 
-class ProtocolCreateDTO(ProtocolBase):
+class ProtocolCreateDto(ProtocolBase):
     pass
 
 
-class ProtocolDTO(ProtocolBase):
+class ProtocolDto(ProtocolBase):
     id: UUID
-    versions: List[ProtocolVersionDTO]
+    versions: List[ProtocolVersionDto]

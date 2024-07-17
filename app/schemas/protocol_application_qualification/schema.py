@@ -5,11 +5,11 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class ApplicationQualificationCreateDTO(BaseModel):
+class ApplicationQualificationCreateDto(BaseModel):
     qualification_date: date
 
 
-class QualifiedApplicationVersionDTO(BaseModel):
+class QualifiedApplicationVersionDto(BaseModel):
     qualification_id: UUID
     application_id: UUID
     version_id: UUID
@@ -18,9 +18,9 @@ class QualifiedApplicationVersionDTO(BaseModel):
     archived_date: datetime | None = None
 
 
-class ProtocolApplicationQualificationDTO(BaseModel):
+class ProtocolApplicationQualificationDto(BaseModel):
     id: UUID
     protocol_id: UUID
     version: str
     description: str | None
-    application_versions: List[QualifiedApplicationVersionDTO] = []
+    application_versions: List[QualifiedApplicationVersionDto] = []
