@@ -14,7 +14,7 @@ autopilot: ## Runs the autopilot script for no-config setup of the project
 	./tools/autopilot.sh
 
 container-build: ## Build the container
-	docker compose build --build-arg="NEW_UID=${NEW_UID}" --build-arg="NEW_GID=${NEW_GID}"
+	docker compose build --build-arg="NEW_UID=${NEW_UID}" --build-arg="NEW_GID=${NEW_GID}" --build-arg "GIT_USER=$(GIT_USER)" --build-arg "GIT_PAT=$(GIT_PAT)"
 
 up: ## Start the container
 	docker compose up

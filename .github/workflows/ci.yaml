@@ -17,6 +17,8 @@ jobs:
         runs-on: ubuntu-22.04
 
         steps:
+            - name: Configure git
+              run: git config --global url."https://${{ secrets.REPO_READ_ONLY_TOKEN }}@github.com/".insteadOf "https://github.com/"
             - name: Checkout repositories
               uses: actions/checkout@v4
 

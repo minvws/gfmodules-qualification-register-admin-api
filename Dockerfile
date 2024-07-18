@@ -10,6 +10,8 @@ ARG APP_USER="app"
 ARG APP_GROUP="app"
 ARG NEW_UID
 ARG NEW_GID
+ARG GIT_USER
+ARG GIT_PAT
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -41,6 +43,9 @@ WORKDIR ${PROJECT_DIR}
 FROM base as builder
 
 COPY ./pyproject.toml ./poetry.lock ./
+RUN poetry config repositories.git-minvws-gfmodules-python-shared https://github.com/minvws/gfmodules-python-shared.git
+RUN poetry config http-basic.git-minvws-gfmodules-python-shared ${GIT_USER} ${GIT_PAT}
+RUN poetry lock --no-update
 RUN --mount=type=cache,target=${POETRY_CACHE_DIR} poetry install --no-root --no-interaction
 
 FROM base as final

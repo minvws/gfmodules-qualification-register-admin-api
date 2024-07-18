@@ -24,6 +24,7 @@ inject = "^5.2.0"
 sqlalchemy = "^2.0.25"
 psycopg = { extras = ["binary", "pool"], version = "^3.1.17" }
 faker = "^25.9.1"
+gfmodules-python-shared = { git="https://github.com/minvws/gfmodules-python-shared.git", tag = "v0.0.2" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"
