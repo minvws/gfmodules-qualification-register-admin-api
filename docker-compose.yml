@@ -7,6 +7,9 @@ services:
             args:
                 NEW_UID: ${NEW_UID:-1000}
                 NEW_GID: ${NEW_GID:-1000}
+                GIT_USER: ${GIT_USERNAME:-}
+                GIT_PAT: ${GIT_PAT:-}
+
         volumes:
             - ./:/src
         ports:
