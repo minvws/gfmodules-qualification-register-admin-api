@@ -2,18 +2,18 @@ from typing import Generator, Any
 
 import inject
 import pytest
+from gfmodules_python_shared.repository.repository_factory import RepositoryFactory
+from gfmodules_python_shared.session.db_session import DbSession
+from gfmodules_python_shared.session.session_factory import DbSessionFactory
 
 from app.db.db import Database
-from app.db.db_session import DbSession
 from app.db.entities.role import Role
 from app.db.entities.system_type import SystemType
 from app.db.entities.vendor import Vendor
-from app.db.repository_factory import RepositoryFactory
 from app.db.services.application_service import ApplicationService
 from app.db.services.roles_service import RoleService
 from app.db.services.system_type_service import SystemTypeService
 from app.db.services.vendors_service import VendorService
-from app.db.session_factory import DbSessionFactory
 from app.factory.system_type_factory import SystemTypeFactory
 from app.factory.vendor_factory import VendorFactory
 

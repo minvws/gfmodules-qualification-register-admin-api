@@ -1,12 +1,16 @@
 from uuid import UUID
 from datetime import date, datetime
 
+from gfmodules_python_shared.session.session_manager import (
+    session_manager,
+    get_repository,
+)
+
 from app.db.entities.healthcare_provider import HealthcareProvider
 from app.db.repository.healthcare_provider_repository import (
     HealthcareProviderRepository,
 )
 from app.db.repository.protocol_version_repository import ProtocolVersionRepository
-from app.db.session_manager import get_repository, session_manager
 from app.exceptions.app_exceptions import (
     HealthcareProviderNotFoundException,
     ProtocolVersionNotFoundException,

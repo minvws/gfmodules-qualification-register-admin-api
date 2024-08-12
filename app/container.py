@@ -1,9 +1,10 @@
 import inject
 
+from gfmodules_python_shared.session.session_factory import DbSessionFactory
+from gfmodules_python_shared.repository.repository_factory import RepositoryFactory
 
 from app.db.db import Database
 from app.config import get_config
-from app.db.repository_factory import RepositoryFactory
 from app.db.services.application_type_service import ApplicationTypeService
 from app.db.services.healthcare_provider_application_version_service import (
     HealthcareProviderApplicationVersionService,
@@ -17,7 +18,6 @@ from app.db.services.protocol_application_qualification_service import (
 )
 from app.db.services.protocol_service import ProtocolService
 from app.db.services.protocol_version_service import ProtocolVersionService
-from app.db.session_factory import DbSessionFactory
 from app.db.services.application_roles_service import ApplicationRolesService
 from app.db.services.application_version_service import ApplicationVersionService
 from app.db.services.roles_service import RoleService

@@ -1,8 +1,8 @@
 import inject
+from gfmodules_python_shared.repository.repository_factory import RepositoryFactory
+from gfmodules_python_shared.session.session_factory import DbSessionFactory
 
 from app.db.db import Database
-from app.db.repository_factory import RepositoryFactory
-from app.db.session_factory import DbSessionFactory
 
 
 def config_binder(binder: inject.Binder, database: Database) -> None:

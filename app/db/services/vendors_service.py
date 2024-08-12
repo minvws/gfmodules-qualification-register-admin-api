@@ -1,7 +1,11 @@
 from uuid import UUID
 
+from gfmodules_python_shared.session.session_manager import (
+    session_manager,
+    get_repository,
+)
+
 from app.db.repository.vendor_repository import VendorRepository
-from app.db.session_manager import session_manager, get_repository
 from app.factory.vendor_factory import VendorFactory
 from app.db.entities.vendor import Vendor
 from app.exceptions.app_exceptions import (
