@@ -1,5 +1,10 @@
 from uuid import UUID
 
+from gfmodules_python_shared.session.session_manager import (
+    session_manager,
+    get_repository,
+)
+
 from app.db.entities.healthcare_provider import HealthcareProvider
 from app.db.repository.application_version_repository import (
     ApplicationVersionRepository,
@@ -8,7 +13,6 @@ from app.db.repository.healthcare_provider_repository import (
     HealthcareProviderRepository,
 )
 from app.db.services.healthcare_provider_service import HealthcareProviderService
-from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     HealthcareProviderNotFoundException,
     ApplicationVersionNotFoundException,

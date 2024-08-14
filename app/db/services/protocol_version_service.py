@@ -1,11 +1,15 @@
 from typing import Sequence
 from uuid import UUID
 
+from gfmodules_python_shared.session.session_manager import (
+    session_manager,
+    get_repository,
+)
+
 from app.db.entities.protocol_version import ProtocolVersion
 from app.db.repository.protocol_repository import ProtocolRepository
 from app.db.repository.protocol_version_repository import ProtocolVersionRepository
 from app.db.services.protocol_service import ProtocolService
-from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     ProtocolNotFoundException,
     ProtocolVersionNotFoundException,

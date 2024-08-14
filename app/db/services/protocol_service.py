@@ -1,8 +1,12 @@
 from uuid import UUID
 
+from gfmodules_python_shared.session.session_manager import (
+    get_repository,
+    session_manager,
+)
+
 from app.db.entities.protocol import Protocol
 from app.db.repository.protocol_repository import ProtocolRepository
-from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import ProtocolNotFoundException
 from app.factory.protocol_factory import ProtocolFactory
 from app.schemas.meta.schema import Page

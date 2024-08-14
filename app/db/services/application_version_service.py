@@ -1,12 +1,16 @@
 from typing import Sequence
 from uuid import UUID
 
+from gfmodules_python_shared.session.session_manager import (
+    session_manager,
+    get_repository,
+)
+
 from app.db.entities.application_version import ApplicationVersion
 from app.db.repository.application_version_repository import (
     ApplicationVersionRepository,
 )
 from app.db.repository.application_repository import ApplicationRepository
-from app.db.session_manager import get_repository, session_manager
 from app.exceptions.app_exceptions import (
     ApplicationVersionDeleteException,
     ApplicationNotFoundException,

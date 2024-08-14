@@ -1,12 +1,16 @@
 from typing import Sequence, List
 from uuid import UUID
 
+from gfmodules_python_shared.session.session_manager import (
+    session_manager,
+    get_repository,
+)
+
 from app.db.repository.role_repository import RoleRepository
 from app.db.repository.system_type_repository import SystemTypeRepository
 from app.db.repository.vendor_repository import VendorRepository
 from app.db.entities.application import Application
 from app.db.repository.application_repository import ApplicationRepository
-from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
     ApplicationAlreadyExistsException,
