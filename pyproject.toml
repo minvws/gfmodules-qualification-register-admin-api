@@ -52,6 +52,7 @@ python_version = "3.11"
 strict = true
 cache_dir = "~/.cache/mypy"
 ignore_missing_imports = true
+mypy_path = "stubs"
 
 [tool.pytest.ini_options]
 cache_dir = "~/.cache/pytest"

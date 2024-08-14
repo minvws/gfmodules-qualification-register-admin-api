@@ -1,9 +1,13 @@
 from typing import Sequence, List
 from uuid import UUID
 
+from gfmodules_python_shared.session.session_manager import (
+    session_manager,
+    get_repository,
+)
+
 from app.db.entities.system_type import SystemType
 from app.db.repository.system_type_repository import SystemTypeRepository
-from app.db.session_manager import session_manager, get_repository
 from app.exceptions.app_exceptions import (
     SystemTypeNotFoundException,
     SystemTypeAlreadyExistsException,

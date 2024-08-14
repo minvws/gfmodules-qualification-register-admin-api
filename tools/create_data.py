@@ -1,10 +1,10 @@
 import random
-import time
 import uuid
 from random import randint
 from typing import Sequence, List
 
-from sqlalchemy import TIMESTAMP, select
+from gfmodules_python_shared.session.session_factory import DbSessionFactory
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import get_config
@@ -23,15 +23,11 @@ from app.db.entities.healthcare_provider_application_version import (
 from app.db.entities.healthcare_provider_qualification import (
     HealthcareProviderQualification,
 )
-from app.db.entities.protocol import Protocol, ProtocolTypes
+from app.db.entities.protocol import Protocol
 from app.db.entities.protocol_version import ProtocolVersion
 from app.db.entities.role import Role
 from app.db.entities.system_type import SystemType
 from app.db.entities.vendor import Vendor
-from app.db.repository.application_repository import ApplicationRepository
-from app.db.repository.role_repository import RoleRepository
-from app.db.repository.vendor_repository import VendorRepository
-from app.db.session_factory import DbSessionFactory
 from faker import Faker
 
 import argparse

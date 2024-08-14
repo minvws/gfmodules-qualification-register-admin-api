@@ -2,12 +2,12 @@ import uuid
 from typing import Sequence
 
 import pytest
+from gfmodules_python_shared.repository.exceptions import EntryNotFound
+from gfmodules_python_shared.session.db_session import DbSession
 from sqlalchemy.exc import InvalidRequestError
 
 
-from app.db.db_session import DbSession
 from app.db.entities.vendor import Vendor
-from app.db.repository.exception import EntryNotFound
 from app.db.repository.vendor_repository import VendorRepository
 
 

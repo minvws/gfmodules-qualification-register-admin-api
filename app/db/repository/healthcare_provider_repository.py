@@ -1,19 +1,17 @@
 import logging
 
+from gfmodules_python_shared.repository.repository_base import RepositoryBase
+from gfmodules_python_shared.session.db_session import DbSession
 from sqlalchemy import exists
 
-from app.db.db_session import DbSession
 from app.db.entities.healthcare_provider import HealthcareProvider
-from app.db.repository.repository_base import RepositoryBase
 
 logger = logging.getLogger(__name__)
 
 
 class HealthcareProviderRepository(RepositoryBase[HealthcareProvider]):
-    model = HealthcareProvider
-
     def __init__(self, db_session: DbSession) -> None:
-        super().__init__(db_session)
+        super().__init__(session=db_session, cls_model=HealthcareProvider)
 
     def ura_code_exists(self, ura_code: str) -> bool:
         stmt = exists(1).where(HealthcareProvider.ura_code == ura_code).select()
