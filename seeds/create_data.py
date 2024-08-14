@@ -41,10 +41,10 @@ parser.add_argument(
     "-c",
     "--count",
     metavar="c",
-    required=True,
     dest="count",
     help="A global number to give a indication of how many entities you want.",
     type=int,
+    default=1
 )
 args = parser.parse_args()
 
