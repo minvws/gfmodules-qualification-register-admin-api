@@ -7,8 +7,7 @@ authors = ["Ministerie van Volksgezondheid, Welzijn en Sport"]
 repository = "https://github.com/minvws/nl-irealisatie-python-api-skeleton"
 readme = "README.md"
 packages = [
-    { include = "app" },
-    { include = "tools" }
+    { include = "app" }
 ]
 
 [tool.poetry.scripts]

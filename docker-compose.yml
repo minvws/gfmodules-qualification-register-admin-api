@@ -9,7 +9,7 @@ services:
                 NEW_GID: ${NEW_GID:-1000}
                 GIT_USER: ${GIT_USERNAME:-}
                 GIT_PAT: ${GIT_PAT:-}
-
+            dockerfile: docker/Dockerfile
         volumes:
             - ./:/src
         ports:
@@ -27,21 +27,6 @@ services:
             -   5406:5432
         networks:
             - gfmodules-qualification
-
-    app-init:
-        image: postgres:14
-        depends_on: [ 'app', 'qualification_db' ]
-        build:
-            context: .
-            args:
-                NEW_UID: ${NEW_UID:-1000}
-                NEW_GID: ${NEW_GID:-1000}
-        working_dir: /src
-        volumes:
-            - ./:/src
-        networks:
-            - gfmodules-qualification
-        command: bash -c 'sleep 2 && tools/./migrate_db.sh qualification_db postgres postgres postgres'
 
 networks:
   gfmodules-qualification:

@@ -54,10 +54,6 @@ fi
 echo "➡️ Building the application docker container"
 make container-build GIT_USER="${GIT_USER}" GIT_PAT="${GIT_PAT}"
 
-# Populate database
-echo "➡️ Populating the database"
-docker compose run app ./tools/migrate_db.sh qualification_db postgres postgres postgres
-
 # Run the container
 echo "➡️ Running the application docker container"
 docker compose up app -d
