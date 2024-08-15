@@ -48,7 +48,7 @@ def get_uvicorn_params() -> dict[str, Any]:
 
 
 def run() -> None:
-    uvicorn.run("app.fastapi_application:create_fastapi_app", **get_uvicorn_params())
+    uvicorn.run("app.fastapi_application:create_fastapi_app", **get_uvicorn_params(), reload_delay=1, reload_dirs="app")
 
 
 def create_fastapi_app() -> FastAPI:
