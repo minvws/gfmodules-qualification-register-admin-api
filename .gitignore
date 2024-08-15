@@ -6,5 +6,6 @@ secrets/
 *.key
 *.priv
 *.pub
+auth.toml
 .autopilot
 coverage.xml

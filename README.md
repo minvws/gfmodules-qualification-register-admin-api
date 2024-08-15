@@ -43,16 +43,18 @@ If you run Linux, make sure you export your user ID and group ID to synchronize 
 export NEW_UID=$(id -u)
 export NEW_GID=$(id -g)
 
-The application uses a private [shared python library](https://github.com/minvws/gfmodules-python-shared). The library is private and still in experimental stage. Therefore, 
-it is required to get a Github Access Token and store it in your user's home directory under the name of `.gitpat` (Only works for UNIX like systems). It is also required to set 
-your git email similar to the remote one. You can [generate a new access token
-(`repo`)](https://github.com/settings/tokens/new?scopes=repo&description=Repo+token)
-or read more about [managing your personal access
-tokens](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).
+The application uses a private [shared python library](https://github.com/minvws/gfmodules-python-shared). To be able to install this library inside docker using
+poetry the auth.toml file needs to exist. Run to following shell script with your credentials to setup the auth.toml.
+You can [generate a new access token(`repo`)](https://github.com/settings/tokens/new?scopes=repo&description=Repo+token) with the full **repo** scope or read more about
+[managing your personal access tokens](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).
 
-When you're ready, build the application with: make container-build.
+```
+echo """[http-basic.git-minvws-gfmodules-python-shared]
+username = "your-github-username"
+password = "your-github-pat"""" > ~/.auth.toml2
+```
 
-Run make up to start the application.
+When you're ready, run the application with: `make autopilot`
 
 ## Application Architecture
 

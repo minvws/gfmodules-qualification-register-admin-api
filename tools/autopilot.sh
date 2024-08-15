@@ -5,18 +5,18 @@ set -euo pipefail
 echo "📖 This script will help you running SKELETON for the first time. It will try to setup everything"
 echo "with default values so you can run it directly."
 
-
-# Get GitHub username and GitHub Personal Authentication Token
-echo "➡️ Getting github credentials"
-GIT_USER=$(git config user.email)
-
-if [ ! -f ~/.gitpat ] ; then
-  echo "⚠️ Github personal access token does not exists, please get a token and store it in your home directory in a file called .gitpat"
+if [ ! -f ~/.auth.toml ] ; then
+  echo "⚠️  Poetry needs a auth.toml file to install private dependencies inside a docker container."
+  echo "Please create the auth.toml file in the home directory with the following content:"
+  echo ""
+  echo "[http-basic.git-minvws-gfmodules-python-shared]"
+  echo "username = github-username"
+  echo "password = github-personal-access-token"
+  echo ""
   exit;
 fi
 
-GIT_PAT=$(cat ~/.gitpat)
-
+cp ~/.auth.toml auth.toml
 
 # Check if we already are configured
 if [ -e .autopilot ] ; then
