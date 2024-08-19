@@ -51,7 +51,7 @@ You can [generate a new access token(`repo`)](https://github.com/settings/tokens
 ```
 echo """[http-basic.git-minvws-gfmodules-python-shared]
 username = "your-github-username"
-password = "your-github-pat"""" > ~/.auth.toml2
+password = "your-github-pat"""" > ~/.auth.toml
 ```
 
 When you're ready, run the application with: `make autopilot`
