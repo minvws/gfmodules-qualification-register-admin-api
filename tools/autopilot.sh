@@ -52,7 +52,7 @@ fi
 
 # Build the application docker container
 echo "➡️ Building the application docker container"
-make container-build GIT_USER="${GIT_USER}" GIT_PAT="${GIT_PAT}"
+make container-build
 
 # Run the container
 echo "➡️ Running the application docker container"
