@@ -40,7 +40,7 @@ parser.add_argument(
     dest="count",
     help="A global number to give a indication of how many entities you want.",
     type=int,
-    default=1
+    default=1,
 )
 args = parser.parse_args()
 
@@ -68,17 +68,64 @@ versions = create_versions(9)
 
 
 def create_roles(session: Session):
-    role_names = ["role a", "role b", "role c", "role d", "role e", "role f"]
+    role_names = [
+        "Acute Zorg Proces - (Spoed)melding Sturend [AZP-SPS] Systeem",
+        "Acute Zorg Proces - Ambulanceoverdracht Ontvangend [AZP-AOO] Systeem",
+        "Acute Zorg Proces - Ambulanceoverdracht Sturend [AZP-AOS] Systeem",
+        "Acute Zorg Proces - Ambulanceoverdracht Sturend [AZP-AOS] Systeem (naar SEH)",
+        "Acute Zorg Proces - Beschikbaarstellen PS [AZP-PAB]",
+        "Acute Zorg Proces - Beschikbaarstellen PS [AZP-PSB]",
+        "Acute Zorg Proces - Feedbackbericht Ontvangend [AZP-PAO] Systeem",
+        "Acute Zorg Proces - Huisartsverwijzing Sturend [AZP-VES] Systeem",
+        "Acute Zorg Proces - Patiëntidentificatie Sturend [AZP-PAS] Systeem",
+        "Acute Zorg Proces - Raadplegen Professionele samenvatting SEH [AZP-PSR]",
+        "Acute Zorg Proces - Spoedmelding Ontvangend [AZP-SPO] Systeem",
+        "Acute Zorg Proces - Verwijzing ontvangend (AZP-VEO) Systeem",
+        "Acute Zorg Proces - Verwijzing Sturend [AZP-VES] Systeem",
+        "ambulanceoverdracht naar SEH",
+        "Beschikbaarstellen",
+        "Conditie-vaststeller",
+        "Geboortezorg Kernset Sturend Systeem",
+        "JGZ-dossierontvanger",
+        "JGZ-dossieroverdrager",
+        "JGZ-hielprikcoördinator",
+        "JGZ-hielprikuitvoerder",
+        "JGZ-vaccinatiecoördinator",
+        "JGZ-vaccinatieuitvoerder",
+        "Ketenzorg HIS",
+        "Ketenzorg KIS",
+        "Medicatie voorschrift ontvangend systeem (zonder EH)",
+        "Medicatiebewaker",
+        "Medicatiegegevens beschikbaarstellen MA (MP-MGB-MA)",
+        "Medicatiegegevens beschikbaarstellen VV (MP-MGB-VV)",
+        "Medicatieraadpleger",
+        "Medicatieverstrekker",
+        "Medicatievoorschrift ontvangend systeem (zonder EH)",
+        "Medicatievoorschrift sturend systeem (MP-VOS)",
+        "Medicatievoorschrift sturend systeem (zonder EH)",
+        "Opleveren van labgegevens",
+        "Overdrachtsbericht ontvangend systeem - overlap BgZ",
+        "Overdrachtsbericht sturend systeem - overlap BgZ",
+        "Raadplegen",
+        "Raadpleger labgegevens",
+        "Vaste huisarts",
+        "Waarnemend huisarts",
+    ]
     return [create_role(session, name) for name in role_names]
 
 
 def create_system_types(session: Session):
     system_types = [
-        "system type a",
-        "system type b",
-        "system type c",
-        "system type d",
-        "system type e",
+        "AIS",
+        "AMBS",
+        "DD JGZ",
+        "EVS",
+        "HIS",
+        "KIS",
+        "Viewer",
+        "ZAIS",
+        "ZBC",
+        "ZIC",
     ]
     return [create_system_type(session, name) for name in system_types]
 
@@ -261,8 +308,15 @@ def create_healthcare_providers(
 def run():
     db_session = session_factory.create()
     with db_session.session as session:
+        # define roles in the database
         roles = create_roles(session)
+        for role in roles:
+            session.add(role)
+
+        # define system types in the database
         system_types = create_system_types(session)
+        for system_type in system_types:
+            session.add(system_type)
 
         protocols = create_protocols(count)
         for p in protocols:
