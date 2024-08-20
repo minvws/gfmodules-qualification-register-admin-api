@@ -35,7 +35,7 @@ safety-check: ## Check for security vulnerabilities
 	$(RUN_PREFIX) safety check
 
 spelling-check: ## Check spelling mistakes
-	$(RUN_PREFIX) codespell -L selectin .
+	$(RUN_PREFIX) codespell -L selectin . --exclude-file=seeds/create_data.py
 
 spelling-fix: ## Fix spelling mistakes
 	$(RUN_PREFIX) codespell -L selectin . --write-changes --interactive=3
