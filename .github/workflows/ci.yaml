@@ -133,3 +133,24 @@ jobs:
               uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/sonarcloud@main
               with:
                 sonar-token: ${{ secrets.SONAR_TOKEN }}
+
+    database:
+        name: Test database migrations
+        runs-on: ubuntu-22.04
+        services:
+          postgres:
+            image: postgres:14
+            env:
+              POSTGRES_USER: postgres
+              POSTGRES_PASSWORD: postgres
+              POSTGRES_DB: postgres
+            ports:
+              - 5432:5432
+            options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        steps:
+            - name: Checkout repositories
+              uses: actions/checkout@v4
+
+            - name: Run database migrations
+              run: ./tools/migrate_db.sh

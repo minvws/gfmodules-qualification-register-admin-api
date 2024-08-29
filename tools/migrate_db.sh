@@ -32,7 +32,7 @@ for file in sql/*.sql; do
         echo -e "${YELLOW}⏩ File $file is already in the migrations table. Skipping.${NC}"
     else
         echo -e "${GREEN}▶️ Running migration $file${NC}"
-        psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f $file -q -o /dev/null
+        psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f $file --single-transaction -v ON_ERROR_STOP=1 -q -o /dev/null
         echo "INSERT INTO migrations (name) VALUES ('$file');" | psql -h $DB_HOST -U $DB_USER -d $DB_NAME -o /dev/null
     fi
 done
