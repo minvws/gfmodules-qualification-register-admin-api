@@ -12,6 +12,8 @@ services:
             - ./:/src
         ports:
             - 8506:8506
+        depends_on:
+            - qualification_db
         networks:
             - gfmodules-qualification
 
