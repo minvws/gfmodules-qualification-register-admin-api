@@ -1,5 +1,3 @@
-version: "3.5"
-
 services:
     app:
         build:
@@ -8,8 +6,13 @@ services:
                 NEW_UID: ${NEW_UID:-1000}
                 NEW_GID: ${NEW_GID:-1000}
             dockerfile: docker/Dockerfile
+            secrets:
+              - auth_toml
         volumes:
             - ./:/src
+        secrets:
+          - source: auth_toml
+            target: /home/app/.config/pypoetry/auth.toml
         ports:
             - 8506:8506
         depends_on:
@@ -27,6 +30,10 @@ services:
             -   5406:5432
         networks:
             - gfmodules-qualification
+
+secrets:
+  auth_toml:
+    file: ./auth.toml
 
 networks:
   gfmodules-qualification:
