@@ -137,6 +137,7 @@ jobs:
     database:
         name: Test database migrations
         runs-on: ubuntu-22.04
+        needs: build
         services:
           postgres:
             image: postgres:14
@@ -152,5 +153,18 @@ jobs:
             - name: Checkout repositories
               uses: actions/checkout@v4
 
+            - name: Run build action
+              uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+              with:
+                python_version: "3.11"
+
+            - name: Copy CI configuration
+              run: cp app.conf.ci app.conf
+
             - name: Run database migrations
               run: ./tools/migrate_db.sh
+
+            - name: Run database seeds
+              run: |
+                source $(poetry env info --path)/bin/activate
+                ./tools/seed.sh
