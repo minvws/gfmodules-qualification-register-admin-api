@@ -12,7 +12,6 @@ from app.container import (
 )
 from app.db.services.application_type_service import ApplicationTypeService
 from app.exceptions.http_base_exceptions import NotFoundException
-from app.openapi.responses import api_version_header_responses
 from app.schemas.application.mapper import (
     map_application_entity_to_dto,
     map_application_version_entity_to_dto,
@@ -32,7 +31,7 @@ from app.db.services.application_version_service import ApplicationVersionServic
 router = APIRouter(prefix="/applications", tags=["Applications"])
 
 
-@router.get("", responses={**api_version_header_responses([200])})
+@router.get("")
 def get_applications(
     query: Annotated[PaginationQueryParams, Depends()],
     service: ApplicationService = Depends(get_application_service),
@@ -40,7 +39,7 @@ def get_applications(
     return service.get_paginated(limit=query.limit, offset=query.offset)
 
 
-@router.get("/{application_id}", response_model=ApplicationDto, responses={**api_version_header_responses([200, 404, 422])})
+@router.get("/{application_id}")
 def get_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
 ) -> ApplicationDto:
@@ -48,7 +47,7 @@ def get_application_by_id(
     return map_application_entity_to_dto(application)
 
 
-@router.delete("/{application_id}", response_model=ApplicationDto)
+@router.delete("/{application_id}")
 def delete_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
 ) -> ApplicationDto:

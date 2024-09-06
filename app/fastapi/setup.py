@@ -1,30 +1,17 @@
-from typing import List, Dict, Any
+from typing import List
 
 from fastapi import FastAPI, APIRouter
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
-from app.config import Config
 from app.middleware.api_version import ApiVersionHeaderMiddleware
 
 
-def setup_fastapi(
-        config: Config,
+def setup_default_middleware_and_routers(
+        fastapi: FastAPI,
         routers: List[APIRouter],
-        description: str = "",
-        openapi_tags: List[Dict[str, Any]] | None = None,
+        api_version: str | None = None,
 ) -> FastAPI:
-    docs_url = config.uvicorn.docs_url if config.uvicorn.swagger_enabled else None
-    redoc_url = config.uvicorn.redoc_url if config.uvicorn.swagger_enabled else None
-
-    fastapi = FastAPI(
-        title="Qualification Register Admin API",
-        docs_url=docs_url,
-        redoc_url=redoc_url,
-        description=description,
-        openapi_tags=openapi_tags
-    )
-
     fastapi.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -36,19 +23,8 @@ def setup_fastapi(
     for router in routers:
         fastapi.include_router(router)
 
-    return fastapi
-
-
-def setup_fastapi_for_api(
-        config: Config,
-        routers: List[APIRouter],
-        api_version: str,
-        description: str = "",
-        openapi_tags: List[Dict[str, Any]] | None = None,
-) -> FastAPI:
-    fastapi = setup_fastapi(config, routers, description, openapi_tags)
-
-    fastapi.add_middleware(ApiVersionHeaderMiddleware, api_version=api_version)
+    if api_version is not None:
+        fastapi.add_middleware(ApiVersionHeaderMiddleware, api_version=api_version)
 
     return fastapi
 

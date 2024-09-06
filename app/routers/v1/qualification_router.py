@@ -12,7 +12,6 @@ from app.db.services.healthcare_provider_qualification_service import (
 from app.db.services.protocol_application_qualification_service import (
     ProtocolApplicationQualificationService,
 )
-from app.openapi.responses import api_version_header_responses
 from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
 from app.schemas.healthcare_provider.schema import (
     HealthcareProviderDto,
@@ -29,7 +28,7 @@ from app.schemas.protocol_application_qualification.schema import (
 router = APIRouter(prefix="/qualifications", tags=["Qualification"])
 
 
-@router.post("/{protocol_version_id}/application-versions/{version_id}", responses={**api_version_header_responses([200])})
+@router.post("/{protocol_version_id}/application-versions/{version_id}")
 def qualify_application_version_for_a_protocol(
     protocol_version_id: UUID,
     application_version_id: UUID,
