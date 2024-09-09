@@ -1,0 +1,69 @@
+name: k6 tests
+
+on:
+    workflow_dispatch:
+    pull_request:
+    push:
+        branches:
+            - main
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+      name: Run k6 tests
+      runs-on: ubuntu-22.04
+
+      services:
+        postgres:
+          image: postgres:14
+          env:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: postgres
+          ports:
+            - 5432:5432
+          options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Configure git
+          run: git config --global url."https://${{ secrets.REPO_READ_ONLY_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+        - name: Poetry install
+          uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+          with:
+            python_version: "3.11"
+
+        - name: Setup K6
+          uses: grafana/setup-k6-action@v1
+
+        - name: Copy CI configuration
+          run: cp app.conf.ci app.conf
+
+        - name: Run database migrations
+          run: ./tools/migrate_db.sh
+
+        - name: Run database seeders
+          run: |
+            source $(poetry env info --path)/bin/activate
+            ./tools/seed.sh
+
+        - name: Run the application silently
+          run: poetry run python -m app.main &
+
+        - name: Wait for the application to start
+          run: sleep 5
+
+        - name: Download the OpenAPI schema
+          run: curl -o openapi.json http://localhost:8506/v1/openapi.json
+
+        - name: Run local k6 tests
+          uses: grafana/run-k6-action@v1
+          with:
+            path: ./tests/k6/script.js
+
