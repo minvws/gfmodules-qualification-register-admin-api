@@ -45,7 +45,8 @@ FROM base as builder
 COPY ./pyproject.toml ./poetry.lock ./
 
 RUN poetry config repositories.git-minvws-gfmodules-python-shared https://github.com/minvws/gfmodules-python-shared.git
-RUN poetry lock --no-update
+RUN --mount=type=secret,id=auth_toml,target=/root/.config/pypoetry/auth.toml \
+    poetry lock --no-update
 RUN --mount=type=cache,target=${POETRY_CACHE_DIR} \
     --mount=type=secret,id=auth_toml,target=/root/.config/pypoetry/auth.toml \
     poetry install --no-root --no-interaction
