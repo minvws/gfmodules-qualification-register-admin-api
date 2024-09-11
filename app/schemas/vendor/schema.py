@@ -1,20 +1,19 @@
+from datetime import datetime
 from typing import List
 from uuid import UUID, uuid4
 
 from app.schemas.default import BaseModelConfig
+from app.schemas.roles.schema import RoleDto
+from app.schemas.system_type.schema import SystemTypeDto
 
 
 class VendorApplicationVersionDto(BaseModelConfig):
+    id: UUID
     version: str
 
 
 class VendorApplicationBase(BaseModelConfig):
     name: str
-
-
-class VendorApplicationRoleDto(BaseModelConfig):
-    name: str
-    description: str | None = None
 
 
 class VendorApplicationTypeDto(BaseModelConfig):
@@ -24,9 +23,11 @@ class VendorApplicationTypeDto(BaseModelConfig):
 
 class VendorApplicationDto(VendorApplicationBase):
     id: UUID = uuid4()
+    created_at: datetime
+    modified_at: datetime
     versions: List[VendorApplicationVersionDto] = []
-    roles: List[VendorApplicationRoleDto] = []
-    system_types: List[VendorApplicationTypeDto] = []
+    roles: List[RoleDto] = []
+    system_types: List[SystemTypeDto] = []
 
 
 class VendorBase(BaseModelConfig):
