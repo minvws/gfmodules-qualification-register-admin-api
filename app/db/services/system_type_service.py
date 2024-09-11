@@ -14,16 +14,24 @@ from app.exceptions.app_exceptions import (
 )
 from app.factory.system_type_factory import SystemTypeFactory
 from app.helpers.validators import validate_sets_equal
+from app.schemas.meta.schema import Page
+from app.schemas.system_type.mapper import map_system_type_entity_to_dto
+from app.schemas.system_type.schema import SystemTypeDto
 
 
 class SystemTypeService:
     @session_manager
-    def get_many(
+    def get_paginated(
         self,
+        limit: int,
+        offset: int,
         system_type_repository: SystemTypeRepository = get_repository(),
-    ) -> Sequence[SystemType]:
-        system_types = system_type_repository.get_many()
-        return system_types
+    ) -> Page[SystemTypeDto]:
+        system_types = system_type_repository.get_many(limit=limit, offset=offset)
+        dto = [map_system_type_entity_to_dto(system_type) for system_type in system_types]
+        total = system_type_repository.count()
+
+        return Page(items=dto, limit=limit, offset=offset, total=total)
 
     @session_manager
     def get_one(
