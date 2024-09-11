@@ -16,11 +16,6 @@ class VendorApplicationBase(BaseModelConfig):
     name: str
 
 
-class VendorApplicationTypeDto(BaseModelConfig):
-    name: str
-    description: str | None = None
-
-
 class VendorApplicationDto(VendorApplicationBase):
     id: UUID = uuid4()
     created_at: datetime

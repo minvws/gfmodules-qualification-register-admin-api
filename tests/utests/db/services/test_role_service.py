@@ -5,6 +5,7 @@ import inject
 from app.db.db import Database
 from app.exceptions.app_exceptions import RoleNotFoundException
 from app.db.services.roles_service import RoleService
+from app.schemas.roles.mapper import map_role_model_to_dto
 from tests.utils.config_binder import config_binder
 
 
@@ -70,12 +71,12 @@ class TestRoleService(unittest.TestCase):
 
         self.assertSequenceEqual(expected_roles, actual_roles)
 
-    def test_get_all_roles(self) -> None:
+    def test_get_paginated_roles(self) -> None:
         mock_role = self.role_service.add_one(
             name="example role", description="some description"
         )
-        expected_roles = [mock_role.to_dict()]
-        actual_db_roles = self.role_service.get_many()
-        actual_roles = [role.to_dict() for role in actual_db_roles]
+        expected_roles = [map_role_model_to_dto(mock_role)]
+        paginated_roles = self.role_service.get_paginated(limit=10, offset=0)
+        actual_roles = paginated_roles.items
 
         self.assertSequenceEqual(expected_roles, actual_roles)
