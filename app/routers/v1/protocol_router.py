@@ -30,7 +30,7 @@ def get_protocols(
     return service.get_paginated(limit=query.limit, offset=query.offset)
 
 
-@router.post("", response_model=ProtocolDto)
+@router.post("", response_model=ProtocolDto, status_code=status.HTTP_201_CREATED)
 def define_a_protocol(
     data: ProtocolCreateDto, service: ProtocolService = Depends(get_protocol_service)
 ) -> ProtocolDto:
@@ -54,7 +54,7 @@ def delete_protocol(
     service.remove_one(protocol_id)
 
 
-@router.post("/{protocol_id}/versions")
+@router.post("/{protocol_id}/versions", response_model=ProtocolVersionDto, status_code=status.HTTP_201_CREATED)
 def add_protocol_version(
     protocol_id: UUID,
     data: ProtocolVersionCreateDto,
