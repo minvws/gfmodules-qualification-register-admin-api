@@ -7,6 +7,7 @@ import { pageResponseSchema } from "../api_contracts/page_schema.js";
 import { systemTypeSchema } from "../api_contracts/system_type_schema.js";
 import { notFoundResponseSchema, validationErrorResponseSchema } from "../api_contracts/default_response_schemas.js";
 import { expectToMatchResponseSchema } from "../utils/expects.js";
+import { defaultParams } from "../utils/defaults.js";
 
 export function systemTypesTests(baseUrl) {
     group("/v1/system-types", () => {
@@ -17,8 +18,7 @@ export function systemTypesTests(baseUrl) {
                 "name": faker.string.alpha(150),
                 "description": faker.lorem.paragraph(),
             };
-            let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
-            let response = http.post(`${baseUrl}/v1/system-types`, JSON.stringify(body), params);
+            let response = http.post(`${baseUrl}/v1/system-types`, JSON.stringify(body), defaultParams);
 
             const data = response.json();
             systemTypeId = data.id;

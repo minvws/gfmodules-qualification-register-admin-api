@@ -7,6 +7,7 @@ import { pageResponseSchema } from "../api_contracts/page_schema.js";
 import { roleSchema } from "../api_contracts/role_schema.js";
 import { notFoundResponseSchema, validationErrorResponseSchema } from "../api_contracts/default_response_schemas.js";
 import { expectToMatchResponseSchema } from "../utils/expects.js";
+import { defaultParams } from "../utils/defaults.js";
 
 export function rolesTests(baseUrl) {
     group("/v1/roles", () => {
@@ -17,8 +18,7 @@ export function rolesTests(baseUrl) {
                 "name": faker.string.alpha(150),
                 "description": faker.lorem.paragraph(),
             };
-            let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
-            let response = http.post(`${baseUrl}/v1/roles`, JSON.stringify(body), params);
+            let response = http.post(`${baseUrl}/v1/roles`, JSON.stringify(body), defaultParams);
 
             const data = response.json();
             roleId = data.id;
@@ -53,8 +53,7 @@ export function rolesTests(baseUrl) {
             let body = {
                 "description": faker.lorem.paragraph(),
             };
-            let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
-            let response = http.put(`${baseUrl}/v1/roles/${roleId}`, JSON.stringify(body), params);
+            let response = http.put(`${baseUrl}/v1/roles/${roleId}`, JSON.stringify(body), defaultParams);
 
             expectToMatchResponseSchema(response, 200, roleSchema)
         });
