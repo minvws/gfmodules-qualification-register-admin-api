@@ -56,7 +56,7 @@ export function rolesTests(baseUrl) {
             let params = {headers: {"Content-Type": "application/json", "Accept": "application/json"}};
             let response = http.put(`${baseUrl}/v1/roles/${roleId}`, JSON.stringify(body), params);
 
-            expectToMatchResponseSchema(response, 201, roleSchema)
+            expectToMatchResponseSchema(response, 200, roleSchema)
         });
 
         describe('GET 422 /v1/roles/:id', () => {

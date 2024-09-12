@@ -36,7 +36,7 @@ def create_role(
     return map_role_model_to_dto(new_role)
 
 
-@router.put("/{role_id}", response_model=RoleDto, status_code=status.HTTP_201_CREATED)
+@router.put("/{role_id}", response_model=RoleDto)
 def update_role_description(
     role_id: UUID,
     data: RoleUpdateDto,
