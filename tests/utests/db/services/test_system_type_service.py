@@ -5,6 +5,7 @@ import inject
 from app.db.db import Database
 from app.exceptions.app_exceptions import SystemTypeNotFoundException
 from app.db.services.system_type_service import SystemTypeService
+from app.schemas.system_type.mapper import map_system_type_entity_to_dto
 from tests.utils.config_binder import config_binder
 
 
@@ -65,15 +66,13 @@ class TestSystemTypeService(unittest.TestCase):
 
         self.assertListEqual(expected_system_types, actual_system_types)
 
-    def test_get_all_system_types(self) -> None:
+    def test_get_paginated_system_types(self) -> None:
         mock_system_type = self.system_type_service.add_one(
             name="example", description="some description"
         )
-        expected_system_types = [mock_system_type.to_dict()]
+        expected_system_types = [map_system_type_entity_to_dto(mock_system_type)]
 
-        actual_db_system_types = self.system_type_service.get_many()
-        actual_system_types = [
-            system_type.to_dict() for system_type in actual_db_system_types
-        ]
+        paginated_system_types = self.system_type_service.get_paginated(limit=10, offset=0)
+        actual_system_types = paginated_system_types.items
 
         self.assertListEqual(expected_system_types, actual_system_types)
