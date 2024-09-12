@@ -1,5 +1,7 @@
 from uuid import UUID
 
+from pydantic import Field
+
 from app.schemas.default import BaseModelConfig
 
 
@@ -8,7 +10,7 @@ class RoleBase(BaseModelConfig):
 
 
 class RoleCreateDto(RoleBase):
-    name: str
+    name: str = Field(max_length=150)
 
 
 class RoleUpdateDto(RoleBase):

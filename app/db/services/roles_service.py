@@ -13,6 +13,9 @@ from app.exceptions.app_exceptions import (
     RoleNotFoundException,
 )
 from app.helpers.validators import validate_sets_equal
+from app.schemas.meta.schema import Page
+from app.schemas.roles.mapper import map_role_model_to_dto
+from app.schemas.roles.schema import RoleDto
 
 
 class RoleService:
@@ -28,12 +31,17 @@ class RoleService:
         return role
 
     @session_manager
-    def get_many(
+    def get_paginated(
         self,
+        limit: int,
+        offset: int,
         role_repository: RoleRepository = get_repository(),
-    ) -> Sequence[Role]:
-        roles = role_repository.get_many()
-        return roles
+    ) -> Page[RoleDto]:
+        roles = role_repository.get_many(limit=limit, offset=offset)
+        dto = [map_role_model_to_dto(role) for role in roles]
+        total = role_repository.count()
+
+        return Page(items=dto, limit=limit, offset=offset, total=total)
 
     @session_manager
     def add_one(

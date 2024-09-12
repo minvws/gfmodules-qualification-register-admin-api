@@ -2,6 +2,7 @@ import { chai } from "https://jslib.k6.io/k6chaijs/4.3.4.1/index.js";
 import { initContractPlugin } from "https://jslib.k6.io/k6chaijs-contracts/4.3.4.1/index.js";
 import { healthTests } from "./tests/health.js";
 import { vendorsTests } from "./tests/vendors.js";
+import { rolesTests } from "./tests/roles.js";
 
 const baseUrl = __ENV.ENDPOINT_URL ?? "http://localhost:8506";
 // Sleep duration between successive requests.
@@ -23,4 +24,5 @@ initContractPlugin(chai)
 export default function testSuite() {
     healthTests(baseUrl);
     vendorsTests(baseUrl);
+    rolesTests(baseUrl);
 }
