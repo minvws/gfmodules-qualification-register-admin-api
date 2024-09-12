@@ -27,10 +27,11 @@ class ProtocolVersionService:
     @session_manager
     def get_one(
         self,
+        protocol_id: UUID,
         version_id: UUID,
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> ProtocolVersion:
-        protocol_version = protocol_version_repository.get(id=version_id)
+        protocol_version = protocol_version_repository.get(id=version_id, protocol_id=protocol_id)
         if protocol_version is None:
             raise ProtocolVersionNotFoundException()
 

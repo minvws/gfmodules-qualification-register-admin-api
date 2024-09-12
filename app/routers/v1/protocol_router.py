@@ -67,6 +67,16 @@ def add_protocol_version(
     return map_protocol_version_entity_to_dto(version)
 
 
+@router.get("/{protocol_id}/versions/{version_id}")
+def get_protocol_version(
+    protocol_id: UUID,
+    version_id: UUID,
+    service: ProtocolVersionService = Depends(get_protocol_version_service),
+) -> ProtocolVersionDto:
+    protocol_version = service.get_one(protocol_id=protocol_id, version_id=version_id)
+    return map_protocol_version_entity_to_dto(protocol_version)
+
+
 @router.delete("/{protocol_id}/versions/{version_id}")
 def delete_protocol_version(
     protocol_id: UUID,
@@ -75,12 +85,3 @@ def delete_protocol_version(
 ) -> List[ProtocolVersionDto]:
     versions = service.remove_one(protocol_id=protocol_id, version_id=version_id)
     return [map_protocol_version_entity_to_dto(version) for version in versions]
-
-
-@router.get("/versions/{version_id}")
-def get_protocol_version(
-    version_id: UUID,
-    service: ProtocolVersionService = Depends(get_protocol_version_service),
-) -> ProtocolVersionDto:
-    protocol_version = service.get_one(version_id)
-    return map_protocol_version_entity_to_dto(protocol_version)

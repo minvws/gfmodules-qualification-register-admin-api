@@ -81,6 +81,7 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
         )
 
         actual_protocol_version = self.protocol_version_service.get_one(
+            protocol_id=self.mock_protocol.id,
             version_id=self.mock_protocol_version.id
         )
 
@@ -112,6 +113,7 @@ class TestProtocolApplianceQualificationService(unittest.TestCase):
         )
 
         actual_protocol_version = self.protocol_version_service.get_one(
+            protocol_id=self.mock_protocol.id,
             version_id=self.mock_protocol_version.id
         )
 
