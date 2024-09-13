@@ -39,6 +39,7 @@ class TestProtocolVersionService(unittest.TestCase):
         )
 
         actual_protocol_version = self.protocol_version_service.get_one(
+            protocol_id=self.mock_protocol.id,
             version_id=expected_protocol_version.id
         )
 
@@ -72,7 +73,8 @@ class TestProtocolVersionService(unittest.TestCase):
         )
 
         actual_protocol_version = self.protocol_version_service.get_one(
-            expected_protocol_version.id
+            protocol_id=self.mock_protocol.id,
+            version_id=expected_protocol_version.id
         )
 
         self.assertEqual(expected_protocol_version.id, actual_protocol_version.id)
@@ -91,10 +93,14 @@ class TestProtocolVersionService(unittest.TestCase):
         )
 
         self.protocol_version_service.remove_one(
-            protocol_id=self.mock_protocol.id, version_id=mock_protocol_version.id
+            protocol_id=self.mock_protocol.id,
+            version_id=mock_protocol_version.id
         )
 
         with self.assertRaises(ProtocolVersionNotFoundException) as context:
-            self.protocol_version_service.get_one(self.mock_protocol.id)
+            self.protocol_version_service.get_one(
+                protocol_id=self.mock_protocol.id,
+                version_id=mock_protocol_version.id
+            )
 
             self.assertTrue("not found" in str(context.exception))
