@@ -8,6 +8,7 @@ from app.schemas.application.schema import (
     ApplicationRoleDto,
     ApplicationTypeDto,
 )
+from app.schemas.vendor.mapper import map_vendor_entity_to_summary_dto
 
 
 def map_application_version_entity_to_dto(
@@ -47,13 +48,15 @@ def map_application_entity_to_dto(application: Application) -> ApplicationDto:
         map_application_system_type_entity_to_dto(system_type)
         for system_type in application.system_types
     ]
+    vendor = map_vendor_entity_to_summary_dto(application.vendor)
+
     return ApplicationDto(
         id=application.id,
         name=application.name,
-        vendor_id=application.vendor_id,
-        vendor_trade_name=application.vendor.trade_name,
-        vendor_kvk_number=application.vendor.kvk_number,
+        vendor=vendor,
         versions=versions,
         roles=roles,
         system_types=system_types,
+        created_at=application.created_at,
+        modified_at=application.modified_at,
     )

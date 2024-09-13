@@ -9,6 +9,7 @@ from app.schemas.vendor.schema import (
     VendorDto,
     VendorApplicationDto,
     VendorApplicationVersionDto,
+    VendorSummaryDto,
 )
 
 
@@ -63,4 +64,13 @@ def map_vendor_entity_to_dto(entity: Vendor) -> VendorDto:
         applications=[
             map_application_entity_to_model(app) for app in entity.applications
         ],
+    )
+
+
+def map_vendor_entity_to_summary_dto(entity: Vendor) -> VendorSummaryDto:
+    return VendorSummaryDto(
+        id=entity.id,
+        trade_name=entity.trade_name,
+        statutory_name=entity.statutory_name,
+        kvk_number=entity.kvk_number,
     )

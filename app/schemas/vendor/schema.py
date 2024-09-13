@@ -44,3 +44,10 @@ class VendorApplicationCreateDto(VendorApplicationBase):
     version: str
     roles: List[str]
     system_types: List[str]
+
+
+class VendorSummaryDto(BaseModelConfig):
+    id: UUID
+    trade_name: str
+    statutory_name: str
+    kvk_number: str
