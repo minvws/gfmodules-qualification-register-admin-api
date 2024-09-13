@@ -48,9 +48,8 @@ def update_role_description(
     return map_role_model_to_dto(role)
 
 
-@router.delete("/{role_id}")
+@router.delete("/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_role(
     role_id: UUID, service: RoleService = Depends(get_roles_service)
-) -> RoleDto:
-    deleted_role = service.remove_one(role_id)
-    return map_role_model_to_dto(deleted_role)
+) -> None:
+    service.remove_one(role_id)

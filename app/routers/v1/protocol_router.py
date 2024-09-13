@@ -1,7 +1,7 @@
-from typing import List, Annotated
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from app.container import get_protocol_service, get_protocol_version_service
 from app.db.services.protocol_service import ProtocolService
@@ -47,12 +47,11 @@ def get_one_protocol_by_id(
     return map_protocol_entity_to_dto(protocol)
 
 
-@router.delete("/{protocol_id}", response_model=ProtocolDto)
+@router.delete("/{protocol_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_protocol(
     protocol_id: UUID, service: ProtocolService = Depends(get_protocol_service)
-) -> ProtocolDto:
-    protocol = service.remove_one(protocol_id)
-    return map_protocol_entity_to_dto(protocol)
+) -> None:
+    service.remove_one(protocol_id)
 
 
 @router.post("/{protocol_id}/versions")
@@ -77,11 +76,10 @@ def get_protocol_version(
     return map_protocol_version_entity_to_dto(protocol_version)
 
 
-@router.delete("/{protocol_id}/versions/{version_id}")
+@router.delete("/{protocol_id}/versions/{version_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_protocol_version(
     protocol_id: UUID,
     version_id: UUID,
     service: ProtocolVersionService = Depends(get_protocol_version_service),
-) -> List[ProtocolVersionDto]:
-    versions = service.remove_one(protocol_id=protocol_id, version_id=version_id)
-    return [map_protocol_version_entity_to_dto(version) for version in versions]
+) -> None:
+    service.remove_one(protocol_id=protocol_id, version_id=version_id)

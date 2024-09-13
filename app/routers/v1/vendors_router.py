@@ -44,12 +44,11 @@ def get_vendor_by_id(
     return map_vendor_entity_to_dto(vendor)
 
 
-@router.delete("/{vendor_id}", response_model=VendorDto, responses={**api_validation_error_response(), **api_not_found_response()})
+@router.delete("/{vendor_id}", status_code=status.HTTP_204_NO_CONTENT, responses={**api_validation_error_response(), **api_not_found_response()})
 def delete_vendor_by_id(
     vendor_id: UUID, vendor_service: VendorService = Depends(get_vendors_service)
-) -> VendorDto:
-    deleted_vendor = vendor_service.remove_one(vendor_id=vendor_id)
-    return map_vendor_entity_to_dto(deleted_vendor)
+) -> None:
+    vendor_service.remove_one(vendor_id=vendor_id)
 
 
 @router.get("/kvk_number/{kvk_number}", response_model=VendorDto, responses={**api_validation_error_response(), **api_not_found_response()})

@@ -41,9 +41,8 @@ def create_new_system_type(
     return map_system_type_entity_to_dto(new_system_type)
 
 
-@router.delete("/{system_type_id}")
+@router.delete("/{system_type_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_system_type(
     system_type_id: UUID, service: SystemTypeService = Depends(get_system_type_service)
-) -> SystemTypeDto:
-    deleted_system_type = service.delete_one(system_type_id=system_type_id)
-    return map_system_type_entity_to_dto(deleted_system_type)
+) -> None:
+    service.delete_one(system_type_id=system_type_id)

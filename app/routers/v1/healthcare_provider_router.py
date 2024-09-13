@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from app.container import (
     get_healthcare_provider_service,
@@ -50,13 +50,12 @@ def register_one_healthcare_provider(
     return map_healthcare_provider_entity_to_dto(new_healthcare_provider)
 
 
-@router.delete("/{healthcare_provider_id}")
+@router.delete("/{healthcare_provider_id}", status_code=status.HTTP_204_NO_CONTENT)
 def deregister_one_healthcare_provider(
     healthcare_provider_id: UUID,
     service: HealthcareProviderService = Depends(get_healthcare_provider_service),
-) -> HealthcareProviderDto:
-    healthcare_provider = service.remove_one(healthcare_provider_id)
-    return map_healthcare_provider_entity_to_dto(healthcare_provider)
+) -> None:
+    service.remove_one(healthcare_provider_id)
 
 
 @router.post("/{healthcare_provider_id}/application-versions/{version_id}")
@@ -73,15 +72,14 @@ def register_application_version_to_healthcare_provider(
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
-@router.delete("/{healthcare_provider_id}/application-versions/{version_id}")
+@router.delete("/{healthcare_provider_id}/application-versions/{version_id}", status_code=status.HTTP_204_NO_CONTENT)
 def deregister_application_version_to_healthcare_provider(
     healthcare_provider_id: UUID,
     version_id: UUID,
     service: HealthcareProviderApplicationVersionService = Depends(
         get_healthcare_provider_application_version_service
     ),
-) -> HealthcareProviderDto:
-    healthcare_provider = service.unassing_application_version_to_healthcare_provider(
+) -> None:
+    service.unassing_application_version_to_healthcare_provider(
         healthcare_provider_id, version_id
     )
-    return map_healthcare_provider_entity_to_dto(healthcare_provider)
