@@ -6,3 +6,7 @@ export function expectToMatchResponseSchema(response, expectedStatusCode, expect
     expect(response).to.have.validJsonBody();
     expect(response.json()).to.matchSchema(expectedSchema);
 }
+
+export function expectToMatch204NoContentResponse(response) {
+    expect(response.status, 'response status').to.equal(204);
+}

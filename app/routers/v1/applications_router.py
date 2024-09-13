@@ -1,7 +1,7 @@
 from typing import List, Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.exc import NoResultFound
 
 from app.container import (
@@ -47,12 +47,11 @@ def get_application_by_id(
     return map_application_entity_to_dto(application)
 
 
-@router.delete("/{application_id}")
+@router.delete("/{application_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_application_by_id(
     application_id: UUID, service: ApplicationService = Depends(get_application_service)
-) -> ApplicationDto:
-    deleted_application = service.remove_one(application_id=application_id)
-    return map_application_entity_to_dto(deleted_application)
+) -> None:
+    service.remove_one(application_id=application_id)
 
 
 @router.post("/{application_id}/versions")
@@ -65,14 +64,13 @@ def add_application_version(
     return [map_application_version_entity_to_dto(version) for version in versions]
 
 
-@router.delete("/{application_id}/versions/{version_id}")
+@router.delete("/{application_id}/versions/{version_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_application_version(
     application_id: UUID,
     version_id: UUID,
     service: ApplicationVersionService = Depends(get_application_version_service),
-) -> List[ApplicationVersionDto]:
-    versions = service.remove_one(application_id=application_id, version_id=version_id)
-    return [map_application_version_entity_to_dto(version) for version in versions]
+) -> None:
+    service.remove_one(application_id=application_id, version_id=version_id)
 
 
 @router.get("/vendors/{vendor_id}")
@@ -113,14 +111,13 @@ def assign_one_application_role(
     return map_application_entity_to_dto(results)
 
 
-@router.delete("/{application_id}/roles/{role_id}")
+@router.delete("/{application_id}/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 def unassign_one_application_role(
     application_id: UUID,
     role_id: UUID,
     service: ApplicationRolesService = Depends(get_application_roles_service),
-) -> ApplicationDto:
-    results = service.unassign_role_from_application(application_id, role_id)
-    return map_application_entity_to_dto(results)
+) -> None:
+    service.unassign_role_from_application(application_id, role_id)
 
 
 @router.post("/{application_id}/system-types/{system_type_id}")
@@ -135,13 +132,12 @@ def assign_system_type_to_application(
     return map_application_entity_to_dto(application)
 
 
-@router.delete("/{application_id}/system-types/{system_type_id}")
+@router.delete("/{application_id}/system-types/{system_type_id}", status_code=status.HTTP_204_NO_CONTENT)
 def unassing_system_type_from_application(
     application_id: UUID,
     system_type_id: UUID,
     service: ApplicationTypeService = Depends(get_application_type_service),
-) -> ApplicationDto:
-    application = service.unassign_system_type_to_application(
+) -> None:
+    service.unassign_system_type_to_application(
         application_id, system_type_id
     )
-    return map_application_entity_to_dto(application)

@@ -6,7 +6,7 @@ import { faker } from "https://cdn.skypack.dev/pin/@faker-js/faker@v9.0.0-1CwM7Q
 import { pageResponseSchema } from "../api_contracts/page_schema.js";
 import { vendorSchema } from "../api_contracts/vendor_schema.js";
 import { notFoundResponseSchema, validationErrorResponseSchema } from "../api_contracts/default_response_schemas.js";
-import { expectToMatchResponseSchema } from "../utils/expects.js";
+import { expectToMatch204NoContentResponse, expectToMatchResponseSchema } from "../utils/expects.js";
 import { defaultParams } from "../utils/defaults.js";
 
 export function vendorsTests(baseUrl) {
@@ -67,7 +67,7 @@ export function vendorsTests(baseUrl) {
 
             const response = http.del(`${baseUrl}/v1/vendors/${vendorId}`);
 
-            expectToMatchResponseSchema(response, 200, vendorSchema);
+            expectToMatch204NoContentResponse(response);
         });
 
         describe('GET 422 /v1/vendors/:id', () => {

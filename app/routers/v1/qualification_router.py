@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from app.container import (
     get_protocol_application_qualification_service,
@@ -46,19 +46,18 @@ def qualify_application_version_for_a_protocol(
     return map_protocol_qualification_entity_to_dto(protocol_version)
 
 
-@router.delete("/{protocol_version_id}/application-versions/{application_version_id}")
+@router.delete("/{protocol_version_id}/application-versions/{application_version_id}", status_code=status.HTTP_204_NO_CONTENT)
 def archive_application_version_qualification(
     protocol_version_id: UUID,
     application_version_id: UUID,
     service: ProtocolApplicationQualificationService = Depends(
         get_protocol_application_qualification_service
     ),
-) -> ProtocolApplicationQualificationDto:
-    protocol_version = service.archive_protocol_application_qualification(
+) -> None:
+    service.archive_protocol_application_qualification(
         protocol_version_id=protocol_version_id,
         application_version_id=application_version_id,
     )
-    return map_protocol_qualification_entity_to_dto(protocol_version)
 
 
 @router.post("/{healthcare_provider_id}/protocol-versions/{protocol_version_id}")
@@ -78,16 +77,15 @@ def qualify_healthcare_provider(
     return map_healthcare_provider_entity_to_dto(healthcare_provider)
 
 
-@router.delete("/{healthcare_provider_id}/protocol-versions/{protocol_version_id}")
+@router.delete("/{healthcare_provider_id}/protocol-versions/{protocol_version_id}", status_code=status.HTTP_204_NO_CONTENT)
 def archive_healthcare_provider_qualification(
     healthcare_provider_id: UUID,
     protocol_version_id: UUID,
     service: HealthcareProviderQualificationService = Depends(
         get_healthcare_provider_qualification_service
     ),
-) -> HealthcareProviderDto:
-    healthcare_provider = service.archive_healthcare_provider_qualification(
+) -> None:
+    service.archive_healthcare_provider_qualification(
         healthcare_provider_id=healthcare_provider_id,
         protocol_version_id=protocol_version_id,
     )
-    return map_healthcare_provider_entity_to_dto(healthcare_provider)

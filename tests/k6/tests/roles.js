@@ -6,7 +6,7 @@ import { faker } from "https://cdn.skypack.dev/pin/@faker-js/faker@v9.0.0-1CwM7Q
 import { pageResponseSchema } from "../api_contracts/page_schema.js";
 import { roleSchema } from "../api_contracts/role_schema.js";
 import { notFoundResponseSchema, validationErrorResponseSchema } from "../api_contracts/default_response_schemas.js";
-import { expectToMatchResponseSchema } from "../utils/expects.js";
+import { expectToMatch204NoContentResponse, expectToMatchResponseSchema } from "../utils/expects.js";
 import { defaultParams } from "../utils/defaults.js";
 
 export function rolesTests(baseUrl) {
@@ -72,7 +72,7 @@ export function rolesTests(baseUrl) {
 
             const response = http.del(`${baseUrl}/v1/roles/${roleId}`);
 
-            expectToMatchResponseSchema(response, 200, roleSchema);
+            expectToMatch204NoContentResponse(response);
         });
 
 

@@ -6,7 +6,7 @@ import { faker } from "https://cdn.skypack.dev/pin/@faker-js/faker@v9.0.0-1CwM7Q
 import { pageResponseSchema } from "../api_contracts/page_schema.js";
 import { systemTypeSchema } from "../api_contracts/system_type_schema.js";
 import { notFoundResponseSchema, validationErrorResponseSchema } from "../api_contracts/default_response_schemas.js";
-import { expectToMatchResponseSchema } from "../utils/expects.js";
+import { expectToMatch204NoContentResponse, expectToMatchResponseSchema } from "../utils/expects.js";
 import { defaultParams } from "../utils/defaults.js";
 
 export function systemTypesTests(baseUrl) {
@@ -51,7 +51,7 @@ export function systemTypesTests(baseUrl) {
 
             const response = http.del(`${baseUrl}/v1/system-types/${systemTypeId}`);
 
-            expectToMatchResponseSchema(response, 200, systemTypeSchema);
+            expectToMatch204NoContentResponse(response);
         });
 
         describe('GET 422 /v1/system-types/:id', () => {
