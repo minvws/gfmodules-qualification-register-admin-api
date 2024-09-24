@@ -6,8 +6,8 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.role import Role
-from app.db.repository.role_repository import RoleRepository
+from app.db.entities import Role
+from app.db.repository import RoleRepository
 from app.exceptions.app_exceptions import (
     RoleAlreadyExistsException,
     RoleNotFoundException,
@@ -19,10 +19,9 @@ from app.schemas.roles.schema import RoleDto
 
 
 class RoleService:
-
     @session_manager
     def get_one(
-        self, role_id: UUID, role_repository: RoleRepository = get_repository()
+        self, role_id: UUID, *, role_repository: RoleRepository = get_repository()
     ) -> Role:
         role = role_repository.get(id=role_id)
         if role is None:
@@ -35,6 +34,7 @@ class RoleService:
         self,
         limit: int,
         offset: int,
+        *,
         role_repository: RoleRepository = get_repository(),
     ) -> Page[RoleDto]:
         roles = role_repository.get_many(limit=limit, offset=offset)
@@ -48,6 +48,7 @@ class RoleService:
         self,
         name: str,
         description: str | None,
+        *,
         role_repository: RoleRepository = get_repository(),
     ) -> Role:
         role = role_repository.get(name=name)
@@ -64,6 +65,7 @@ class RoleService:
         self,
         role_id: UUID,
         description: str | None,
+        *,
         role_repository: RoleRepository = get_repository(),
     ) -> Role:
         role = role_repository.get(id=role_id)
@@ -77,7 +79,7 @@ class RoleService:
 
     @session_manager
     def remove_one(
-        self, role_id: UUID, role_repository: RoleRepository = get_repository()
+        self, role_id: UUID, *, role_repository: RoleRepository = get_repository()
     ) -> Role:
         role = role_repository.get(id=role_id)
         if role is None:

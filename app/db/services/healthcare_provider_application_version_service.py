@@ -5,23 +5,16 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.healthcare_provider import HealthcareProvider
-from app.db.repository.application_version_repository import (
-    ApplicationVersionRepository,
-)
-from app.db.repository.healthcare_provider_repository import (
-    HealthcareProviderRepository,
-)
-from app.db.services.healthcare_provider_service import HealthcareProviderService
+from app.db.entities import HealthcareProvider
+from app.db.repository import ApplicationVersionRepository, HealthcareProviderRepository
+from .healthcare_provider_service import HealthcareProviderService
 from app.exceptions.app_exceptions import (
     HealthcareProviderNotFoundException,
     ApplicationVersionNotFoundException,
     AppVersionExistsInHealthcareProviderException,
     AppVersionNotUsedByHealthcareProviderException,
 )
-from app.factory.healthcare_provider_application_version_factory import (
-    HealthcareProviderApplicationVersionFactory,
-)
+from app.factory import HealthcareProviderApplicationVersionFactory
 
 
 class HealthcareProviderApplicationVersionService:
@@ -36,6 +29,7 @@ class HealthcareProviderApplicationVersionService:
         self,
         provider_id: UUID,
         application_version_id: UUID,
+        *,
         healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
         application_version_repository: ApplicationVersionRepository = get_repository(),
     ) -> HealthcareProvider:
@@ -73,6 +67,7 @@ class HealthcareProviderApplicationVersionService:
         self,
         healthcare_provider_id: UUID,
         application_version_id: UUID,
+        *,
         healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
         application_version_repository: ApplicationVersionRepository = get_repository(),
     ) -> HealthcareProvider:

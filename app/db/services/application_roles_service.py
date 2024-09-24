@@ -5,18 +5,17 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.application import Application
-from app.db.repository.application_repository import ApplicationRepository
-from app.db.repository.role_repository import RoleRepository
+from app.db.entities import Application
+from app.db.repository import ApplicationRepository, RoleRepository
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
     RoleNotFoundException,
     RoleExistInApplicationException,
     ApplicationRoleDeleteException,
 )
-from app.factory.application_roles_factory import ApplicationRolesFactory
+from app.factory import ApplicationRolesFactory
 from app.helpers.validators import validate_list_for_removal
-from app.db.services.application_service import ApplicationService
+from .application_service import ApplicationService
 
 
 class ApplicationRolesService:
@@ -31,6 +30,7 @@ class ApplicationRolesService:
         self,
         application_id: UUID,
         role_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
         role_repository: RoleRepository = get_repository(),
     ) -> Application:
@@ -60,6 +60,7 @@ class ApplicationRolesService:
         self,
         application_id: UUID,
         role_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
         role_repository: RoleRepository = get_repository(),
     ) -> Application:

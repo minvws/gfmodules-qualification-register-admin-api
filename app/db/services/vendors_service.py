@@ -5,9 +5,9 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.repository.vendor_repository import VendorRepository
-from app.factory.vendor_factory import VendorFactory
-from app.db.entities.vendor import Vendor
+from app.db.repository import VendorRepository
+from app.factory import VendorFactory
+from app.db.entities import Vendor
 from app.exceptions.app_exceptions import (
     VendorNotFoundException,
     VendorAlreadyExistsException,
@@ -21,7 +21,7 @@ from app.schemas.vendor.schema import VendorDto
 class VendorService:
     @session_manager
     def get_one_by_kvk_number(
-        self, kvk_number: str, vendor_repository: VendorRepository = get_repository()
+        self, kvk_number: str, *, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(kvk_number=kvk_number)
         if vendor is None:
@@ -31,7 +31,7 @@ class VendorService:
 
     @session_manager
     def get_one(
-        self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
+        self, vendor_id: UUID, *, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(id=vendor_id)
         if vendor is None:
@@ -45,6 +45,7 @@ class VendorService:
         kvk_number: str,
         trade_name: str,
         statutory_name: str,
+        *,
         vendor_repository: VendorRepository = get_repository(),
     ) -> Vendor:
         vendor = vendor_repository.get(kvk_number=kvk_number)
@@ -62,7 +63,7 @@ class VendorService:
 
     @session_manager
     def remove_one(
-        self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
+        self, vendor_id: UUID, *, vendor_repository: VendorRepository = get_repository()
     ) -> Vendor:
         vendor = vendor_repository.get(id=vendor_id)
         if vendor is None:
@@ -81,6 +82,7 @@ class VendorService:
         self,
         limit: int,
         offset: int,
+        *,
         vendor_repository: VendorRepository = get_repository(),
     ) -> Page[VendorDto]:
         vendors = vendor_repository.get_many(limit=limit, offset=offset)

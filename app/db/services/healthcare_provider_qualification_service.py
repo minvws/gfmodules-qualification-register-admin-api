@@ -6,11 +6,8 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.healthcare_provider import HealthcareProvider
-from app.db.repository.healthcare_provider_repository import (
-    HealthcareProviderRepository,
-)
-from app.db.repository.protocol_version_repository import ProtocolVersionRepository
+from app.db.entities import HealthcareProvider
+from app.db.repository import HealthcareProviderRepository, ProtocolVersionRepository
 from app.exceptions.app_exceptions import (
     HealthcareProviderNotFoundException,
     ProtocolVersionNotFoundException,
@@ -18,19 +15,17 @@ from app.exceptions.app_exceptions import (
     HealthcareProviderQualificationAlreadyArchivedException,
     HealthcareProviderNotQualifiedForProtocolException,
 )
-from app.factory.healthcare_provider_qualification_factory import (
-    HealthcareProviderQualificationFactory,
-)
+from app.factory import HealthcareProviderQualificationFactory
 
 
 class HealthcareProviderQualificationService:
-
     @session_manager
     def qualify_healthcare_provider(
         self,
         healthcare_provider_id: UUID,
         protocol_version_id: UUID,
         qualification_date: date,
+        *,
         healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> HealthcareProvider:
@@ -74,6 +69,7 @@ class HealthcareProviderQualificationService:
         self,
         healthcare_provider_id: UUID,
         protocol_version_id: UUID,
+        *,
         healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> HealthcareProvider:

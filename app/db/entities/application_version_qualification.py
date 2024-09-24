@@ -1,16 +1,15 @@
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import types, TIMESTAMP, ForeignKey, PrimaryKeyConstraint, Date
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from gfmodules_python_shared.schema.sql_model import SQLModelBase
+from sqlalchemy import TIMESTAMP, Date, ForeignKey, PrimaryKeyConstraint, types
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.entities.base import Base
-from app.db.entities import application_version
-from app.db.entities import protocol_version
+from app.db.entities import application_version, protocol_version
 
 
-class ProtocolApplicationQualification(Base):
+class ProtocolApplicationQualification(SQLModelBase):
     """
     Association object between ApplicationVersion and ProtocolVersion.
     This object determines the qualification of an application version against a
@@ -60,13 +59,4 @@ class ProtocolApplicationQualification(Base):
     )
 
     def __repr__(self) -> str:
-        return self._repr(
-            id=str(self.id),
-            application_version_id=str(self.application_version_id),
-            protocol_version_id=str(self.protocol_version_id),
-            qualification_date=self.qualification_date,
-            created_at=self.created_at,
-            modified_at=self.modified_at,
-            application_version=self.application_version,
-            protocol_version=self.protocol_version,
-        )
+        return self._repr(**self.to_dict(exclude={"archived_date"}))

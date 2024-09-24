@@ -2,16 +2,18 @@ from datetime import datetime
 from typing import List
 from uuid import UUID, uuid4
 
-from sqlalchemy import types, String, TIMESTAMP, ForeignKey
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from gfmodules_python_shared.schema.sql_model import SQLModelBase
+from sqlalchemy import TIMESTAMP, ForeignKey, String, types
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.entities.base import Base
-from app.db.entities import protocol
-from app.db.entities import healthcare_provider_qualification
-from app.db.entities import application_version_qualification
+from app.db.entities import (
+    application_version_qualification,
+    healthcare_provider_qualification,
+    protocol,
+)
 
 
-class ProtocolVersion(Base):
+class ProtocolVersion(SQLModelBase):
     __tablename__ = "protocol_versions"
 
     id: Mapped[UUID] = mapped_column(
@@ -22,7 +24,9 @@ class ProtocolVersion(Base):
         default=uuid4,
     )
     version: Mapped[str] = mapped_column("version", String(50), nullable=False)
-    description: Mapped[str | None] = mapped_column("description", String, nullable=True)
+    description: Mapped[str | None] = mapped_column(
+        "description", String, nullable=True
+    )
     protocol_id: Mapped[UUID] = mapped_column(
         ForeignKey("protocols.id", name="protocols_versions_protocols_fk")
     )
@@ -44,16 +48,3 @@ class ProtocolVersion(Base):
         lazy="selectin",
         cascade="save-update, delete, delete-orphan",
     )
-
-    def __repr__(self) -> str:
-        return self._repr(
-            id=str(self.id),
-            version=self.version,
-            description=self.description,
-            protocol_id=str(self.protocol_id),
-            created_at=self.created_at,
-            modified_at=self.modified_at,
-            protocol=self.protocol,
-            qualified_healthcare_providers=self.qualified_healthcare_providers,
-            qualified_application_versions=self.qualified_application_versions,
-        )

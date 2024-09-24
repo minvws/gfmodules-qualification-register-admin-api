@@ -1,30 +1,23 @@
 import inject
-
-from gfmodules_python_shared.session.session_factory import DbSessionFactory
-from gfmodules_python_shared.repository.repository_factory import RepositoryFactory
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.db import Database
 from app.config import get_config
-from app.db.services.application_type_service import ApplicationTypeService
-from app.db.services.healthcare_provider_application_version_service import (
+from app.db.services import (
+    ApplicationService,
+    ApplicationTypeService,
     HealthcareProviderApplicationVersionService,
-)
-from app.db.services.healthcare_provider_qualification_service import (
     HealthcareProviderQualificationService,
-)
-from app.db.services.healthcare_provider_service import HealthcareProviderService
-from app.db.services.protocol_application_qualification_service import (
+    HealthcareProviderService,
     ProtocolApplicationQualificationService,
+    ProtocolService,
+    ProtocolVersionService,
+    ApplicationRolesService,
+    ApplicationVersionService,
+    RoleService,
+    SystemTypeService,
+    VendorService,
 )
-from app.db.services.protocol_service import ProtocolService
-from app.db.services.protocol_version_service import ProtocolVersionService
-from app.db.services.application_roles_service import ApplicationRolesService
-from app.db.services.application_version_service import ApplicationVersionService
-from app.db.services.roles_service import RoleService
-from app.db.services.system_type_service import SystemTypeService
-from app.db.services.vendors_service import VendorService
-
-from app.db.services.application_service import ApplicationService
 
 
 def container_config(binder: inject.Binder) -> None:
@@ -32,12 +25,7 @@ def container_config(binder: inject.Binder) -> None:
 
     db = Database(dsn=config.database.dsn)
     binder.bind(Database, db)
-
-    session_factory = DbSessionFactory(db.engine)
-    binder.bind(DbSessionFactory, session_factory)
-
-    repository_factory = RepositoryFactory()
-    binder.bind(RepositoryFactory, repository_factory)
+    binder.bind(sessionmaker[Session], sessionmaker(db.engine, expire_on_commit=False))
 
     vendors_service = VendorService()
     binder.bind(VendorService, vendors_service)

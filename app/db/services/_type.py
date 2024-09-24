@@ -1,3 +1,4 @@
+from typing import TypeAlias, Union
 from .application_roles_service import ApplicationRolesService
 from .application_service import ApplicationService
 from .application_type_service import ApplicationTypeService
@@ -17,22 +18,20 @@ from .protocol_version_service import ProtocolVersionService
 from .roles_service import RoleService
 from .system_type_service import SystemTypeService
 from .vendors_service import VendorService
-from ._type import Service
 
 
-__all__ = [
-    "Service",
-    "ApplicationRolesService",
-    "ApplicationService",
-    "ApplicationTypeService",
-    "ApplicationVersionService",
-    "HealthcareProviderApplicationVersionService",
-    "HealthcareProviderQualificationService",
-    "HealthcareProviderService",
-    "ProtocolApplicationQualificationService",
-    "ProtocolService",
-    "ProtocolVersionService",
-    "RoleService",
-    "SystemTypeService",
-    "VendorService",
+Service: TypeAlias = Union[
+    ApplicationService,
+    ApplicationTypeService,
+    ApplicationRolesService,
+    ApplicationVersionService,
+    HealthcareProviderService,
+    HealthcareProviderQualificationService,
+    HealthcareProviderApplicationVersionService,
+    ProtocolService,
+    ProtocolVersionService,
+    ProtocolApplicationQualificationService,
+    RoleService,
+    SystemTypeService,
+    VendorService,
 ]

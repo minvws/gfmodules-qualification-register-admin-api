@@ -9,12 +9,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from app.db.entities.base import Base
+from gfmodules_python_shared.schema.sql_model import SQLModelBase
 from app.db.entities import application
 from app.db.entities import system_type
 
 
-class ApplicationType(Base):
+class ApplicationType(SQLModelBase):
     """
     Association object between Application and a SystemType
     """
@@ -52,14 +52,3 @@ class ApplicationType(Base):
     system_type: Mapped["system_type.SystemType"] = relationship(
         back_populates="applications", lazy="selectin"
     )
-
-    def __repr__(self) -> str:
-        return self._repr(
-            id=str(self.id),
-            application_id=str(self.application_id),
-            system_type_id=str(self.system_type_id),
-            created_at=self.created_at,
-            modified_at=self.modified_at,
-            application=self.application,
-            system_type=self.system_type,
-        )

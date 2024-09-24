@@ -1,15 +1,15 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from gfmodules_python_shared.schema.sql_model import SQLModelBase
 from sqlalchemy import PrimaryKeyConstraint, types, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.entities.base import Base
 from app.db.entities import application_version
 from app.db.entities import healthcare_provider
 
 
-class HealthcareProviderApplicationVersion(Base):
+class HealthcareProviderApplicationVersion(SQLModelBase):
     """
     Association object between HealthcareProvider and ApplicationVersion
     """
@@ -49,14 +49,3 @@ class HealthcareProviderApplicationVersion(Base):
     application_version: Mapped["application_version.ApplicationVersion"] = (
         relationship(back_populates="healthcare_providers", lazy="selectin")
     )
-
-    def __repr__(self) -> str:
-        return self._repr(
-            id=str(self.id),
-            healthcare_provider_id=str(self.healthcare_provider_id),
-            application_version_id=str(self.application_version_id),
-            created_at=self.created_at,
-            modified_at=self.modified_at,
-            heathcare_provider=self.healthcare_provider,
-            application_version=self.application_version,
-        )

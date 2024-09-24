@@ -5,16 +5,15 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.application import Application
-from app.db.repository.application_repository import ApplicationRepository
-from app.db.repository.system_type_repository import SystemTypeRepository
+from app.db.entities import Application
+from app.db.repository import ApplicationRepository, SystemTypeRepository
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
     SystemTypeNotFoundException,
     SystemTypeExistInApplicationException,
     SystemTypeNotUsedByApplicationException,
 )
-from app.factory.application_type_factory import ApplicationTypeFactory
+from app.factory import ApplicationTypeFactory
 
 
 class ApplicationTypeService:
@@ -23,6 +22,7 @@ class ApplicationTypeService:
         self,
         application_id: UUID,
         system_type_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Application:
@@ -55,6 +55,7 @@ class ApplicationTypeService:
         self,
         application_id: UUID,
         system_type_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Application:

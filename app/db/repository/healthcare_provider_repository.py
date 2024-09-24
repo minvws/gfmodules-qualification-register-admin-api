@@ -1,21 +1,22 @@
 import logging
+from typing import Any
 
-from gfmodules_python_shared.repository.repository_base import RepositoryBase
-from gfmodules_python_shared.session.db_session import DbSession
-from sqlalchemy import exists
+from gfmodules_python_shared.repository.base import RepositoryBase
+from sqlalchemy import ColumnExpressionArgument, exists
 
-from app.db.entities.healthcare_provider import HealthcareProvider
+from app.db.entities import HealthcareProvider
 
 logger = logging.getLogger(__name__)
 
 
 class HealthcareProviderRepository(RepositoryBase[HealthcareProvider]):
-    def __init__(self, db_session: DbSession) -> None:
-        super().__init__(session=db_session, cls_model=HealthcareProvider)
+    @property
+    def order_by(self) -> tuple[ColumnExpressionArgument[Any] | str, ...]:
+        return (HealthcareProvider.created_at.desc(),)
 
     def ura_code_exists(self, ura_code: str) -> bool:
         stmt = exists(1).where(HealthcareProvider.ura_code == ura_code).select()
-        result = self.session.execute_scalar(stmt)
+        result = self.session.execute(stmt).scalar()
         if isinstance(result, bool):
             return result
 
@@ -23,7 +24,7 @@ class HealthcareProviderRepository(RepositoryBase[HealthcareProvider]):
 
     def agb_code_exists(self, agb_code: str) -> bool:
         stmt = exists(1).where(HealthcareProvider.agb_code == agb_code).select()
-        result = self.session.execute_scalar(stmt)
+        result = self.session.execute(stmt).scalar()
         if isinstance(result, bool):
             return result
 
