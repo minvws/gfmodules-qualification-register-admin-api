@@ -56,7 +56,6 @@ class ProtocolApplicationQualificationService:
         )
 
         protocol_version.qualified_application_versions.append(new_qualification)
-        protocol_version_repository.update(protocol_version)
 
         return protocol_version
 
@@ -88,7 +87,6 @@ class ProtocolApplicationQualificationService:
                     raise AppVersionAlreadyArchivedException()
 
                 qualified_app.archived_date = datetime.now()
-                protocol_version_repository.update(protocol_version)
                 return protocol_version
 
         raise AppVersionNotQualifiedForProtocolException()

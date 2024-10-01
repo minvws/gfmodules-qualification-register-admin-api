@@ -46,8 +46,6 @@ class ApplicationTypeService:
         )
         application.system_types.append(new_application_type)
 
-        application_repository.update(application)
-
         return application
 
     @session_manager
@@ -73,7 +71,6 @@ class ApplicationTypeService:
                 and app_type.system_type_id == system_type.id
             ):
                 application.system_types.remove(app_type)
-                application_repository.update(application)
                 return application
 
         raise SystemTypeNotUsedByApplicationException()

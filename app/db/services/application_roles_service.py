@@ -50,9 +50,6 @@ class ApplicationRolesService:
             application=application, role=role
         )
         application.roles.append(new_application_role)
-
-        application_repository.update(application)
-
         return application
 
     @session_manager
@@ -82,7 +79,6 @@ class ApplicationRolesService:
                 and app_role.application_id == application_id
             ):
                 application.roles.remove(app_role)
-                application_repository.update(application)
                 break
 
         return application

@@ -73,7 +73,6 @@ class RoleService:
             raise RoleNotFoundException()
 
         role.description = description
-        role_repository.update(role)
 
         return role
 

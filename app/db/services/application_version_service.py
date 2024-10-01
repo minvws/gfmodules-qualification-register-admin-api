@@ -38,7 +38,6 @@ class ApplicationVersionService:
         new_version = ApplicationVersionFactory.create_instance(version=version)
         new_version.application = application
         application.versions.append(new_version)
-        application_respository.update(application)
 
         return application.versions
 
@@ -64,6 +63,5 @@ class ApplicationVersionService:
             raise ApplicationVersionNotFoundException()
 
         application.versions.remove(application_version)
-        application_repository.update(application)
 
         return application.versions

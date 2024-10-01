@@ -58,8 +58,6 @@ class HealthcareProviderApplicationVersionService:
             new_healthcare_provider_app_version
         )
 
-        healthcare_provider_repository.update(healthcare_provider)
-
         return healthcare_provider
 
     @session_manager
@@ -89,7 +87,6 @@ class HealthcareProviderApplicationVersionService:
                 and app_version.application_version_id == application_version.id
             ):
                 healthcare_provider.application_versions.remove(app_version)
-                healthcare_provider_repository.update(healthcare_provider)
                 return healthcare_provider
 
         raise AppVersionNotUsedByHealthcareProviderException()

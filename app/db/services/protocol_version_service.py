@@ -31,7 +31,9 @@ class ProtocolVersionService:
         *,
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> ProtocolVersion:
-        protocol_version = protocol_version_repository.get(id=version_id, protocol_id=protocol_id)
+        protocol_version = protocol_version_repository.get(
+            id=version_id, protocol_id=protocol_id
+        )
         if protocol_version is None:
             raise ProtocolVersionNotFoundException()
 
@@ -54,7 +56,6 @@ class ProtocolVersionService:
             version=version, description=description
         )
         protocol.versions.append(new_protocol_version)
-        protocol_repository.update(protocol)
 
         return new_protocol_version
 
@@ -76,6 +77,5 @@ class ProtocolVersionService:
             raise ProtocolVersionNotFoundException()
 
         protocol.versions.remove(protocol_version)
-        protocol_repository.update(protocol)
 
         return protocol.versions

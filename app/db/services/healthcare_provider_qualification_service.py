@@ -60,8 +60,6 @@ class HealthcareProviderQualificationService:
             new_healthcare_provider_qualification
         )
 
-        healthcare_provider_repository.update(healthcare_provider)
-
         return healthcare_provider
 
     @session_manager
@@ -92,7 +90,6 @@ class HealthcareProviderQualificationService:
                     raise HealthcareProviderQualificationAlreadyArchivedException()
 
                 qualified_protocols.archived_date = datetime.now()
-                healthcare_provider_repository.update(healthcare_provider)
                 return healthcare_provider
 
         raise HealthcareProviderNotQualifiedForProtocolException()
