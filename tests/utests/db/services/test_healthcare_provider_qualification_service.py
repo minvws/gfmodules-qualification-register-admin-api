@@ -1,161 +1,132 @@
-import unittest
 from datetime import date
 
-import inject
+import pytest
 
-from app.db.db import Database
-from app.db.services.healthcare_provider_qualification_service import (
+from app.db.entities import HealthcareProvider, Protocol, ProtocolVersion
+from app.db.services import (
     HealthcareProviderQualificationService,
+    HealthcareProviderService,
+    ProtocolVersionService,
 )
-from app.db.services.healthcare_provider_service import HealthcareProviderService
-from app.db.services.protocol_service import ProtocolService
-from app.db.services.protocol_version_service import ProtocolVersionService
 from app.exceptions.app_exceptions import (
     HealthcareProviderAlreadyQualifiedException,
-    HealthcareProviderQualificationAlreadyArchivedException,
     HealthcareProviderNotQualifiedForProtocolException,
+    HealthcareProviderQualificationAlreadyArchivedException,
 )
-from tests.utils.config_binder import config_binder
+from tests.utests.db.services.utils import are_the_same_entity
 
 
-class TestHealthcareProviderQualificationService(unittest.TestCase):
-    def setUp(self) -> None:
-        # setup tables
-        self.database = Database("sqlite:///:memory:")
-        self.database.generate_tables()
-        # setup injector
-        inject.configure(
-            lambda binder: config_binder(binder, self.database),
-            clear=True,
-        )
-        # setup service
-        self.protocol_service = ProtocolService()
-        self.protocol_version_service = ProtocolVersionService(
-            protocol_service=self.protocol_service
-        )
-        self.healthcare_provider_service = HealthcareProviderService()
-        self.healthcare_provider_qualification_service = (
-            HealthcareProviderQualificationService()
-        )
+def test_qualify_healthcare_provider(
+    protocol_version_service: ProtocolVersionService,
+    healthcare_provider_qualification_service: HealthcareProviderQualificationService,
+    healthcare_provider_service: HealthcareProviderService,
+    protocol: Protocol,
+    healthcare_provider: HealthcareProvider,
+) -> None:
+    protocol_version = protocol_version_service.add_one(
+        protocol_id=protocol.id,
+        version="example",
+        description="example",
+    )
 
-        # setup data
-        self.mock_protocol = self.protocol_service.add_one(
-            protocol_type="Directive",
-            name="example",
-            description="example",
+    expected_healthcare_provider = (
+        healthcare_provider_qualification_service.qualify_healthcare_provider(
+            healthcare_provider_id=healthcare_provider.id,
+            protocol_version_id=protocol_version.id,
+            qualification_date=date.today(),
         )
-        self.mock_protocol_version = self.protocol_version_service.add_one(
-            protocol_id=self.mock_protocol.id,
-            version="example",
-            description="example",
-        )
+    )
+    actual_healthcare_provider = healthcare_provider_service.get_one(
+        healthcare_provider.id
+    )
 
-        self.mock_healthcare_provider = self.healthcare_provider_service.add_one(
-            ura_code="example",
-            agb_code="example",
-            trade_name="example",
-            statutory_name="example",
-            protocol_version_id=self.mock_protocol_version.id,
+    assert expected_healthcare_provider.id == actual_healthcare_provider.id
+    assert all(
+        are_the_same_entity(actual, expected)
+        for actual, expected in zip(
+            actual_healthcare_provider.qualified_protocols,
+            expected_healthcare_provider.qualified_protocols,
         )
+    )
 
-    def test_qualify_healthcare_provider(self) -> None:
-        mock_protocol_version_2 = self.protocol_version_service.add_one(
-            protocol_id=self.mock_protocol.id,
-            version="example",
-            description="example",
-        )
 
-        expected_healthcare_provider = (
-            self.healthcare_provider_qualification_service.qualify_healthcare_provider(
-                healthcare_provider_id=self.mock_healthcare_provider.id,
-                protocol_version_id=mock_protocol_version_2.id,
-                qualification_date=date.today(),
-            )
-        )
-        actual_healthcare_provider = self.healthcare_provider_service.get_one(
-            self.mock_healthcare_provider.id
+def test_duplicate_healthcare_provider_qualification_should_raise_exception(
+    healthcare_provider_qualification_service: HealthcareProviderQualificationService,
+    protocol_version: ProtocolVersion,
+    healthcare_provider: HealthcareProvider,
+) -> None:
+    with pytest.raises(
+        HealthcareProviderAlreadyQualifiedException,
+        match="409: Healthcare provider already qualified for the protocol version",
+    ):
+        healthcare_provider_qualification_service.qualify_healthcare_provider(
+            healthcare_provider_id=healthcare_provider.id,
+            protocol_version_id=protocol_version.id,
+            qualification_date=date.today(),
         )
 
-        self.assertEqual(expected_healthcare_provider.id, actual_healthcare_provider.id)
-        self.assertEqual(
-            [
-                version.to_dict()
-                for version in expected_healthcare_provider.qualified_protocols
-            ],
-            [
-                version.to_dict()
-                for version in actual_healthcare_provider.qualified_protocols
-            ],
+
+def test_archive_healthcare_provider_qualification(
+    healthcare_provider_qualification_service: HealthcareProviderQualificationService,
+    healthcare_provider_service: HealthcareProviderService,
+    protocol_version: ProtocolVersion,
+    healthcare_provider: HealthcareProvider,
+) -> None:
+    expected_healthcare_provider = healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
+        healthcare_provider_id=healthcare_provider.id,
+        protocol_version_id=protocol_version.id,
+    )
+    actual_healthcare_provider = healthcare_provider_service.get_one(
+        provider_id=healthcare_provider.id
+    )
+    assert expected_healthcare_provider.id == actual_healthcare_provider.id
+    assert all(
+        are_the_same_entity(actual, expected)
+        for actual, expected in zip(
+            actual_healthcare_provider.qualified_protocols,
+            expected_healthcare_provider.qualified_protocols,
+        )
+    )
+
+
+def test_archive_an_archived_healthcare_provider_qualification_should_raise_exception(
+    healthcare_provider_qualification_service: HealthcareProviderQualificationService,
+    protocol_version: ProtocolVersion,
+    healthcare_provider: HealthcareProvider,
+) -> None:
+    healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
+        healthcare_provider_id=healthcare_provider.id,
+        protocol_version_id=protocol_version.id,
+    )
+
+    with pytest.raises(
+        HealthcareProviderQualificationAlreadyArchivedException,
+        match="409: Qualification is already archived for healthcare provider",
+    ):
+        healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
+            healthcare_provider_id=healthcare_provider.id,
+            protocol_version_id=protocol_version.id,
         )
 
-    def test_duplicate_healthcare_provider_qualification_should_raise_exception(
-        self,
-    ) -> None:
-        with self.assertRaises(HealthcareProviderAlreadyQualifiedException) as context:
-            self.healthcare_provider_qualification_service.qualify_healthcare_provider(
-                healthcare_provider_id=self.mock_healthcare_provider.id,
-                protocol_version_id=self.mock_protocol_version.id,
-                qualification_date=date.today(),
-            )
 
-            self.assertTrue(
-                "Healthcare provider already qualified" in str(context.exception)
-            )
+def test_archive_a_non_qualified_healthcare_provider_should_raise_exception(
+    protocol_version_service: ProtocolVersionService,
+    protocol: Protocol,
+    healthcare_provider_qualification_service: HealthcareProviderQualificationService,
+    protocol_version: ProtocolVersion,
+    healthcare_provider: HealthcareProvider,
+) -> None:
+    protocol_version = protocol_version_service.add_one(
+        protocol_id=protocol.id,
+        version="example",
+        description="example",
+    )
 
-    def test_archive_healthcare_provider_qualification(self) -> None:
-        expected_healthcare_provider = self.healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
-            healthcare_provider_id=self.mock_healthcare_provider.id,
-            protocol_version_id=self.mock_protocol_version.id,
+    with pytest.raises(
+        HealthcareProviderNotQualifiedForProtocolException,
+        match="404: Healthcare provider is not qualified for the protocol",
+    ):
+        healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
+            healthcare_provider_id=healthcare_provider.id,
+            protocol_version_id=protocol_version.id,
         )
-        actual_healthcare_provider = self.healthcare_provider_service.get_one(
-            provider_id=self.mock_healthcare_provider.id
-        )
-
-        self.assertEqual(expected_healthcare_provider.id, actual_healthcare_provider.id)
-        self.assertEqual(
-            [
-                version.to_dict()
-                for version in expected_healthcare_provider.qualified_protocols
-            ],
-            [
-                version.to_dict()
-                for version in actual_healthcare_provider.qualified_protocols
-            ],
-        )
-
-    def test_archive_an_archived_healthcare_provider_qualification_should_raise_exception(
-        self,
-    ) -> None:
-        self.healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
-            healthcare_provider_id=self.mock_healthcare_provider.id,
-            protocol_version_id=self.mock_protocol_version.id,
-        )
-
-        with self.assertRaises(
-            HealthcareProviderQualificationAlreadyArchivedException
-        ) as context:
-            self.healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
-                healthcare_provider_id=self.mock_healthcare_provider.id,
-                protocol_version_id=self.mock_protocol_version.id,
-            )
-
-            self.assertTrue("already archived" in str(context.exception))
-
-    def test_archive_a_non_qualified_healthcare_provider_should_raise_exception(
-        self,
-    ) -> None:
-        mock_protocol_version_2 = self.protocol_version_service.add_one(
-            protocol_id=self.mock_protocol.id,
-            version="example",
-            description="example",
-        )
-
-        with self.assertRaises(
-            HealthcareProviderNotQualifiedForProtocolException
-        ) as context:
-            self.healthcare_provider_qualification_service.archive_healthcare_provider_qualification(
-                healthcare_provider_id=self.mock_healthcare_provider.id,
-                protocol_version_id=mock_protocol_version_2.id,
-            )
-
-            self.assertTrue("not qualified" in str(context.exception))

@@ -1,118 +1,124 @@
-import unittest
+from uuid import UUID
 
-import inject
+import pytest
 
-from app.db.db import Database
-from app.db.entities.application import Application
-from app.db.entities.role import Role
-from app.db.entities.system_type import SystemType
-from app.db.entities.vendor import Vendor
-from app.db.services.application_service import ApplicationService
-from app.db.services.application_type_service import ApplicationTypeService
-from app.db.services.roles_service import RoleService
-from app.db.services.system_type_service import SystemTypeService
-from app.db.services.vendors_service import VendorService
-from app.exceptions.app_exceptions import SystemTypeNotUsedByApplicationException
-from tests.utils.config_binder import config_binder
+from app.db.entities import Application
+from app.db.services import (
+    ApplicationService,
+    ApplicationTypeService,
+    SystemTypeService,
+)
+from app.exceptions.app_exceptions import (
+    SystemTypeNotFoundException,
+    SystemTypeNotUsedByApplicationException,
+)
+from tests.utests.db.services.utils import are_the_same_entity
 
 
-class TestApplicationTypeService(unittest.TestCase):
-    def setUp(self) -> None:
-        # setup tables
-        self.database = Database("sqlite:///:memory:")
-        self.database.generate_tables()
-        # setup factory
-        inject.configure(
-            lambda binder: config_binder(binder, self.database),
-            clear=True,
-        )
-        # setup service
-        self.vendor_service = VendorService()
-        self.role_service = RoleService()
-        self.system_type_service = SystemTypeService()
-        self.application_service = ApplicationService()
-        self.application_type_service = ApplicationTypeService()
-
-        # setup data
-        self.mock_vendor: Vendor = self.vendor_service.add_one(
-            kvk_number="example", trade_name="example", statutory_name="example"
-        )
-        self.mock_role: Role = self.role_service.add_one(
-            name="example", description="example"
-        )
-        self.mock_system_type: SystemType = self.system_type_service.add_one(
-            name="example", description="example"
-        )
-        self.mock_application: Application = self.application_service.add_one(
-            vendor_id=self.mock_vendor.id,
-            application_name="example",
-            version="example",
-            role_names=[self.mock_role.name],
-            system_type_names=[self.mock_system_type.name],
-        )
-
-    def test_get_all_application_types(self) -> None:
-        test_system_type = self.system_type_service.add_one(
+@pytest.fixture
+def application_two_service_types(
+    application: Application,
+    application_service: ApplicationService,
+    application_type_service: ApplicationTypeService,
+    system_type_service: SystemTypeService,
+) -> Application:
+    application_type_service.assign_system_type_to_application(
+        application_id=application.id,
+        system_type_id=system_type_service.add_one(
             name="example 2", description="some description"
-        )
-        expected_application = (
-            self.application_type_service.assign_system_type_to_application(
-                application_id=self.mock_application.id,
-                system_type_id=test_system_type.id,
-            )
-        )
-        actual_application = self.application_service.get_one(self.mock_application.id)
+        ).id,
+    )
+    return application_service.get_one(application.id)
 
-        self.assertEqual(expected_application.id, actual_application.id)
-        self.assertEqual(
-            len(expected_application.system_types), len(actual_application.system_types)
+
+@pytest.mark.parametrize(
+    "app, length",
+    (
+        pytest.param("application", 1, id="one system type"),
+        pytest.param("application_two_service_types", 2, id="two system types"),
+    ),
+)
+def test_get_all_application_types(
+    app: str,
+    length: int,
+    application_service: ApplicationService,
+    request: pytest.FixtureRequest,
+) -> None:
+    application = request.getfixturevalue(app)
+    expected_types = application.system_types
+    assert len(expected_types) == length
+    assert all(
+        are_the_same_entity(actual, expected)
+        for actual, expected in zip(
+            application_service.get_one(application.id).system_types, expected_types
         )
-        self.assertEqual(
-            [
-                system_type.to_dict()
-                for system_type in expected_application.system_types
-            ],
-            [system_type.to_dict() for system_type in actual_application.system_types],
+    )
+
+
+def test_assign_system_type_to_application(
+    application: Application,
+    application_service: ApplicationService,
+    application_type_service: ApplicationTypeService,
+    system_type_service: SystemTypeService,
+) -> None:
+    system_type = system_type_service.add_one(
+        name="example 2", description="some description"
+    )
+    assert all(
+        are_the_same_entity(actual, expected)
+        for expected, actual in zip(
+            application_type_service.assign_system_type_to_application(
+                application_id=application.id, system_type_id=system_type.id
+            ).system_types,
+            application_service.get_one(application.id).system_types,
+        )
+    )
+
+
+def test_unassign_system_type_from_application(
+    application_two_service_types: Application,
+    application_service: ApplicationService,
+    application_type_service: ApplicationTypeService,
+) -> None:
+    application_type, *_ = application_two_service_types.system_types
+    assert all(
+        are_the_same_entity(actual, expected)
+        for expected, actual in zip(
+            application_type_service.unassign_system_type_to_application(
+                application_id=application_two_service_types.id,
+                system_type_id=application_type.system_type.id,
+            ).system_types,
+            application_service.get_one(application_two_service_types.id).system_types,
+        )
+    )
+
+
+def test_unassign_non_existing_system_type_to_application(
+    application_two_service_types: Application,
+    application_type_service: ApplicationTypeService,
+) -> None:
+    with pytest.raises(
+        SystemTypeNotFoundException,
+        match="404: System type not found",
+    ):
+        application_type_service.unassign_system_type_to_application(
+            application_id=application_two_service_types.id,
+            system_type_id=UUID("cb81aff3-ec2f-4c12-ac88-bea619313ffb"),
         )
 
-    def test_assign_system_type_to_application(self) -> None:
-        test_system_type = self.system_type_service.add_one(
-            name="example 2", description="some description"
-        )
-        expected_application = (
-            self.application_type_service.assign_system_type_to_application(
-                application_id=self.mock_application.id,
-                system_type_id=test_system_type.id,
-            )
-        )
-        actual_application = self.application_service.get_one(
-            application_id=self.mock_application.id
-        )
 
-        self.assertEqual(actual_application.id, expected_application.id)
-        self.assertEqual(
-            [
-                system_type.to_dict()
-                for system_type in expected_application.system_types
-            ],
-            [system_type.to_dict() for system_type in actual_application.system_types],
+def test_unassign_system_type_to_application_mismatch(
+    application: Application,
+    application_type_service: ApplicationTypeService,
+    system_type_service: SystemTypeService,
+) -> None:
+    with pytest.raises(
+        SystemTypeNotUsedByApplicationException,
+        match="409: System type does not exist in application",
+    ):
+        application_type_service.unassign_system_type_to_application(
+            application_id=application.id,
+            system_type_id=system_type_service.add_one(
+                name="example 3", description="some description"
+            ).id,
         )
-
-    def test_unassign_system_type_to_application(self) -> None:
-        test_system_type = self.system_type_service.add_one(
-            name="example 2", description="some description"
-        )
-        self.application_type_service.assign_system_type_to_application(
-            application_id=self.mock_application.id, system_type_id=test_system_type.id
-        )
-        self.application_type_service.unassign_system_type_to_application(
-            application_id=self.mock_application.id, system_type_id=test_system_type.id
-        )
-
-        with self.assertRaises(SystemTypeNotUsedByApplicationException) as context:
-            self.application_type_service.unassign_system_type_to_application(
-                application_id=self.mock_application.id,
-                system_type_id=test_system_type.id,
-            )
-
-            self.assertTrue("does not exist" not in str(context.exception))

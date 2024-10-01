@@ -25,7 +25,7 @@ def container_config(binder: inject.Binder) -> None:
 
     db = Database(dsn=config.database.dsn)
     binder.bind(Database, db)
-    binder.bind(sessionmaker[Session], sessionmaker(db.engine, expire_on_commit=False))
+    binder.bind(sessionmaker[Session], sessionmaker(db.engine))
 
     vendors_service = VendorService()
     binder.bind(VendorService, vendors_service)
