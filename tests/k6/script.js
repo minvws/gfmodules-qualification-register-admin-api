@@ -5,6 +5,7 @@ import { vendorsTests } from "./tests/vendors.js";
 import { rolesTests } from "./tests/roles.js";
 import { systemTypesTests } from "./tests/system_types.js";
 import { protocolsTests } from "./tests/protocols.js";
+import { applicationsTests } from "./tests/applications.js";
 
 const baseUrl = __ENV.ENDPOINT_URL ?? "http://localhost:8506";
 // Sleep duration between successive requests.
@@ -29,4 +30,5 @@ export default function testSuite() {
     rolesTests(baseUrl);
     systemTypesTests(baseUrl);
     protocolsTests(baseUrl);
+    applicationsTests(baseUrl);
 }
