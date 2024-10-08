@@ -2,7 +2,7 @@ name: Package python virtual env
 
 on:
   push:
-    branches: [ build-venv ]
+    branches: [build-venv]
     tags:
       - v*
 
@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        python_version: ['3.11']
+        python_version: ["3.11"]
     runs-on: ubuntu-22.04
     steps:
       - name: Configure git
@@ -20,4 +20,4 @@ jobs:
         uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/python-venv-package@main
         with:
           python_version: ${{ matrix.python_version }}
-          package_file_name: nl-irealisatie-zmodules-qualification-register-admin-api
+          package_file_name: gfmodules-qualification-register-admin-api-private

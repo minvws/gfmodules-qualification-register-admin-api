@@ -313,7 +313,7 @@ sqlalchemy = "^2.0.25"
 
 [package.source]
 type = "git"
-url = "https://github.com/minvws/gfmodules-python-shared.git"
+url = "https://github.com/minvws/gfmodules-python-shared-private.git"
 reference = "v0.0.2"
 resolved_reference = "a475959c79b709d2a2c052f34afafaf4c8e6b981"
 
@@ -1233,4 +1233,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "07193423b0696ecf070be7f2378d50913d15780daefee1a734fb127fc0df94d1"
+content-hash = "f0fdf4b2d49736c7615fcca40786273b070f6c78c78e6559ff474c91e35f6ff1"
