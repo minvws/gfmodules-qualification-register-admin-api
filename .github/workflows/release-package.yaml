@@ -18,10 +18,11 @@ jobs:
         run: 'echo "{ \"version\": \"${{ env.RELEASE_VERSION }}\", \"git_ref\": \"$GITHUB_SHA\"}" > version.json'
 
       - name: Create tar
-        run: tar -czf nl-irealisatie-zmodules-qualification-register-admin-api_${{ env.RELEASE_VERSION }}.tar.gz app docs tools ./version.json
+        run: tar -czf gfmodules-qualification-register-admin-api-private_${{ env.RELEASE_VERSION }}.tar.gz app docs tools ./version.json
 
       - name: Upload release tar
         uses: actions/upload-artifact@v4
         with:
-          name: nl-irealisatie-zmodules-qualification-register-admin-api_${{ env.RELEASE_VERSION }}
-          path: nl-irealisatie-zmodules-qualification-register-admin-api_${{ env.RELEASE_VERSION }}.tar.gz
+          name: gfmodules-qualification-register-admin-api-private_${{ env.RELEASE_VERSION }}
+          path: gfmodules-qualification-register-admin-api-private_${{ env.RELEASE_VERSION }}.tar.gz
+
