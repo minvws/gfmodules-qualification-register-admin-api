@@ -1,99 +1,95 @@
-import unittest
+from uuid import UUID
 
-import inject
+import pytest
 
-from app.db.db import Database
-from app.exceptions.app_exceptions import ApplicationRoleDeleteException
-from app.db.services.application_roles_service import ApplicationRolesService
-from app.db.services.application_service import ApplicationService
-from app.db.services.roles_service import RoleService
-from app.db.services.system_type_service import SystemTypeService
-from app.db.services.vendors_service import VendorService
-from tests.utils.config_binder import config_binder
+from app.db.entities.application import Application
+from app.db.services import (
+    ApplicationRolesService,
+    ApplicationService,
+    RoleService,
+)
+from app.exceptions.app_exceptions import (
+    ApplicationRoleDeleteException,
+    RoleNotFoundException,
+)
 
 
-class TestApplicationRoleService(unittest.TestCase):
-    def setUp(self) -> None:
-        # setup tables
-        self.database = Database("sqlite:///:memory:")
-        self.database.generate_tables()
-        # setup factory
-        inject.configure(
-            lambda binder: config_binder(binder, self.database),
-            clear=True,
-        )
-        # set up services
-        self.vendor_service = VendorService()
-        self.role_service = RoleService()
-        self.system_type_service = SystemTypeService()
-        self.application_service = ApplicationService()
-        self.application_role_service = ApplicationRolesService(
-            application_service=self.application_service
-        )
-        self.mock_vendor = self.vendor_service.add_one(
-            kvk_number="12456",
-            trade_name="example vendor",
-            statutory_name="example vendor bv",
-        )
-        self.mock_role = self.role_service.add_one(
-            name="example role", description="some description"
-        )
-        self.mock_system_type = self.system_type_service.add_one(
-            name="example system type", description="some description"
-        )
-        self.mock_application = self.application_service.add_one(
-            vendor_id=self.mock_vendor.id,
-            application_name="example application",
-            version="v1.0.0",
-            system_type_names=[self.mock_system_type.name],
-            role_names=[self.mock_role.name],
-        )
+@pytest.fixture
+def application_two_roles(
+    role_service: RoleService,
+    application_service: ApplicationService,
+    application: Application,
+    application_role_service: ApplicationRolesService,
+) -> Application:
+    role = role_service.add_one("another example role", description="some description")
+    application_role_service.assign_role_to_application(
+        application_id=application.id, role_id=role.id
+    )
+    return application_service.get_one(application.id)
 
-    def test_assign_role_to_application(self) -> None:
-        expected_role = self.role_service.add_one(
-            "new example role", description="some description"
-        )
-        updated_app = self.application_role_service.assign_role_to_application(
-            application_id=self.mock_application.id, role_id=expected_role.id
-        )
-        expected_db_roles = updated_app.roles
-        expected_roles = [role.to_dict() for role in expected_db_roles]
 
-        actual_db_roles = self.application_service.get_one(
-            self.mock_application.id
+def test_assign_role_to_application(
+    role_service: RoleService,
+    application_service: ApplicationService,
+    application_role_service: ApplicationRolesService,
+    application: Application,
+) -> None:
+    expected_role = role_service.add_one(
+        "new example role", description="some description"
+    )
+    updated_app = application_role_service.assign_role_to_application(
+        application_id=application.id, role_id=expected_role.id
+    )
+    expected_roles = [role.to_dict() for role in updated_app.roles]
+    actual_roles = [
+        role.to_dict() for role in application_service.get_one(application.id).roles
+    ]
+    assert expected_roles == actual_roles
+
+
+def test_unassign_role_from_application(
+    application_service: ApplicationService,
+    application_role_service: ApplicationRolesService,
+    application_two_roles: Application,
+) -> None:
+    role_id = application_two_roles.roles[-1].role_id
+    application_role_service.unassign_role_from_application(
+        application_id=application_two_roles.id, role_id=role_id
+    )
+    assert role_id not in [
+        application_role.role_id
+        for application_role in application_service.get_one(
+            application_two_roles.id
         ).roles
-        actual_roles = [role.to_dict() for role in actual_db_roles]
+    ]
 
-        self.assertListEqual(expected_roles, actual_roles)
 
-    def test_unassign_role_from_application(self) -> None:
-        role_to_unassign = self.role_service.add_one(
-            name="role_to_unassign", description="some description"
+def test_unassign_non_existing_role_from_application(
+    application_role_service: ApplicationRolesService,
+    application_two_roles: Application,
+) -> None:
+    with pytest.raises(
+        RoleNotFoundException,
+        match="404: Role not found",
+    ):
+        application_role_service.unassign_role_from_application(
+            application_id=application_two_roles.id,
+            role_id=UUID("cb81aff3-ec2f-4c12-ac88-bea619313ffb"),
         )
-        self.application_role_service.assign_role_to_application(
-            application_id=self.mock_application.id, role_id=role_to_unassign.id
+
+
+# WARNING: This should raise role not found
+# even though there is only one role assign,
+# since we are removing non-existing role
+def test_unassign_last_role_from_application(
+    application_role_service: ApplicationRolesService,
+    application: Application,
+) -> None:
+    with pytest.raises(
+        ApplicationRoleDeleteException,
+        match="Cannot delete role, application should at least contain one role",
+    ):
+        application_role_service.unassign_role_from_application(
+            application_id=application.id,
+            role_id=UUID("cb81aff3-ec2f-4c12-ac88-bea619313ffb"),
         )
-
-        updated_application = (
-            self.application_role_service.unassign_role_from_application(
-                application_id=self.mock_application.id, role_id=role_to_unassign.id
-            )
-        )
-        expected_db_roles = updated_application.roles
-        expected_roles = [
-            expected_role.to_dict() for expected_role in expected_db_roles
-        ]
-
-        actual_db_roles = self.application_service.get_one(
-            application_id=updated_application.id
-        ).roles
-        actual_roles = [actual_role.to_dict() for actual_role in actual_db_roles]
-
-        self.assertListEqual(expected_roles, actual_roles)
-
-        with self.assertRaises(ApplicationRoleDeleteException) as context:
-            self.application_role_service.unassign_role_from_application(
-                application_id=self.mock_application.id, role_id=self.mock_role.id
-            )
-
-            self.assertTrue("does not exist" not in str(context.exception))

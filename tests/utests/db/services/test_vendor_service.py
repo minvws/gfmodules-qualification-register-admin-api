@@ -1,131 +1,67 @@
+from uuid import UUID
+
 import pytest
 
-from app.db.entities.role import Role
-from app.db.entities.system_type import SystemType
-from app.db.entities.vendor import Vendor
+from app.db.entities import Application
+from app.db.entities import Vendor
+from app.db.services import VendorService
 from app.exceptions.app_exceptions import (
-    VendorNotFoundException,
     VendorCannotBeDeletedException,
+    VendorNotFoundException,
 )
-from app.db.services.application_service import ApplicationService
-from app.db.services.roles_service import RoleService
-from app.db.services.system_type_service import SystemTypeService
-from app.db.services.vendors_service import VendorService
 from app.schemas.meta.schema import Page
 from app.schemas.vendor.mapper import map_vendor_entity_to_dto
+from .utils import are_the_same_entity
 
 
-class TestVendorCRUD:
-    def test_add_one_should_succeed(
-        self, mock_vendor: Vendor, vendor_service: VendorService
-    ) -> None:
-        # act
-        expected_vendor = vendor_service.add_one(
-            kvk_number=mock_vendor.kvk_number,
-            trade_name=mock_vendor.trade_name,
-            statutory_name=mock_vendor.statutory_name,
-        )
-        actual_vendor = vendor_service.get_one_by_kvk_number(expected_vendor.kvk_number)
+def test_add_one_should_succeed(vendor_service: VendorService) -> None:
+    vendor = vendor_service.add_one(
+        kvk_number="12456",
+        trade_name="example vendor",
+        statutory_name="example vendor bv",
+    )
+    actual_vendor = vendor_service.get_one_by_kvk_number(vendor.kvk_number)
+    are_the_same_entity(actual_vendor, vendor)
 
-        assert (
-            expected_vendor.__table__.columns.keys()
-            == actual_vendor.__table__.columns.keys()
-        )
 
-        for key in actual_vendor.__table__.columns.keys():
-            getattr(expected_vendor, key)
-            assert getattr(actual_vendor, key) == getattr(expected_vendor, key)
+def test_get_one_by_id_should_succeed(
+    vendor: Vendor, vendor_service: VendorService
+) -> None:
+    actual_vendor = vendor_service.get_one(vendor.id)
+    are_the_same_entity(actual_vendor, vendor)
 
-    def test_get_one_by_id_should_succeed(
-        self, mock_vendor: Vendor, vendor_service: VendorService
-    ) -> None:
-        # act
-        expected_vendor = vendor_service.add_one(
-            kvk_number=mock_vendor.kvk_number,
-            trade_name=mock_vendor.trade_name,
-            statutory_name=mock_vendor.statutory_name,
-        )
 
-        actual_vendor = vendor_service.get_one(expected_vendor.id)
+def test_delete_one_vendor_by_id_should_succeed(
+    vendor: Vendor, vendor_service: VendorService
+) -> None:
+    actual_vendor = vendor_service.remove_one(vendor.id)
+    are_the_same_entity(actual_vendor, vendor)
 
-        # assert
-        assert (
-            expected_vendor.__table__.columns.keys()
-            == actual_vendor.__table__.columns.keys()
-        )
+    with pytest.raises(VendorNotFoundException, match="404: Vendor not found"):
+        vendor_service.get_one(vendor.id)
 
-        for key in actual_vendor.__table__.columns.keys():
-            print(getattr(actual_vendor, key))
-            getattr(expected_vendor, key)
-            assert getattr(actual_vendor, key) == getattr(expected_vendor, key)
 
-    def test_delete_one_vendor_by_id_should_succeed(
-        self, mock_vendor: Vendor, vendor_service: VendorService
-    ) -> None:
-        # act
-        expected_vendor = vendor_service.add_one(
-            kvk_number=mock_vendor.kvk_number,
-            trade_name=mock_vendor.trade_name,
-            statutory_name=mock_vendor.statutory_name,
-        )
-        actual_vendor = vendor_service.remove_one(expected_vendor.id)
+def test_delete_non_existing_vendor_by_id_should_raise(
+    vendor_service: VendorService,
+) -> None:
+    with pytest.raises(VendorNotFoundException, match="404: Vendor not found"):
+        vendor_service.get_one(UUID("2c907623-a8e7-4bdd-8fd5-3eb3feb16d35"))
 
-        # assert
-        assert (
-            expected_vendor.__table__.columns.keys()
-            == actual_vendor.__table__.columns.keys()
-        )
 
-        for key in actual_vendor.__table__.columns.keys():
-            print(getattr(actual_vendor, key))
-            getattr(expected_vendor, key)
-            assert getattr(actual_vendor, key) == getattr(expected_vendor, key)
+def test_get_vendors_paginated_should_succeed(
+    vendor: Vendor, vendor_service: VendorService
+) -> None:
+    assert vendor_service.get_paginated(limit=10, offset=0) == Page(
+        items=[map_vendor_entity_to_dto(vendor)], limit=10, offset=0, total=1
+    )
 
-        with pytest.raises(VendorNotFoundException):
-            vendor_service.get_one(expected_vendor.id)
 
-    def test_get_vendors_paginated_should_succeed(
-        self, mock_vendor: Vendor, vendor_service: VendorService
-    ) -> None:
-        mock_vendor = vendor_service.add_one(
-            kvk_number=mock_vendor.kvk_number,
-            trade_name=mock_vendor.trade_name,
-            statutory_name=mock_vendor.statutory_name,
-        )
-        expected_vendors = vendor_service.get_paginated(limit=10, offset=0)
-        actual_vendors = Page(
-            items=[map_vendor_entity_to_dto(mock_vendor)], limit=10, offset=0, total=1
-        )
-
-        assert expected_vendors == actual_vendors
-
-    def test_delete_one_should_raise_exception_when_vendor_has_applications(
-        self,
-        mock_vendor: Vendor,
-        mock_role: Role,
-        mock_system_type: SystemType,
-        role_service: RoleService,
-        system_type_service: SystemTypeService,
-        application_service: ApplicationService,
-        vendor_service: VendorService,
-    ) -> None:
-        vendor = vendor_service.add_one(
-            kvk_number=mock_vendor.kvk_number,
-            trade_name=mock_vendor.trade_name,
-            statutory_name=mock_vendor.statutory_name,
-        )
-        role_service.add_one(name=mock_role.name, description=mock_role.description)
-        system_type_service.add_one(
-            name=mock_system_type.name, description=mock_system_type.description
-        )
-
-        application_service.add_one(
-            vendor_id=vendor.id,
-            application_name="example app",
-            version="1.0.0",
-            system_type_names=["example"],
-            role_names=["example"],
-        )
-
-        with pytest.raises(VendorCannotBeDeletedException):
-            vendor_service.remove_one(vendor_id=vendor.id)
+def test_delete_one_should_raise_exception_when_vendor_has_applications(
+    vendor: Vendor,
+    application: Application,
+    vendor_service: VendorService,
+) -> None:
+    with pytest.raises(
+        VendorCannotBeDeletedException, match="405: Vendor cannot be deleted"
+    ):
+        vendor_service.remove_one(vendor_id=vendor.id)

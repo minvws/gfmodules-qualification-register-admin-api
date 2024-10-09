@@ -6,19 +6,16 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.application_version import ApplicationVersion
-from app.db.repository.application_version_repository import (
-    ApplicationVersionRepository,
-)
-from app.db.repository.application_repository import ApplicationRepository
+from app.db.entities import ApplicationVersion
+from app.db.repository import ApplicationVersionRepository, ApplicationRepository
 from app.exceptions.app_exceptions import (
     ApplicationVersionDeleteException,
     ApplicationNotFoundException,
     ApplicationVersionNotFoundException,
 )
-from app.factory.application_version_factory import ApplicationVersionFactory
+from app.factory import ApplicationVersionFactory
 from app.helpers.validators import validate_list_for_removal
-from app.db.services.application_service import ApplicationService
+from .application_service import ApplicationService
 
 
 class ApplicationVersionService:
@@ -33,15 +30,14 @@ class ApplicationVersionService:
         self,
         application_id: UUID,
         version: str,
+        *,
         application_respository: ApplicationRepository = get_repository(),
     ) -> Sequence[ApplicationVersion]:
-
         application = application_respository.get_or_fail(id=application_id)
 
         new_version = ApplicationVersionFactory.create_instance(version=version)
         new_version.application = application
         application.versions.append(new_version)
-        application_respository.update(application)
 
         return application.versions
 
@@ -50,6 +46,7 @@ class ApplicationVersionService:
         self,
         application_id: UUID,
         version_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
         application_version_repository: ApplicationVersionRepository = get_repository(),
     ) -> Sequence[ApplicationVersion]:
@@ -66,6 +63,5 @@ class ApplicationVersionService:
             raise ApplicationVersionNotFoundException()
 
         application.versions.remove(application_version)
-        application_repository.update(application)
 
         return application.versions

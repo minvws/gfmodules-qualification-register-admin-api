@@ -2,14 +2,14 @@ from datetime import datetime
 from typing import List
 from uuid import UUID, uuid4
 
+from gfmodules_python_shared.schema.sql_model import SQLModelBase
 from sqlalchemy import types, String, TIMESTAMP
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from app.db.entities.base import Base
 from app.db.entities import application
 
 
-class Vendor(Base):
+class Vendor(SQLModelBase):
     __tablename__ = "vendors"
 
     id: Mapped[UUID] = mapped_column(
@@ -38,14 +38,3 @@ class Vendor(Base):
     applications: Mapped[List["application.Application"]] = relationship(
         back_populates="vendor", lazy="selectin", cascade="all, delete, delete-orphan"
     )
-
-    def __repr__(self) -> str:
-        return self._repr(
-            id=str(self.id),
-            kvk_number=self.kvk_number,
-            trade_name=self.trade_name,
-            statutory_name=self.statutory_name,
-            applications=self.applications,
-            created_at=self.created_at,
-            modified_at=self.modified_at,
-        )

@@ -5,14 +5,14 @@ from uuid import UUID, uuid4
 from sqlalchemy import UniqueConstraint, types, String, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
-from app.db.entities.base import Base
+from gfmodules_python_shared.schema.sql_model import SQLModelBase
 from app.db.entities import vendor
 from app.db.entities import application_version
 from app.db.entities import application_type
 from app.db.entities import application_role
 
 
-class Application(Base):
+class Application(SQLModelBase):
     __tablename__ = "applications"
     __table_args__ = (UniqueConstraint("id", "name"),)
 
@@ -55,9 +55,7 @@ class Application(Base):
 
     def __repr__(self) -> str:
         return self._repr(
-            id=self.id,
-            name=self.name,
-            vendor_id=self.vendor_id,
-            created_at=self.created_at,
-            modified_at=self.modified_at,
+            **self.to_dict(
+                include={"id", "name", "vendor_id", "created_at", "modified_at"}
+            )
         )

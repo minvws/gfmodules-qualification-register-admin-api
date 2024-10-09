@@ -1,106 +1,56 @@
-import unittest
+import pytest
 
-import inject
-
-from app.db.db import Database
-from app.db.services.protocol_service import ProtocolService
-from app.db.services.protocol_version_service import ProtocolVersionService
+from app.db.entities import Protocol, ProtocolVersion
+from app.db.services import ProtocolService, ProtocolVersionService
 from app.exceptions.app_exceptions import ProtocolVersionNotFoundException
-from tests.utils.config_binder import config_binder
+
+from .utils import are_the_same_entity
 
 
-class TestProtocolVersionService(unittest.TestCase):
-    def setUp(self) -> None:
-        # setup tables
-        self.database = Database("sqlite:///:memory:")
-        self.database.generate_tables()
-        # setup factory
-        inject.configure(
-            lambda binder: config_binder(binder, self.database),
-            clear=True,
+def test_add_one_protocol_version(
+    protocol: Protocol,
+    protocol_version_service: ProtocolVersionService,
+) -> None:
+    expected_protocol_version = protocol_version_service.add_one(
+        protocol_id=protocol.id,
+        version="some version",
+        description="some description",
+    )
+
+    actual_protocol_version = protocol_version_service.get_one(
+        protocol_id=protocol.id, version_id=expected_protocol_version.id
+    )
+    are_the_same_entity(actual_protocol_version, expected_protocol_version)
+
+
+def test_get_one_protocol_versions(
+    protocol: Protocol,
+    protocol_version: ProtocolVersion,
+    protocol_service: ProtocolService,
+) -> None:
+    actual_db_protocol_version = protocol_service.get_one(
+        protocol_id=protocol.id
+    ).versions[0]
+
+    are_the_same_entity(actual_db_protocol_version, protocol_version)
+
+
+def test_fetching_a_deleted_version_should_raise_exception(
+    protocol: Protocol,
+    protocol_version: ProtocolVersion,
+    protocol_version_service: ProtocolVersionService,
+) -> None:
+    assert protocol_version_service.get_one(
+        protocol_id=protocol.id, version_id=protocol_version.id
+    )
+
+    protocol_version_service.remove_one(
+        protocol_id=protocol.id, version_id=protocol_version.id
+    )
+
+    with pytest.raises(
+        ProtocolVersionNotFoundException, match="404: Protocol version not found"
+    ):
+        protocol_version_service.get_one(
+            protocol_id=protocol.id, version_id=protocol_version.id
         )
-        # setup service
-        self.protocol_service = ProtocolService()
-        self.protocol_version_service = ProtocolVersionService(
-            protocol_service=self.protocol_service,
-        )
-        # arrange
-        self.mock_protocol = self.protocol_service.add_one(
-            protocol_type="Directive",
-            name="example name",
-            description="example description",
-        )
-
-    def test_add_one_protocol_version(self) -> None:
-        expected_protocol_version = self.protocol_version_service.add_one(
-            protocol_id=self.mock_protocol.id,
-            version="some version",
-            description="some description",
-        )
-
-        actual_protocol_version = self.protocol_version_service.get_one(
-            protocol_id=self.mock_protocol.id,
-            version_id=expected_protocol_version.id
-        )
-
-        self.assertEqual(expected_protocol_version.id, actual_protocol_version.id)
-        self.assertEqual(
-            expected_protocol_version.version, actual_protocol_version.version
-        )
-
-    def test_get_one_protocol_versions(self) -> None:
-        expected_db_protocol_version = self.protocol_version_service.add_one(
-            protocol_id=self.mock_protocol.id,
-            version="some version",
-            description="some description",
-        )
-        expected_protocol_versions = [expected_db_protocol_version.to_dict()]
-
-        actual_db_protocol_versions = self.protocol_service.get_one(
-            protocol_id=self.mock_protocol.id
-        ).versions
-        actual_protocol_versions = [
-            version.to_dict() for version in actual_db_protocol_versions
-        ]
-
-        self.assertCountEqual(expected_protocol_versions, actual_protocol_versions)
-
-    def test_get_one_protocol_version(self) -> None:
-        expected_protocol_version = self.protocol_version_service.add_one(
-            protocol_id=self.mock_protocol.id,
-            version="some version",
-            description="some description",
-        )
-
-        actual_protocol_version = self.protocol_version_service.get_one(
-            protocol_id=self.mock_protocol.id,
-            version_id=expected_protocol_version.id
-        )
-
-        self.assertEqual(expected_protocol_version.id, actual_protocol_version.id)
-        self.assertEqual(
-            expected_protocol_version.version, actual_protocol_version.version
-        )
-        self.assertEqual(
-            expected_protocol_version.description, actual_protocol_version.description
-        )
-
-    def test_fetching_a_deleted_version_should_raise_exception(self) -> None:
-        mock_protocol_version = self.protocol_version_service.add_one(
-            protocol_id=self.mock_protocol.id,
-            version="some version",
-            description="some description",
-        )
-
-        self.protocol_version_service.remove_one(
-            protocol_id=self.mock_protocol.id,
-            version_id=mock_protocol_version.id
-        )
-
-        with self.assertRaises(ProtocolVersionNotFoundException) as context:
-            self.protocol_version_service.get_one(
-                protocol_id=self.mock_protocol.id,
-                version_id=mock_protocol_version.id
-            )
-
-            self.assertTrue("not found" in str(context.exception))

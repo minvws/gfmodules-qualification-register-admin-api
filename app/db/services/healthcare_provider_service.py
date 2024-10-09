@@ -5,18 +5,18 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.healthcare_provider import HealthcareProvider
-from app.db.repository.healthcare_provider_repository import (
+from app.db.entities import HealthcareProvider
+from app.db.repository import (
     HealthcareProviderRepository,
+    ProtocolVersionRepository,
 )
-from app.db.repository.protocol_version_repository import ProtocolVersionRepository
 from app.exceptions.app_exceptions import (
     HealthcareProviderNotFoundException,
     URACodeAlreadyExists,
     AGBCodeAlreadyExists,
     ProtocolVersionNotFoundException,
 )
-from app.factory.healthcare_provider_factory import HealthcareProviderFactory
+from app.factory import HealthcareProviderFactory
 from app.schemas.healthcare_provider.mapper import map_healthcare_provider_entity_to_dto
 from app.schemas.healthcare_provider.schema import HealthcareProviderDto
 from app.schemas.meta.schema import Page
@@ -27,6 +27,7 @@ class HealthcareProviderService:
     def get_one(
         self,
         provider_id: UUID,
+        *,
         healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
     ) -> HealthcareProvider:
         healthcare_provider = healthcare_provider_repository.get(id=provider_id)
@@ -40,6 +41,7 @@ class HealthcareProviderService:
         self,
         limit: int,
         offset: int,
+        *,
         healthcare_providers_repository: HealthcareProviderRepository = get_repository(),
     ) -> Page[HealthcareProviderDto]:
         healthcare_providers = healthcare_providers_repository.get_many(
@@ -61,6 +63,7 @@ class HealthcareProviderService:
         trade_name: str,
         statutory_name: str,
         protocol_version_id: UUID,
+        *,
         healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> HealthcareProvider:
@@ -95,6 +98,7 @@ class HealthcareProviderService:
     def remove_one(
         self,
         provider_id: UUID,
+        *,
         healthcare_provider_repository: HealthcareProviderRepository = get_repository(),
     ) -> HealthcareProvider:
         healthcare_provider = healthcare_provider_repository.get(id=provider_id)

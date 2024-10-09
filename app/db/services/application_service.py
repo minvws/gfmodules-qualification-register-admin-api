@@ -6,16 +6,14 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.repository.role_repository import RoleRepository
-from app.db.repository.system_type_repository import SystemTypeRepository
-from app.db.repository.vendor_repository import VendorRepository
-from app.db.entities.application import Application
-from app.db.repository.application_repository import ApplicationRepository
+from app.db.repository import RoleRepository, SystemTypeRepository, VendorRepository
+from app.db.entities import Application
+from app.db.repository import ApplicationRepository
 from app.exceptions.app_exceptions import (
     ApplicationNotFoundException,
     ApplicationAlreadyExistsException,
 )
-from app.factory.application_factory import ApplicationFactory
+from app.factory import ApplicationFactory
 from app.schemas.application.mapper import map_application_entity_to_dto
 from app.schemas.application.schema import ApplicationDto
 from app.schemas.meta.schema import Page
@@ -24,7 +22,7 @@ from app.schemas.meta.schema import Page
 class ApplicationService:
     @session_manager
     def get_by_vendor_id(
-        self, vendor_id: UUID, vendor_repository: VendorRepository = get_repository()
+        self, vendor_id: UUID, *, vendor_repository: VendorRepository = get_repository()
     ) -> Sequence[Application]:
         vendor = vendor_repository.get_or_fail(id=vendor_id)
         return vendor.applications
@@ -33,6 +31,7 @@ class ApplicationService:
     def get_one(
         self,
         application_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
     ) -> Application:
         application = application_repository.get(id=application_id)
@@ -45,6 +44,7 @@ class ApplicationService:
     def remove_one(
         self,
         application_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
     ) -> Application:
         application = self.get_one(application_id)
@@ -59,6 +59,7 @@ class ApplicationService:
         self,
         application_name: str,
         vendor_id: UUID,
+        *,
         application_repository: ApplicationRepository = get_repository(),
     ) -> Application:
         application = application_repository.get(
@@ -78,6 +79,7 @@ class ApplicationService:
         version: str,
         role_names: List[str],
         system_type_names: List[str],
+        *,
         application_repository: ApplicationRepository = get_repository(),
         vendor_repository: VendorRepository = get_repository(),
         system_type_repository: SystemTypeRepository = get_repository(),
@@ -113,6 +115,7 @@ class ApplicationService:
         self,
         limit: int,
         offset: int,
+        *,
         application_repository: ApplicationRepository = get_repository(),
     ) -> Page[ApplicationDto]:
         applications = application_repository.get_many(limit=limit, offset=offset)

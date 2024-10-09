@@ -6,11 +6,8 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.protocol_version import ProtocolVersion
-from app.db.repository.application_version_repository import (
-    ApplicationVersionRepository,
-)
-from app.db.repository.protocol_version_repository import ProtocolVersionRepository
+from app.db.entities import ProtocolVersion
+from app.db.repository import ApplicationVersionRepository, ProtocolVersionRepository
 from app.exceptions.app_exceptions import (
     ProtocolVersionNotFoundException,
     ApplicationVersionNotFoundException,
@@ -18,9 +15,7 @@ from app.exceptions.app_exceptions import (
     AppVersionAlreadyArchivedException,
     AppVersionNotQualifiedForProtocolException,
 )
-from app.factory.protocol_application_qualification_factory import (
-    ProtocolApplicationQualificationFactory,
-)
+from app.factory import ProtocolApplicationQualificationFactory
 
 
 class ProtocolApplicationQualificationService:
@@ -30,6 +25,7 @@ class ProtocolApplicationQualificationService:
         protocol_version_id: UUID,
         application_version_id: UUID,
         qualification_date: date,
+        *,
         application_version_repository: ApplicationVersionRepository = get_repository(),
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> ProtocolVersion:
@@ -60,7 +56,6 @@ class ProtocolApplicationQualificationService:
         )
 
         protocol_version.qualified_application_versions.append(new_qualification)
-        protocol_version_repository.update(protocol_version)
 
         return protocol_version
 
@@ -69,6 +64,7 @@ class ProtocolApplicationQualificationService:
         self,
         application_version_id: UUID,
         protocol_version_id: UUID,
+        *,
         application_version_repository: ApplicationVersionRepository = get_repository(),
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> ProtocolVersion:
@@ -91,7 +87,6 @@ class ProtocolApplicationQualificationService:
                     raise AppVersionAlreadyArchivedException()
 
                 qualified_app.archived_date = datetime.now()
-                protocol_version_repository.update(protocol_version)
                 return protocol_version
 
         raise AppVersionNotQualifiedForProtocolException()

@@ -1,82 +1,56 @@
-import unittest
+import pytest
 
-import inject
-
-from app.db.db import Database
+from app.db.entities import Role
+from app.db.services import RoleService
 from app.exceptions.app_exceptions import RoleNotFoundException
-from app.db.services.roles_service import RoleService
+from app.schemas.meta.schema import Page
 from app.schemas.roles.mapper import map_role_model_to_dto
-from tests.utils.config_binder import config_binder
+
+from .utils import are_the_same_entity
 
 
-class TestRoleService(unittest.TestCase):
+def test_create_role(role_service: RoleService) -> None:
+    expected_role = role_service.add_one(
+        name="example role", description="some description"
+    )
+    actual_role = role_service.get_one(role_id=expected_role.id)
 
-    def setUp(self) -> None:
-        # setup tables
-        self.database = Database("sqlite:///:memory:")
-        self.database.generate_tables()
-        # setup factory
-        inject.configure(
-            lambda binder: config_binder(binder, self.database),
-            clear=True,
+    assert are_the_same_entity(actual_role, expected_role)
+
+
+def test_update_role_description(role: Role, role_service: RoleService) -> None:
+    expected_role = role_service.update_role_description(
+        role_id=role.id, description="new description"
+    )
+    actual_role = role_service.get_one(role_id=role.id)
+    assert role.id == expected_role.id == actual_role.id
+    assert role.description != actual_role.description
+    assert expected_role.description == actual_role.description
+
+
+def test_delete_role(role: Role, role_service: RoleService) -> None:
+    actual_role = role_service.remove_one(role_id=role.id)
+
+    assert are_the_same_entity(actual_role, role)
+
+    with pytest.raises(RoleNotFoundException, match="404: Role not found"):
+        role_service.get_one(role.id)
+
+
+def test_get_many_roles(role: Role, role_service: RoleService) -> None:
+    assert all(
+        are_the_same_entity(actual, expected)
+        for actual, expected in zip(
+            role_service.get_many_by_names([role.name]),
+            [role],
         )
-        # setup service
-        self.role_service = RoleService()
+    )
 
-    def test_create_role(self) -> None:
-        # act
-        expected_role = self.role_service.add_one(
-            name="example role", description="some description"
-        )
-        actual_role = self.role_service.get_one(role_id=expected_role.id)
 
-        # assert
-        self.assertEqual(expected_role.id, actual_role.id)
-        self.assertEqual(expected_role.name, actual_role.name)
-        self.assertEqual(expected_role.description, actual_role.description)
-
-    def test_update_role_description(self) -> None:
-        mock_role = self.role_service.add_one(
-            name="example role", description="old description"
-        )
-
-        expected_role = self.role_service.update_role_description(
-            role_id=mock_role.id, description="new description"
-        )
-        actual_role = self.role_service.get_one(role_id=mock_role.id)
-
-        self.assertEqual(expected_role.description, actual_role.description)
-        self.assertEqual(expected_role.id, actual_role.id)
-
-    def test_delete_role(self) -> None:
-        expected_role = self.role_service.add_one(
-            name="example role", description="some description"
-        )
-        actual_role = self.role_service.remove_one(role_id=expected_role.id)
-
-        self.assertEqual(expected_role.id, actual_role.id)
-
-        with self.assertRaises(RoleNotFoundException) as context:
-            self.role_service.get_one(expected_role.id)
-
-            self.assertTrue("does not exist" in str(context.exception))
-
-    def test_get_many_roles(self) -> None:
-        mock_role = self.role_service.add_one(
-            name="example role", description="some description"
-        )
-        expected_roles = [mock_role.to_dict()]
-        actual_db_roles = self.role_service.get_many_by_names([mock_role.name])
-        actual_roles = [role.to_dict() for role in actual_db_roles]
-
-        self.assertSequenceEqual(expected_roles, actual_roles)
-
-    def test_get_paginated_roles(self) -> None:
-        mock_role = self.role_service.add_one(
-            name="example role", description="some description"
-        )
-        expected_roles = [map_role_model_to_dto(mock_role)]
-        paginated_roles = self.role_service.get_paginated(limit=10, offset=0)
-        actual_roles = paginated_roles.items
-
-        self.assertSequenceEqual(expected_roles, actual_roles)
+def test_get_paginated_roles(role: Role, role_service: RoleService) -> None:
+    assert role_service.get_paginated(limit=10, offset=0) == Page(
+        items=[map_role_model_to_dto(role)],
+        limit=10,
+        offset=0,
+        total=1,
+    )

@@ -6,15 +6,14 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.protocol_version import ProtocolVersion
-from app.db.repository.protocol_repository import ProtocolRepository
-from app.db.repository.protocol_version_repository import ProtocolVersionRepository
-from app.db.services.protocol_service import ProtocolService
+from app.db.entities import ProtocolVersion
+from app.db.repository import ProtocolRepository, ProtocolVersionRepository
+from .protocol_service import ProtocolService
 from app.exceptions.app_exceptions import (
     ProtocolNotFoundException,
     ProtocolVersionNotFoundException,
 )
-from app.factory.protocol_version_factory import ProtocolVersionFactory
+from app.factory import ProtocolVersionFactory
 
 
 class ProtocolVersionService:
@@ -29,9 +28,12 @@ class ProtocolVersionService:
         self,
         protocol_id: UUID,
         version_id: UUID,
+        *,
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> ProtocolVersion:
-        protocol_version = protocol_version_repository.get(id=version_id, protocol_id=protocol_id)
+        protocol_version = protocol_version_repository.get(
+            id=version_id, protocol_id=protocol_id
+        )
         if protocol_version is None:
             raise ProtocolVersionNotFoundException()
 
@@ -43,6 +45,7 @@ class ProtocolVersionService:
         protocol_id: UUID,
         version: str,
         description: str | None,
+        *,
         protocol_repository: ProtocolRepository = get_repository(),
     ) -> ProtocolVersion:
         protocol = protocol_repository.get(id=protocol_id)
@@ -53,7 +56,6 @@ class ProtocolVersionService:
             version=version, description=description
         )
         protocol.versions.append(new_protocol_version)
-        protocol_repository.update(protocol)
 
         return new_protocol_version
 
@@ -62,6 +64,7 @@ class ProtocolVersionService:
         self,
         protocol_id: UUID,
         version_id: UUID,
+        *,
         protocol_repository: ProtocolRepository = get_repository(),
         protocol_version_repository: ProtocolVersionRepository = get_repository(),
     ) -> Sequence[ProtocolVersion]:
@@ -74,6 +77,5 @@ class ProtocolVersionService:
             raise ProtocolVersionNotFoundException()
 
         protocol.versions.remove(protocol_version)
-        protocol_repository.update(protocol)
 
         return protocol.versions

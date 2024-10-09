@@ -3,9 +3,8 @@ import uuid
 from random import randint
 from typing import Sequence, List
 
-from gfmodules_python_shared.session.session_factory import DbSessionFactory
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import get_config
 from app.db.db import Database
@@ -50,7 +49,7 @@ config = get_config()
 
 db = Database(dsn=config.database.dsn)
 
-session_factory = DbSessionFactory(db.engine)
+session_factory = sessionmaker(db.engine)
 
 fake = Faker("nl_nl")
 
@@ -306,8 +305,7 @@ def create_healthcare_providers(
 
 
 def run():
-    db_session = session_factory.create()
-    with db_session.session as session:
+    with session_factory() as session:
         # define roles in the database
         roles = create_roles(session)
         for role in roles:

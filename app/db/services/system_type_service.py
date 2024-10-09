@@ -6,13 +6,13 @@ from gfmodules_python_shared.session.session_manager import (
     get_repository,
 )
 
-from app.db.entities.system_type import SystemType
-from app.db.repository.system_type_repository import SystemTypeRepository
+from app.db.entities import SystemType
+from app.db.repository import SystemTypeRepository
 from app.exceptions.app_exceptions import (
     SystemTypeNotFoundException,
     SystemTypeAlreadyExistsException,
 )
-from app.factory.system_type_factory import SystemTypeFactory
+from app.factory import SystemTypeFactory
 from app.helpers.validators import validate_sets_equal
 from app.schemas.meta.schema import Page
 from app.schemas.system_type.mapper import map_system_type_entity_to_dto
@@ -25,10 +25,13 @@ class SystemTypeService:
         self,
         limit: int,
         offset: int,
+        *,
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Page[SystemTypeDto]:
         system_types = system_type_repository.get_many(limit=limit, offset=offset)
-        dto = [map_system_type_entity_to_dto(system_type) for system_type in system_types]
+        dto = [
+            map_system_type_entity_to_dto(system_type) for system_type in system_types
+        ]
         total = system_type_repository.count()
 
         return Page(items=dto, limit=limit, offset=offset, total=total)
@@ -37,6 +40,7 @@ class SystemTypeService:
     def get_one(
         self,
         system_type_id: UUID,
+        *,
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> SystemType:
         system_type = system_type_repository.get(id=system_type_id)
@@ -50,6 +54,7 @@ class SystemTypeService:
         self,
         name: str,
         description: str | None,
+        *,
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> SystemType:
         system_type = system_type_repository.get(name=name)
@@ -67,6 +72,7 @@ class SystemTypeService:
     def delete_one(
         self,
         system_type_id: UUID,
+        *,
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> SystemType:
         system_type = system_type_repository.get(id=system_type_id)
@@ -81,6 +87,7 @@ class SystemTypeService:
     def get_many_by_names(
         self,
         system_type_names: List[str],
+        *,
         system_type_repository: SystemTypeRepository = get_repository(),
     ) -> Sequence[SystemType]:
         system_types = system_type_repository.get_by_property(

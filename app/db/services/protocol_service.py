@@ -5,10 +5,10 @@ from gfmodules_python_shared.session.session_manager import (
     session_manager,
 )
 
-from app.db.entities.protocol import Protocol
-from app.db.repository.protocol_repository import ProtocolRepository
+from app.db.entities import Protocol
+from app.db.repository import ProtocolRepository
 from app.exceptions.app_exceptions import ProtocolNotFoundException
-from app.factory.protocol_factory import ProtocolFactory
+from app.factory import ProtocolFactory
 from app.schemas.meta.schema import Page
 from app.schemas.protocol.mapper import map_protocol_entity_to_dto
 from app.schemas.protocol.schema import ProtocolDto
@@ -19,6 +19,7 @@ class ProtocolService:
     def get_one(
         self,
         protocol_id: UUID,
+        *,
         protocol_repository: ProtocolRepository = get_repository(),
     ) -> Protocol:
         protocol = protocol_repository.get(id=protocol_id)
@@ -33,6 +34,7 @@ class ProtocolService:
         protocol_type: str,
         name: str,
         description: str,
+        *,
         protocol_repository: ProtocolRepository = get_repository(),
     ) -> Protocol:
         new_protocol = ProtocolFactory.create_instance(
@@ -46,6 +48,7 @@ class ProtocolService:
     def remove_one(
         self,
         protocol_id: UUID,
+        *,
         protocol_repository: ProtocolRepository = get_repository(),
     ) -> Protocol:
         protocol = protocol_repository.get(id=protocol_id)
@@ -61,6 +64,7 @@ class ProtocolService:
         self,
         limit: int,
         offset: int,
+        *,
         protocol_repository: ProtocolRepository = get_repository(),
     ) -> Page[ProtocolDto]:
         protocols = protocol_repository.get_many(limit=limit, offset=offset)
