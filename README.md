@@ -7,15 +7,24 @@ who are qualified for specific information standards. This can be used as a step
 localization process to make an initial selection of where information about a patient
 for a specific care context, also called the exchange, can be found.
 
+The qualification register is not part of GFModules main stack. Yet, it sits
+in the background for further explorations at later stages.
+
 ## Design
 
 The qualification register is split up in two main parts:
+
 - The register
 - The administration portal
 
-The current setup only supplies an API for a future portal to be built. 
+The current setup only supplies an API for a future portal to be built.
 
 ![alt text](assets/qualification-setup.png "Title")
+
+## Disclaimer
+
+This application is currently in a PoC stage and currently under development.
+It is not intended yet to be used in a production like manner.
 
 ## First run
 
@@ -26,8 +35,7 @@ repository is checked out, just run the following command:
 make autopilot
 ```
 
-This will configure the whole system for you and you should be able to use the API right away at https://localhost:8506/docs
-
+This will configure the whole system for you and you should be able to use the API right away at <https://localhost:8506/docs>
 
 ## Usage
 
@@ -65,4 +73,3 @@ Because this application doesn't have a business layer (Yet) the application is 
 below for an example entity split up into the 2 layers.
 
 ![ApplicationLayers](docs/ApplicationLayers.png "Application Layers")
-
