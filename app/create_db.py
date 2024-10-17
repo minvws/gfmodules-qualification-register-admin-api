@@ -1,8 +1,7 @@
-import container
-import fastapi_application
+from gfmodules_python_shared.schema.sql_model import SQLModelBase
+from .container import get_engine
+from .fastapi_application import application_init
 
 if __name__ == "__main__":
-    fastapi_application.application_init()
-
-    db = container.get_database()
-    db.generate_tables()
+    application_init()
+    SQLModelBase.metadata.create_all(get_engine())
