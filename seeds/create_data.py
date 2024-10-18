@@ -3,11 +3,10 @@ import uuid
 from random import randint
 from typing import Sequence, List
 
-from sqlalchemy import select
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import get_config
-from app.db.db import Database
 from app.db.entities.application import Application
 from app.db.entities.application_role import ApplicationRole
 from app.db.entities.application_type import ApplicationType
@@ -47,9 +46,9 @@ count = args.count
 
 config = get_config()
 
-db = Database(dsn=config.database.dsn)
+engine = create_engine(config.database.dsn)
 
-session_factory = sessionmaker(db.engine)
+session_factory = sessionmaker(engine)
 
 fake = Faker("nl_nl")
 

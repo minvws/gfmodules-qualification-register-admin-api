@@ -1,10 +1,8 @@
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends
-
-from app import container
-from app.db.db import Database
+from fastapi import APIRouter
+from gfmodules_python_shared.session.healthy import is_healthy_database
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -15,12 +13,14 @@ def ok_or_error(value: bool) -> str:
 
 
 @router.get("/health")
-def health(db: Database = Depends(container.get_database)) -> dict[str, Any]:
+def health() -> dict[str, Any]:
     logger.info("Checking database health")
 
     components = {
-        "database": ok_or_error(db.is_healthy()),
+        "database": ok_or_error(is_healthy_database()),
     }
-    healthy = ok_or_error(all(value == "ok" for value in components.values()))
 
-    return {"status": healthy, "components": components}
+    return {
+        "status": ok_or_error(all(value == "ok" for value in components.values())),
+        "components": components,
+    }

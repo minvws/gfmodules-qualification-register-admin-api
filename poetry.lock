@@ -497,8 +497,8 @@ sqlalchemy = "^2.0.25"
 [package.source]
 type = "git"
 url = "https://github.com/minvws/gfmodules-python-shared-private.git"
-reference = "v0.1.0"
-resolved_reference = "b3869ca9adc8ec634e592ede109bf2e51fc2aa8c"
+reference = "v0.1.1"
+resolved_reference = "8295e3b724f3bf6b08a817f933551316c5642782"
 
 [[package]]
 name = "greenlet"
@@ -1934,4 +1934,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a93f1e588d6bee9a462fcfc49915511f2caaa2f2116713238bf7a667813c46de"
+content-hash = "6a77520f16edc56af44474bbadd2d6de2921bf5e935bdf6c02d57ae27ddbf02b"

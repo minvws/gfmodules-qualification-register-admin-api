@@ -1,7 +1,7 @@
 import inject
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.db.db import Database
 from app.config import get_config
 from app.db.services import (
     ApplicationService,
@@ -22,69 +22,49 @@ from app.db.services import (
 
 def container_config(binder: inject.Binder) -> None:
     config = get_config()
-
-    db = Database(dsn=config.database.dsn)
-    binder.bind(Database, db)
-    binder.bind(sessionmaker[Session], sessionmaker(db.engine))
-
-    vendors_service = VendorService()
-    binder.bind(VendorService, vendors_service)
-
-    roles_service = RoleService()
-    binder.bind(RoleService, roles_service)
-
-    system_type_service = SystemTypeService()
-    binder.bind(SystemTypeService, system_type_service)
-
     application_service = ApplicationService()
-    binder.bind(ApplicationService, application_service)
-
-    application_version_service = ApplicationVersionService(
-        application_service=application_service,
-    )
-    binder.bind(ApplicationVersionService, application_version_service)
-
-    application_roles_service = ApplicationRolesService(
-        application_service=application_service
-    )
-    binder.bind(ApplicationRolesService, application_roles_service)
-
-    application_type_service = ApplicationTypeService()
-    binder.bind(ApplicationTypeService, application_type_service)
-
     healthcare_provider_service = HealthcareProviderService()
-    binder.bind(HealthcareProviderService, healthcare_provider_service)
-
-    healthcare_provider_application_version_service = (
-        HealthcareProviderApplicationVersionService(
-            healthcare_provider_service=healthcare_provider_service,
-        )
-    )
-    binder.bind(
-        HealthcareProviderApplicationVersionService,
-        healthcare_provider_application_version_service,
-    )
-
     protocol_service = ProtocolService()
-    binder.bind(ProtocolService, protocol_service)
-
-    protocol_version_service = ProtocolVersionService(
-        protocol_service=protocol_service,
-    )
-    binder.bind(ProtocolVersionService, protocol_version_service)
-
-    protocol_application_qualification_service = (
-        ProtocolApplicationQualificationService()
-    )
-    binder.bind(
-        ProtocolApplicationQualificationService,
-        protocol_application_qualification_service,
+    engine = create_engine(
+        config.database.dsn, echo=False, pool_recycle=25, pool_size=10
     )
 
-    healthcare_provider_qualification_service = HealthcareProviderQualificationService()
-    binder.bind(
-        HealthcareProviderQualificationService,
-        healthcare_provider_qualification_service,
+    (
+        binder.bind(Engine, engine)
+        .bind(sessionmaker[Session], sessionmaker(engine))
+        .bind(VendorService, VendorService())
+        .bind(RoleService, RoleService())
+        .bind(SystemTypeService, SystemTypeService())
+        .bind(ApplicationService, application_service)
+        .bind(ApplicationTypeService, ApplicationTypeService())
+        .bind(ProtocolService, protocol_service)
+        .bind(HealthcareProviderService, healthcare_provider_service)
+        .bind(
+            ApplicationVersionService,
+            ApplicationVersionService(application_service=application_service),
+        )
+        .bind(
+            ApplicationRolesService,
+            ApplicationRolesService(application_service=application_service),
+        )
+        .bind(
+            HealthcareProviderApplicationVersionService,
+            HealthcareProviderApplicationVersionService(
+                healthcare_provider_service=healthcare_provider_service
+            ),
+        )
+        .bind(
+            ProtocolVersionService,
+            ProtocolVersionService(protocol_service=protocol_service),
+        )
+        .bind(
+            ProtocolApplicationQualificationService,
+            ProtocolApplicationQualificationService(),
+        )
+        .bind(
+            HealthcareProviderQualificationService,
+            HealthcareProviderQualificationService(),
+        )
     )
 
 
@@ -146,8 +126,8 @@ def get_healthcare_provider_qualification_service() -> (
     return inject.instance(HealthcareProviderQualificationService)
 
 
-def get_database() -> Database:
-    return inject.instance(Database)
+def get_engine() -> Engine:
+    return inject.instance(Engine)
 
 
 if not inject.is_configured():
